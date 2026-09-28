@@ -1,0 +1,19 @@
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - forms
+  forms:
+    image: node:22-alpine
+    working_dir: /app
+    command: ["node", "server/forms-telegram.mjs"]
+    volumes:
+      - ./server:/app/server:ro
+    env_file: .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 32026
+    restart: unless-stopped

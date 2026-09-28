@@ -1,0 +1,17 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/lead",
+      "destination": "https://debt-2026-lite.176.98.177.253.sslip.io/api/lead"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}

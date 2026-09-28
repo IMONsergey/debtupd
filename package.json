@@ -1,0 +1,28 @@
+{
+  "name": "debtupd",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "forms:telegram": "node server/forms-telegram.mjs",
+    "test": "node --test src/lib/corporate-pricing.test.js server/forms-telegram.test.mjs",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "lucide-react": "^1.43.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "prettier": "3.9.9",
+    "vite": "^7.1.2"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

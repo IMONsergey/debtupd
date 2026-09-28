@@ -1,0 +1,41 @@
+name: Visual preview
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+        env:
+          VITE_BASE_PATH: /debtupd/
+          # Visual preview only: the live API must allow this origin for direct POST.
+          VITE_FORMS_ENDPOINT: https://www.debt-tech.ru/api/lead
+      - name: Keep preview out of search results
+        run: |
+          node -e "const fs=require('fs');const p='dist/index.html';fs.writeFileSync(p,fs.readFileSync(p,'utf8').replace('<head>','<head><meta name=\"robots\" content=\"noindex,nofollow\">'));fs.writeFileSync('dist/robots.txt','User-agent: *\\nDisallow: /\\n');"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v4
