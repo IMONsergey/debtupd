@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { ArrowUpRight, ArrowLeft, ArrowRight, Menu, X, Play, Info } from 'lucide-react';
+import { ArrowUpRight, ArrowLeft, ArrowRight, Play, Info } from 'lucide-react';
 import { content } from './content.js';
 import { topics, stages, spaces, audience, partnerNames } from './data.js';
 import speakers from './speakers.json';
 import artDimensions from './art-dimensions.json';
-import { SpaceNavigation } from './components/SpaceNavigation.jsx';
+import { ProductionMenu } from './components/ProductionMenu.jsx';
 import { ApplicationModal, CorporateForm } from './components/Forms.jsx';
 import { MediaModal } from './components/MediaModal.jsx';
-import { useDialog } from './lib/useDialog.js';
 import { assetUrl } from './lib/assets.js';
 import { initAnalytics, goal } from './lib/forms.js';
 const art = (n) => assetUrl('assets/figma/' + n.replace(/\.png$/, '.webp'));
@@ -101,37 +99,6 @@ function InfoBlock({ onVideo, onStand, sidebar = false }) {
     </div>
   );
 }
-function Drawer({ onClose, onVideo, onStand, onGallery }) {
-  const ref = useRef(null);
-  useDialog(ref, onClose);
-  return createPortal(
-    <div
-      className="drawer-backdrop"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <section
-        className="drawer"
-        ref={ref}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Меню сайта"
-        tabIndex={-1}
-      >
-        <div className="drawer-heading">
-          <img src={assetUrl('assets/debttech-logo.svg')} alt="DEBT TECH 2026" width="110" />
-          <button className="icon-button" aria-label="Закрыть меню" onClick={onClose}>
-            <X />
-          </button>
-        </div>
-        <SpaceNavigation onGallery={onGallery} onNavigate={onClose} />
-        <InfoBlock sidebar onVideo={onVideo} onStand={onStand} />
-      </section>
-    </div>,
-    document.body,
-  );
-}
 function Countdown() {
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -162,24 +129,20 @@ function Countdown() {
     </div>
   );
 }
-function Hero({ onMenu, menuOpen }) {
+function Hero() {
   return (
     <header className="hero" id="top">
       <div className="hero-visual" aria-hidden="true">
-        <Picture className="hero-scene" name="hero-stars.png" eager />
+        <picture>
+          <source media="(max-width:599px)" srcSet={art('hero-background-phone.webp')} />
+          <source media="(max-width:1180px)" srcSet={art('hero-background-tablet.webp')} />
+          <Picture className="hero-scene" name="hero-background-original.webp" eager />
+        </picture>
         <div className="hero-rays" />
         <Picture className="hero-wordmark" name="hero-wordmark.png" eager />
       </div>
       <div className="mobile-brand">
         <img src={assetUrl('assets/debttech-logo.svg')} alt="DEBT TECH 2026" />
-        <button
-          onClick={onMenu}
-          className="icon-button menu-toggle"
-          aria-label="Открыть меню"
-          aria-expanded={menuOpen}
-        >
-          <Menu />
-        </button>
       </div>
       <h1 className="sr-only">
         DEBT TECH 2026 — форум-выставка технологий на рынке долговых активов
@@ -502,7 +465,7 @@ function Speakers() {
                   <span key={i}>{part}</span>
                 ))}
               </h3>
-              <p>{s.role.replaceAll('\u2028', ' ')}</p>
+              <p>{s.role.replaceAll('\u2028', '\n')}</p>
             </div>
           </article>
         ))}
@@ -951,26 +914,22 @@ function useMotion() {
   }, []);
 }
 export default function App() {
-  const [drawer, setDrawer] = useState(false),
-    [form, setForm] = useState(null),
+  const [form, setForm] = useState(null),
     [media, setMedia] = useState(null);
-  const closeDrawer = useCallback(() => setDrawer(false), []),
-    closeForm = useCallback(() => setForm(null), []),
+  const closeForm = useCallback(() => setForm(null), []),
     closeMedia = useCallback(() => setMedia(null), []);
   const openForm = (kind = 'early-registration', tariff = null) => {
-    setDrawer(false);
     setForm({ kind, tariff });
     goal('form_open', { form: kind, tariff: tariff?.id || '' });
   };
   const openMedia = (kind) => {
-    setDrawer(false);
     setMedia(kind);
     goal(kind === 'video' ? 'video_open' : 'gallery_open');
   };
   useMotion();
   return (
     <>
-      <div id="page-content">
+      <div id="page-content" className="hero-only-view">
         <a className="skip-link" href="#about-forum">
           Перейти к содержимому
         </a>
@@ -979,18 +938,12 @@ export default function App() {
           <i />
           <i />
         </div>
-        <aside className="sidebar">
-          <a className="sidebar-brand" href="#top" aria-label="В начало страницы">
-            <img src={assetUrl('assets/debttech-logo.svg')} alt="DEBT TECH 2026" width="139" />
-          </a>
-          <SpaceNavigation onGallery={() => openMedia('gallery')} />
-          <InfoBlock
-            sidebar
-            onVideo={() => openMedia('video')}
-            onStand={() => openForm('stand-booking')}
-          />
-        </aside>
-        <Hero onMenu={() => setDrawer(true)} menuOpen={drawer} />
+        <ProductionMenu
+          onVideo={() => openMedia('video')}
+          onGallery={() => openMedia('gallery')}
+          onStand={() => openForm('stand-booking')}
+        />
+        <Hero />
         <main className="main-grid">
           <div className="mobile-info">
             <InfoBlock
@@ -1018,14 +971,6 @@ export default function App() {
           <a href="#top" className="footer-top" aria-label="Вернуться в начало страницы" />
         </footer>
       </div>
-      {drawer && (
-        <Drawer
-          onClose={closeDrawer}
-          onVideo={() => openMedia('video')}
-          onStand={() => openForm('stand-booking')}
-          onGallery={() => openMedia('gallery')}
-        />
-      )}{' '}
       {form && <ApplicationModal {...form} onClose={closeForm} />}{' '}
       {media && <MediaModal kind={media} onClose={closeMedia} />}
     </>

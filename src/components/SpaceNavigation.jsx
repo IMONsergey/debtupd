@@ -170,6 +170,7 @@ export function SpaceNavigation({ mobile = false, onGallery, onNavigate }) {
   const navigate = (event, item) => {
     if (item.id === 'gallery' && onGallery) {
       event.preventDefault();
+      setOpen(false);
       onGallery();
       return;
     }

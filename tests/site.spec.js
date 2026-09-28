@@ -37,18 +37,23 @@ for (const width of widths)
     await expect(page.locator('#panel-0')).toHaveAttribute('inert', '');
     expect(Math.abs((await section.boundingBox()).height - h1)).toBeLessThan(2);
   });
-test('Mobile menu closes, scrolls to tariff, traps and restores focus', async ({ page }) => {
+test('Production mobile menu closes on Escape, outside click and navigation', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   const trigger = page.getByRole('button', { name: 'Открыть меню' });
+  const menu = page.getByRole('navigation', { name: 'Разделы сайта' });
   await trigger.click();
-  await expect(page.getByRole('dialog', { name: 'Меню сайта' })).toBeVisible();
-  await expect(page.locator('#page-content')).toHaveAttribute('inert', '');
+  await expect(menu).toBeVisible();
+  await expect(menu.getByRole('link')).toHaveCount(7);
   await page.keyboard.press('Escape');
+  await expect(menu).toBeHidden();
   await expect(trigger).toBeFocused();
   await trigger.click();
-  await page.getByRole('dialog').getByRole('link', { name: 'Тарифы', exact: true }).click();
-  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.locator('.hero-lead p').click();
+  await expect(menu).toBeHidden();
+  await trigger.click();
+  await menu.getByRole('link', { name: 'Тарифы', exact: true }).click();
+  await expect(menu).toBeHidden();
   await expect
     .poll(() =>
       page.evaluate(() =>
@@ -56,7 +61,6 @@ test('Mobile menu closes, scrolls to tariff, traps and restores focus', async ({
       ),
     )
     .toBeLessThan(3);
-  expect(await page.locator('#page-content').evaluate((n) => n.inert)).toBe(false);
 });
 async function openRegistration(page) {
   await page.goto('/?utm_source=qa&utm_campaign=local');
@@ -146,7 +150,7 @@ test('Stand form retains the production payload contract', async ({ page }) => {
   });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
-  await page.locator('.sidebar').getByRole('button', { name: 'Забронировать стенд' }).click();
+  await page.locator('.fixed-menu').getByRole('button', { name: 'Забронировать стенд' }).click();
   const form = page.locator('#stand-booking-form');
   for (const [key, val] of Object.entries({
     full_name: 'Тест интерфейса',
@@ -172,15 +176,15 @@ test('Video loads on demand; gallery and conference controls work', async ({ pag
     r.fulfill({ body: '<p>Video embed intercepted</p>', contentType: 'text/html' }),
   );
   await page.goto('/');
-  await expect(page.locator('iframe')).toHaveCount(0);
-  await page
-    .locator('.sidebar')
-    .getByRole('button', { name: 'Смотреть видео DEBT TECH 2025' })
-    .click();
-  await expect(page.locator('iframe')).toHaveAttribute('src', /dd7dQ3BMbTCeSfteZFXCiS/);
+  await expect(page.locator('.media-dialog iframe')).toHaveCount(0);
+  await page.locator('.fixed-menu').getByRole('button', { name: 'Открыть видео' }).click();
+  await expect(page.locator('.media-dialog iframe')).toHaveAttribute(
+    'src',
+    /dd7dQ3BMbTCeSfteZFXCiS/,
+  );
   await page.keyboard.press('Escape');
-  await expect(page.locator('iframe')).toHaveCount(0);
-  await page.locator('.sidebar').getByRole('link', { name: 'Кадры с DEBT TECH 2025' }).click();
+  await expect(page.locator('.media-dialog iframe')).toHaveCount(0);
+  await page.locator('.fixed-menu').getByRole('link', { name: 'Кадры с DEBT TECH 2025' }).click();
   await expect(page.locator('.gallery-controls')).toContainText('1 / 20');
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('.gallery-controls')).toContainText('2 / 20');
