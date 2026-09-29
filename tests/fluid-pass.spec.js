@@ -208,3 +208,21 @@ test('Decorative animation pauses underneath a modal and resumes without a jump'
       .evaluate((node) => getComputedStyle(node).animationPlayState),
   ).toBe('running');
 });
+
+test('Organizer and other conferences stay on the page but are omitted from both menus', async ({
+  page,
+}) => {
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await ready(page);
+    if (width < 1181) await page.getByRole('button', { name: 'Открыть меню' }).click();
+    const menu = page.getByRole('navigation', { name: 'Разделы сайта' });
+    await expect(menu.getByRole('link')).toHaveCount(8);
+    await expect(menu.getByRole('link', { name: 'Организатор', exact: true })).toHaveCount(0);
+    await expect(menu.getByRole('link', { name: 'Другие конференции', exact: true })).toHaveCount(
+      0,
+    );
+    await expect(page.locator('section#organizer')).toHaveCount(1);
+    await expect(page.locator('section#other-conferences')).toHaveCount(1);
+  }
+});
