@@ -260,3 +260,24 @@ test('Narrow-screen cards stay inside their grid and the status illustration lea
     ).toBe(false);
   }
 });
+
+test('Program titles fit the real content column with reserved scrollbars across tablet boundaries', async ({
+  page,
+}) => {
+  await ready(page, 1024);
+  await page.addStyleTag({
+    content: 'html{overflow-y:scroll;scrollbar-gutter:stable}::-webkit-scrollbar{width:15px}',
+  });
+  for (const width of [320, 360, 390, 430, 600, 768, 899, 900, 1024, 1180, 1181, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.locator('#tab-1').click();
+    const clipping = await page
+      .locator('#panel-1 h3')
+      .evaluateAll((nodes) =>
+        nodes
+          .filter((node) => node.scrollWidth > node.clientWidth + 2)
+          .map((node) => node.textContent),
+      );
+    expect(clipping, `${width}px reserved scrollbar`).toEqual([]);
+  }
+});

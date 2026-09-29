@@ -1286,3 +1286,13 @@
     line-height: 1.45;
   }
 }
+
+/* All space titles use the width of their text area, including classic-scrollbar tablets. */
+#panel-1 .participant-copy {
+  container-type: inline-size;
+}
+#panel-1 .participant-card .participant-copy h3 {
+  font-size: clamp(12px, 7.1cqi, 22px);
+  letter-spacing: 0;
+  line-height: 1.3;
+}
