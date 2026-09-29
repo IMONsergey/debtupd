@@ -27,3 +27,8 @@ test('Typography is idempotent and leaves non-string data untouched', () => {
   assert.equal(typeset(2026), 2026);
   assert.equal(typeset(null), null);
 });
+
+test('Inline text boundaries preserve spaces around links and emphasis', () => {
+  assert.equal(typeset('со скидкой '), 'со\u00a0скидкой ');
+  assert.equal(typeset(' Услуги для участников '), ' Услуги для\u00a0участников ');
+});

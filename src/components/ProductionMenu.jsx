@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { SpaceNavigation } from './SpaceNavigation.jsx';
 import { MenuAtmosphere } from './Cosmos.jsx';
 import { assetUrl } from '../lib/assets.js';
+import { content } from '../content.js';
 
 // Production navigation content with the shared CTA system and a feathered blur backdrop.
 export function ProductionMenu({ onVideo, onGallery, onStand }) {
@@ -32,6 +33,13 @@ export function ProductionMenu({ onVideo, onGallery, onStand }) {
                 height="268"
                 alt=""
                 decoding="async"
+              />
+              <iframe
+                src={content.heroVideo.previewUrl + '&playsinline=1&quality=240p'}
+                title="DEBT TECH 2025 — фоновое видео без звука"
+                allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+                tabIndex={-1}
+                aria-hidden="true"
               />
               <button
                 className="desktop-sidebar-video__open"

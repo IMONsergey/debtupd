@@ -27,6 +27,10 @@ for (const engine of engines) {
         : {}),
     });
     const page = await browser.newPage({ reducedMotion: 'reduce', deviceScaleFactor: 1 });
+    await page.addInitScript(() => sessionStorage.setItem('debt2026-early-booking-dismissed', '1'));
+    await page.route('https://kinescope.io/**', (route) =>
+      route.fulfill({ contentType: 'text/html', body: '<body>Video fixture</body>' }),
+    );
     await page.route('**/api/lead', (route) => route.abort('blockedbyclient'));
     let errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
@@ -48,6 +52,7 @@ for (const engine of engines) {
         null,
         { timeout: 20000 },
       );
+      await page.waitForSelector('#site-preloader', { state: 'detached', timeout: 12000 });
       const layout = await page.evaluate(() => {
         const visible = (element) => element.getBoundingClientRect().width > 0;
         const label = (element) => ({
@@ -109,7 +114,7 @@ for (const engine of engines) {
         !layout.distorted.length &&
         !errors.length &&
         layout.astronautTop >= -2 &&
-        layout.eagerVideoFrames === 0;
+        layout.eagerVideoFrames === (width > 1180 ? 1 : 0);
       if (screenshotWidths.has(width)) {
         for (const id of [
           'top',

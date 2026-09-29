@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test';
 test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.setItem('debt2026-early-booking-dismissed', '1'));
+  await page.route('https://kinescope.io/**', (route) =>
+    route.fulfill({ contentType: 'text/html', body: '<html><body>Video fixture</body></html>' }),
+  );
   await page.route('**/api/lead', (route) => route.abort('blockedbyclient'));
 });
 
@@ -132,51 +136,37 @@ test('Archive has feathered edges and its controls remain outside the mask', asy
   await button.click();
   await expect(page.locator('.conference-link-card.is-active')).not.toHaveAttribute('href', before);
 });
-test('CSS space reacts to pointer and scroll, then fully pauses on request', async ({ page }) => {
+test('CSS stars respond continuously with no floating playback control', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
+  await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 12000 });
+  await expect(page.locator('.motion-toggle')).toHaveCount(0);
   await expect(page.locator('.cosmos img,.cosmos canvas')).toHaveCount(0);
-  expect(
-    await page
-      .locator('.cosmos__nebula')
-      .evaluate((node) => getComputedStyle(node).backgroundImage),
-  ).toContain('radial-gradient');
   await page.mouse.move(1320, 220);
   await expect
     .poll(() =>
       page
-        .locator('.cosmos')
+        .locator('.cosmos .star-field')
         .evaluate((node) => parseFloat(node.style.getPropertyValue('--space-x')) || 0),
     )
     .toBeGreaterThan(3);
-  await page.evaluate(() => scrollTo({ top: 5000, behavior: 'instant' }));
+  await page.evaluate(() => scrollTo({ top: 4000, behavior: 'instant' }));
   await expect
     .poll(() =>
       page
-        .locator('.cosmos')
+        .locator('.cosmos .star-field')
         .evaluate((node) => parseFloat(node.style.getPropertyValue('--space-scroll')) || 0),
     )
     .toBeGreaterThan(5);
-  await page.getByRole('button', { name: 'Приостановить анимацию' }).click();
-  await expect(page.getByRole('button', { name: 'Включить анимацию' })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
   expect(
     await page
       .locator('.cosmos__stars')
       .first()
       .evaluate((node) => getComputedStyle(node).animationName),
-  ).toBe('none');
-  await page.getByRole('button', { name: 'Включить анимацию' }).click();
-  expect(
-    await page
-      .locator('.cosmos__stars')
-      .first()
-      .evaluate((node) => getComputedStyle(node).animationName),
-  ).toBe('space-drift');
+  ).toBe('stellar-drift');
 });
+
 test('Reduced motion disables both CSS and scripted entrance animation', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => scrollTo({ top: 4000, behavior: 'instant' }));

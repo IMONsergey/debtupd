@@ -31,14 +31,472 @@
     <link
       rel="preload"
       as="image"
-      href="%BASE_URL%assets/figma/hero-stars.webp"
+      href="%BASE_URL%assets/hero/planet.webp"
+      media="(min-width:700px)"
+      fetchpriority="high"
+    />
+    <link
+      rel="preload"
+      as="image"
+      href="%BASE_URL%assets/hero/planet-mobile.webp"
+      media="(max-width:699px)"
       fetchpriority="high"
     />
     <title>DEBT TECH 2026 — 13 ноября, Москва</title>
+    <link rel="stylesheet" href="/src/styles/preloader.css" />
   </head>
   <body>
+    <div
+      class="site-preloader"
+      id="site-preloader"
+      aria-label="Загрузка DEBT TECH 2026"
+      data-progress="1"
+    >
+      <svg
+        class="site-preloader__space"
+        viewBox="0 0 1600 1000"
+        preserveAspectRatio="xMidYMid slice"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <pattern id="intro-stars-far" width="337" height="293" patternUnits="userSpaceOnUse">
+            <g fill="#77b6e8">
+              <circle cx="18" cy="27" r=".7" />
+              <circle cx="86" cy="61" r="1" />
+              <circle cx="168" cy="19" r=".6" />
+              <circle cx="299" cy="88" r=".8" />
+              <circle cx="213" cy="106" r=".6" />
+              <circle cx="46" cy="171" r=".8" />
+              <circle cx="142" cy="128" r=".6" />
+              <circle cx="267" cy="217" r=".9" />
+              <circle cx="113" cy="267" r=".7" />
+              <circle cx="201" cy="245" r=".6" />
+              <circle cx="317" cy="278" r=".6" />
+              <circle cx="23" cy="253" r=".6" />
+            </g>
+          </pattern>
+          <pattern id="intro-stars-near" width="563" height="457" patternUnits="userSpaceOnUse">
+            <g fill="#d1f4ff">
+              <circle cx="59" cy="82" r="1.3" />
+              <circle cx="361" cy="36" r="1" />
+              <circle cx="251" cy="269" r="1.2" />
+              <circle cx="504" cy="389" r="1.4" />
+              <circle cx="106" cy="427" r="1" />
+            </g>
+            <path d="M443 145v10m-5-5h10" stroke="#7cdbff" stroke-width=".8" />
+            <circle cx="443" cy="150" r="1.4" fill="#e0fbff" />
+          </pattern>
+          <linearGradient
+            id="intro-space-light"
+            x1="100"
+            y1="1000"
+            x2="1490"
+            y2="0"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stop-color="#036eec" stop-opacity="0" />
+            <stop offset=".28" stop-color="#036eec" />
+            <stop offset=".66" stop-color="#2eb9ff" />
+            <stop offset="1" stop-color="#036eec" stop-opacity="0" />
+          </linearGradient>
+          <filter id="intro-space-haze" x="-20%" y="-30%" width="140%" height="160%">
+            <feGaussianBlur stdDeviation="22" />
+          </filter>
+        </defs>
+        <g class="site-preloader__stardrift">
+          <path
+            d="M-120 980C280 750 355 750 700 500S1160 180 1730-100"
+            fill="none"
+            stroke="url(#intro-space-light)"
+            stroke-width="175"
+            opacity=".1"
+            filter="url(#intro-space-haze)"
+          />
+          <path
+            d="M-120 960C320 770 305 700 720 496S1240 148 1730-100"
+            fill="none"
+            stroke="url(#intro-space-light)"
+            stroke-width="35"
+            opacity=".11"
+            filter="url(#intro-space-haze)"
+          />
+          <rect
+            x="-30"
+            y="-30"
+            width="1660"
+            height="1060"
+            fill="url(#intro-stars-far)"
+            opacity=".65"
+          />
+          <rect
+            class="site-preloader__starlight"
+            x="-30"
+            y="-30"
+            width="1660"
+            height="1060"
+            fill="url(#intro-stars-near)"
+            opacity=".85"
+          />
+        </g>
+      </svg>
+      <div class="site-preloader__content">
+        <button
+          class="site-preloader__sphere"
+          type="button"
+          aria-label="Повернуть кольцо"
+          title="Повернуть кольцо"
+        >
+          <span class="site-preloader__depth" aria-hidden="true">
+            <svg
+              class="site-preloader__portal"
+              viewBox="0 0 600 600"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <linearGradient
+                  id="intro-rim"
+                  x1="135"
+                  y1="120"
+                  x2="438"
+                  y2="480"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop stop-color="#1265e8" />
+                  <stop offset=".32" stop-color="#3bb6ff" />
+                  <stop offset=".53" stop-color="#e5fbff" />
+                  <stop offset=".7" stop-color="#259cff" />
+                  <stop offset="1" stop-color="#0546b7" />
+                </linearGradient>
+                <linearGradient
+                  id="intro-edge"
+                  x1="90"
+                  y1="200"
+                  x2="450"
+                  y2="450"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop stop-color="#024797" />
+                  <stop offset=".48" stop-color="#07346b" />
+                  <stop offset=".77" stop-color="#40ceff" />
+                  <stop offset="1" stop-color="#1272eb" />
+                </linearGradient>
+                <linearGradient
+                  id="intro-light"
+                  x1="100"
+                  y1="130"
+                  x2="480"
+                  y2="410"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop stop-color="#218fff" stop-opacity="0" />
+                  <stop offset=".45" stop-color="#90eeff" />
+                  <stop offset=".7" stop-color="white" />
+                  <stop offset="1" stop-color="#2399ff" stop-opacity="0" />
+                </linearGradient>
+                <filter id="intro-glow" x="-50%" y="-70%" width="200%" height="240%">
+                  <feGaussianBlur stdDeviation="12" />
+                </filter>
+                <filter id="intro-glow-wide" x="-60%" y="-80%" width="220%" height="260%">
+                  <feGaussianBlur stdDeviation="25" />
+                </filter>
+              </defs>
+              <g transform="rotate(-28 300 300)">
+                <g class="site-preloader__ringlight">
+                  <ellipse
+                    cx="300"
+                    cy="305"
+                    rx="214"
+                    ry="154"
+                    stroke="#077dff"
+                    stroke-width="46"
+                    opacity=".7"
+                    filter="url(#intro-glow-wide)"
+                  />
+                  <ellipse
+                    cx="300"
+                    cy="302"
+                    rx="215"
+                    ry="154"
+                    stroke="#39c4ff"
+                    stroke-width="22"
+                    opacity=".9"
+                    filter="url(#intro-glow)"
+                  />
+                </g>
+                <ellipse
+                  cx="300"
+                  cy="314"
+                  rx="207"
+                  ry="151"
+                  stroke="url(#intro-edge)"
+                  stroke-width="30"
+                />
+                <ellipse
+                  cx="300"
+                  cy="300"
+                  rx="210"
+                  ry="150"
+                  stroke="url(#intro-rim)"
+                  stroke-width="23"
+                />
+                <ellipse
+                  cx="300"
+                  cy="300"
+                  rx="222"
+                  ry="162"
+                  stroke="#3eafff"
+                  stroke-width="1.5"
+                  opacity=".8"
+                />
+                <ellipse
+                  cx="300"
+                  cy="300"
+                  rx="198"
+                  ry="138"
+                  stroke="url(#intro-light)"
+                  stroke-width="3"
+                />
+                <path
+                  d="M90 300a210 150 0 0 1 420 0"
+                  stroke="url(#intro-light)"
+                  stroke-width="4"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M97 335c30 124 352 170 411-10"
+                  stroke="url(#intro-light)"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <ellipse
+                  class="site-preloader__orbit"
+                  cx="300"
+                  cy="300"
+                  rx="245"
+                  ry="183"
+                  stroke="#329fff"
+                  stroke-width="1"
+                  opacity=".55"
+                  stroke-dasharray="100 22 5 22"
+                />
+                <ellipse
+                  class="site-preloader__vector-progress"
+                  cx="300"
+                  cy="300"
+                  rx="245"
+                  ry="183"
+                  pathLength="100"
+                  stroke="#b5f5ff"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-dasharray="100"
+                  stroke-dashoffset="100"
+                />
+              </g>
+            </svg>
+          </span>
+          <svg
+            class="site-preloader__mark"
+            aria-hidden="true"
+            width="316"
+            height="259"
+            viewBox="0 0 316 259"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M196.06 173.922C196.06 189.944 166.618 185.746 164.017 193.964H195.469V202.891H149.118V197.511C149.118 180.307 185.418 184.15 185.418 174.75C185.418 171.321 183.231 169.843 174.067 169.843C164.903 169.843 160.706 171.202 160.706 177.765H150.064C150.064 163.99 159.76 160.915 173.476 160.915C187.724 160.915 196.06 163.635 196.06 173.922Z"
+              fill="white"
+            />
+            <path
+              d="M123.561 203.482C107.125 203.482 99.3213 195.915 99.3213 182.14C99.3213 168.424 107.125 160.915 123.561 160.915C139.937 160.915 147.8 168.483 147.8 182.14C147.8 195.856 139.937 203.482 123.561 203.482ZM123.561 194.555C132.902 194.555 137.158 189.884 137.158 182.14C137.158 174.454 132.902 169.843 123.561 169.843C114.22 169.843 109.963 174.395 109.963 182.14C109.963 189.944 114.22 194.555 123.561 194.555Z"
+              fill="white"
+            />
+            <path
+              d="M97.5621 173.922C97.5621 189.944 68.12 185.746 65.5187 193.964H96.9709V202.891H50.6204V197.511C50.6204 180.307 86.9204 184.15 86.9204 174.75C86.9204 171.321 84.7329 169.843 75.5692 169.843C66.4055 169.843 62.208 171.203 62.208 177.765H51.5663C51.5663 163.99 61.2621 160.916 74.978 160.916C89.2261 160.916 97.5621 163.635 97.5621 173.922Z"
+              fill="white"
+            />
+            <path
+              d="M304.958 108.59H315.677V150.275H304.958V133.959H271.014V150.275H260.295V108.59H271.014V124.907H304.958V108.59Z"
+              fill="white"
+            />
+            <path
+              d="M204.163 129.373C204.163 115.558 212.023 107.995 230.365 107.995C246.98 107.995 255.317 114.307 256.389 126.336H245.491C244.479 119.607 239.298 116.987 230.365 116.987C219.467 116.987 214.882 120.858 214.882 129.373C214.882 137.949 219.527 141.879 230.365 141.879C239.238 141.879 244.479 139.199 245.491 132.411H256.389C255.317 144.499 246.98 150.871 230.365 150.871C212.023 150.871 204.163 143.249 204.163 129.373Z"
+              fill="white"
+            />
+            <path
+              d="M201.196 117.106H167.848V125.562H201.196V133.303H167.848V141.76H201.196V150.275H157.128V108.59H201.196V117.106Z"
+              fill="white"
+            />
+            <path
+              d="M153.604 108.59V117.582H133.357V150.275H122.638V117.582H102.391V108.59H153.604Z"
+              fill="white"
+            />
+            <path
+              d="M205.428 54.518V63.5102H185.181V96.2037H174.462V63.5102H154.214V54.518H205.428Z"
+              fill="white"
+            />
+            <path
+              d="M148.149 73.5743C151.722 75.7777 154.045 79.2317 154.045 84.0553C154.045 91.0823 149.936 96.2037 140.467 96.2037H102.354V54.518H139.038C148.506 54.518 151.424 59.3417 151.424 65.4754C151.424 68.3934 150.233 71.2518 148.149 73.5743ZM113.074 62.2597V70.8945H135.167H135.227C138.085 70.8945 140.705 70.8945 140.705 66.5473C140.705 62.2597 138.085 62.2597 135.167 62.2597H113.074ZM137.847 87.9261C140.705 87.9261 143.326 87.9261 143.326 83.5193C143.326 79.1126 140.705 79.1126 137.847 79.1126H113.074V87.9261H137.847Z"
+              fill="white"
+            />
+            <path
+              d="M98.4437 63.0338H65.0951V71.49H98.4437V79.2317H65.0951V87.6879H98.4437V96.2037H54.376V54.518H98.4437V63.0338Z"
+              fill="white"
+            />
+            <path
+              d="M30.2528 54.5181C41.0316 54.5181 50.5001 61.1878 50.5001 75.3609C50.5001 89.534 41.0316 96.2037 30.2528 96.2037H0.000976562V54.5181H30.2528ZM26.2034 87.2115C34.3023 87.2115 39.781 85.4845 39.781 75.3609C39.781 65.2372 34.3023 63.5103 26.2034 63.5103H10.7201V87.2115H26.2034Z"
+              fill="white"
+            />
+            <path d="M22.0915 160.916H34.5779L12.4865 203.177H0L22.0915 160.916Z" fill="#35A0F7" />
+            <path
+              d="M225.537 161.266C229.473 161.266 232.962 161.821 236.005 162.931C239.088 164.005 241.563 165.486 243.429 167.374C245.336 169.225 246.492 171.316 246.898 173.648H235.213C234.645 172.538 233.611 171.594 232.11 170.816C230.649 170.039 228.56 169.65 225.842 169.65C222.839 169.65 220.365 170.168 218.417 171.205C216.47 172.205 215.009 173.648 214.036 175.536C213.103 177.424 212.636 179.756 212.636 182.533C212.636 185.531 213.143 188.048 214.157 190.084C215.212 192.12 216.734 193.657 218.722 194.693C220.75 195.73 223.205 196.248 226.085 196.248C228.073 196.248 229.736 196.007 231.075 195.526C232.455 195.008 233.489 194.323 234.179 193.472C234.869 192.583 235.213 191.621 235.213 190.584C235.213 189.474 234.889 188.511 234.24 187.697C233.591 186.845 232.617 186.197 231.319 185.753C230.02 185.309 228.398 185.087 226.45 185.087C223.854 185.087 221.359 185.605 218.965 186.642C216.612 187.678 214.482 189.214 212.575 191.251L208.254 188.585C209.512 186.29 211.135 184.254 213.123 182.477C215.111 180.663 217.464 179.238 220.182 178.201C222.941 177.165 226.065 176.647 229.554 176.647C233.327 176.647 236.573 177.221 239.291 178.368C242.05 179.516 244.159 181.107 245.62 183.143C247.121 185.142 247.871 187.493 247.871 190.195C247.871 193.009 246.999 195.508 245.255 197.692C243.551 199.876 241.076 201.597 237.83 202.856C234.585 204.077 230.609 204.688 225.903 204.688C220.304 204.688 215.638 203.763 211.906 201.912C208.214 200.061 205.435 197.507 203.569 194.249C201.743 190.991 200.83 187.253 200.83 183.032C200.83 178.812 201.743 175.055 203.569 171.76C205.435 168.466 208.194 165.893 211.845 164.042C215.537 162.191 220.101 161.266 225.537 161.266Z"
+              fill="white"
+            />
+          </svg>
+        </button>
+        <h1 class="site-preloader__title">Вселенная технологий</h1>
+        <p class="site-preloader__date">13 ноября 2026</p>
+        <div
+          class="site-preloader__progress"
+          role="progressbar"
+          aria-label="Загрузка сайта"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="1"
+        >
+          <div class="site-preloader__progress-meta">
+            <span>Загрузка</span><span class="site-preloader__percent">1%</span>
+          </div>
+          <div class="site-preloader__track"><span></span></div>
+        </div>
+      </div>
+      <div class="site-preloader__fallback" hidden>
+        <p>Не удалось загрузить сайт</p>
+        <a href="">Попробовать снова</a>
+      </div>
+    </div>
     <div id="root"></div>
+    <script>
+      (() => {
+        const loader = document.getElementById('site-preloader');
+        const root = document.getElementById('root');
+        const progress = loader.querySelector('[role="progressbar"]');
+        const percent = loader.querySelector('.site-preloader__percent');
+        const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const started = performance.now();
+        let closing = false,
+          frame,
+          timer,
+          target = 1,
+          displayed = 1,
+          last = started;
+        let presentedAt = null,
+          pendingFinish = null;
+        const presented = () => {
+          if (presentedAt !== null) return;
+          presentedAt = performance.now();
+          loader.classList.add('is-presented');
+          if (pendingFinish) finish(pendingFinish);
+        };
+        root.inert = true;
+        document.documentElement.classList.add('is-site-loading');
+        document.documentElement.style.scrollbarGutter = 'stable';
+        const paint = (now) => {
+          const delta = Math.min(50, now - last);
+          last = now;
+          const elapsed = Math.min(1, Math.max(0, (now - (presentedAt ?? now)) / 2000));
+          const animatedProgress = 1 + 99 * (1 - Math.pow(1 - elapsed, 2));
+          displayed = Math.max(
+            displayed,
+            Math.min(target, animatedProgress, displayed + delta * 0.12),
+          );
+          const value = Math.floor(displayed);
+          if (Number(loader.dataset.progress) !== displayed) {
+            loader.dataset.progress = String(displayed);
+            loader.style.setProperty('--load-progress', displayed / 100);
+          }
+          if (progress.getAttribute('aria-valuenow') !== String(value)) {
+            progress.setAttribute('aria-valuenow', String(value));
+            percent.textContent = value + '%';
+          }
+          frame = requestAnimationFrame(paint);
+        };
+        const update = (event) => {
+          const { completed, total } = event.detail;
+          if (total > 0) target = Math.max(target, Math.min(99, (completed / total) * 100));
+        };
+        const finish = (event) => {
+          if (closing) return;
+          if (presentedAt === null) {
+            pendingFinish = event || { type: 'timeout' };
+            return;
+          }
+          closing = true;
+          clearTimeout(timer);
+          document.removeEventListener('debt:ready', finish);
+          document.removeEventListener('debt:progress', update);
+          if (event?.type === 'debt:ready') {
+            target = 100;
+            loader.querySelector('.site-preloader__progress-meta > span').textContent =
+              'Загрузка завершена';
+          } else
+            loader.querySelector('.site-preloader__progress-meta > span').textContent =
+              'Открываем сайт';
+          const remaining = Math.max(
+            (target - displayed) / 0.12,
+            2000 - (performance.now() - presentedAt),
+          );
+          setTimeout(() => {
+            let removed = false;
+            let exitTimer;
+            const removeLoader = () => {
+              if (removed) return;
+              removed = true;
+              clearTimeout(exitTimer);
+              loader.removeEventListener('transitionend', onExit);
+              cancelAnimationFrame(frame);
+              root.inert = false;
+              document.documentElement.classList.add('hero-intro-ready');
+              document.dispatchEvent(new Event('debt:preloader-closed'));
+              document.documentElement.classList.remove('is-site-loading');
+              loader.remove();
+            };
+            const onExit = (event) => {
+              if (event.target === loader && event.propertyName === 'opacity') removeLoader();
+            };
+            loader.addEventListener('transitionend', onExit);
+            // Keep the overlay mounted until the fade really ends, even on slow frames.
+            exitTimer = setTimeout(removeLoader, reduced ? 750 : 1500);
+            loader.classList.add('is-leaving');
+          }, remaining);
+        };
+        frame = requestAnimationFrame(paint);
+        document.addEventListener('debt:progress', update);
+        document.addEventListener('debt:ready', finish);
+        requestAnimationFrame(presented);
+        timer = setTimeout(() => {
+          if (root.childElementCount) {
+            presented();
+            finish();
+          } else {
+            loader.classList.add('has-error');
+            loader.querySelector('.site-preloader__fallback').hidden = false;
+            loader.setAttribute('aria-label', 'Не удалось загрузить сайт');
+            cancelAnimationFrame(frame);
+            document.dispatchEvent(new Event('debt:preloader-closed'));
+          }
+        }, 5500);
+      })();
+    </script>
+    <script type="module" src="/src/lib/preloader-scene.js"></script>
     <noscript
+      ><style>
+        .site-preloader {
+          display: none;
+        }</style
       >DEBT TECH 2026 — 13 ноября, Москва. По вопросам участия:
       <a href="mailto:a.fefilova@rvzrus.ru">a.fefilova@rvzrus.ru</a>,
       <a href="tel:+79657868846">+7 965 786 88 46</a>. Для работы форм и меню включите

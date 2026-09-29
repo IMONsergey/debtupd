@@ -12,6 +12,8 @@ import { MediaModal } from './components/MediaModal.jsx';
 import { assetUrl } from './lib/assets.js';
 import { goal } from './lib/forms.js';
 import { Cosmos } from './components/Cosmos.jsx';
+import { HeroScene } from './components/hero/HeroScene.jsx';
+import { DelayedTicketOffer } from './components/TicketOffer.jsx';
 import { useExperienceMotion } from './lib/useExperienceMotion.js';
 const art = (n) => assetUrl('assets/figma/' + n.replace(/\.png$/, '.webp'));
 function Picture({ name, alt = '', className = '', eager = false, ...props }) {
@@ -142,15 +144,7 @@ function Countdown() {
 function Hero() {
   return (
     <header className="hero" id="top">
-      <div className="hero-visual" aria-hidden="true">
-        <picture>
-          <source media="(max-width:599px)" srcSet={art('hero-background-phone.webp')} />
-          <source media="(max-width:1180px)" srcSet={art('hero-background-tablet.webp')} />
-          <Picture className="hero-scene" name="hero-background-original.webp" eager />
-        </picture>
-        <div className="hero-rays" />
-        <Picture className="hero-wordmark" name="hero-wordmark.png" eager />
-      </div>
+      <HeroScene />
       <div className="mobile-brand">
         <img src={assetUrl('assets/debttech-logo.svg')} alt="DEBT TECH 2026" />
       </div>
@@ -898,6 +892,7 @@ export default function App() {
           <a href="#top" className="footer-top" aria-label="Вернуться в начало страницы" />
         </footer>
       </div>
+      <DelayedTicketOffer blocked={!!form || !!media} />
       {form && <ApplicationModal {...form} onClose={closeForm} />}{' '}
       {media && <MediaModal kind={media} onClose={closeMedia} />}
     </>

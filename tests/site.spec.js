@@ -1,6 +1,10 @@
 import { test, expect } from '@playwright/test';
 const widths = [320, 360, 390, 430, 600, 768, 1024, 1180, 1181, 1280, 1440, 1920, 2048, 2560];
 test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.setItem('debt2026-early-booking-dismissed', '1'));
+  await page.route('https://kinescope.io/**', (route) =>
+    route.fulfill({ contentType: 'text/html', body: '<html><body>Video fixture</body></html>' }),
+  );
   await page.route('**/api/lead', (r) =>
     r.fulfill({
       status: 503,
@@ -140,6 +144,7 @@ test('Corporate calculation uses ticket-specific discounts after confirmed deliv
     return r.fulfill({ json: { success: true } });
   });
   await page.goto('/');
+  await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 12000 });
   const form = page.locator('#corporate-package-form');
   await form.locator('[name="participants_count"]').fill('5');
   await form.locator('select').selectOption('business');
@@ -333,18 +338,18 @@ test('Large-screen about photography retains the original crop ratio', async ({ 
   }
 });
 
-test('Sidebar uses a stable poster and does not boot the external video player', async ({
+test('Sidebar video requests muted background autoplay and preserves its poster fallback', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  const requests = [];
-  page.on('request', (request) => {
-    if (request.url().includes('kinescope.io')) requests.push(request.url());
-  });
   await page.goto('/');
-  await expect(page.locator('.desktop-sidebar-video__poster')).toBeVisible();
-  await expect(page.locator('.desktop-sidebar-video iframe')).toHaveCount(0);
-  expect(requests).toEqual([]);
+  const frame = page.locator('.desktop-sidebar-video iframe');
+  await expect(frame).toHaveCount(1);
+  const url = new URL(await frame.getAttribute('src'));
+  for (const key of ['autoplay', 'muted', 'loop', 'background'])
+    expect(url.searchParams.get(key)).toBe('true');
+  expect(await frame.getAttribute('allow')).toContain('autoplay');
+  await expect(page.locator('.desktop-sidebar-video__poster')).toHaveCount(1);
 });
 
 test('Network failures preserve the application and provide a Russian recovery message', async ({

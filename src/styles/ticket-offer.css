@@ -1,0 +1,334 @@
+/* Visual rules recovered from the deployed DEBT banner; main has no banner component. */
+.ticket-offer-modal {
+  position: fixed;
+  z-index: 10020;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(12px, 3vw, 40px);
+  overflow-y: auto;
+  background: #00071985;
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  animation: ticket-offer-backdrop-in 0.32s ease both;
+}
+.ticket-offer-modal__dialog {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  width: min(680px, 100%);
+  max-height: calc(100svh - 24px);
+  justify-items: center;
+  overflow-y: auto;
+  padding: clamp(34px, 4.6vw, 58px) clamp(20px, 5vw, 64px) clamp(28px, 4.2vw, 52px);
+  border: 1px solid rgba(83, 168, 255, 0.42);
+  background-color: #01081f;
+  background-image: linear-gradient(#01081f14, #01081f47), var(--ticket-offer-background);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  box-shadow:
+    0 36px 100px #0000008f,
+    inset 0 0 46px #1f85eb14;
+  color: #fff;
+  text-align: center;
+  animation: ticket-offer-dialog-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.ticket-offer-modal__dialog:focus {
+  outline: none;
+}
+.ticket-offer-modal__planet {
+  position: absolute;
+  z-index: 0;
+  top: 8px;
+  right: auto;
+  left: -10px;
+  display: block;
+  width: 270px;
+  height: auto;
+  object-fit: contain;
+  opacity: 0.78;
+  pointer-events: none;
+  filter: saturate(0.9) brightness(0.9);
+  animation: ticket-offer-planet-drift 12s ease-in-out infinite alternate;
+}
+.ticket-offer-modal__close {
+  position: absolute;
+  z-index: 2;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  background: #ffffff0a;
+  color: #fff;
+  font-size: 25px;
+  font-weight: 300;
+  line-height: 1;
+  transition:
+    border-color 0.22s ease,
+    background-color 0.22s ease,
+    transform 0.22s ease;
+}
+.ticket-offer-modal__close:hover,
+.ticket-offer-modal__close:focus-visible {
+  border-color: #43abff;
+  background: #43abff2e;
+  transform: rotate(5deg);
+}
+.ticket-offer-modal__close:focus-visible,
+.ticket-offer-modal__buy:focus-visible {
+  outline: 2px solid #43abff;
+  outline-offset: 4px;
+}
+.ticket-offer-modal__logo {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: clamp(116px, 12vw, 156px);
+  height: auto;
+  margin-bottom: clamp(24px, 2.4vw, 34px);
+}
+.ticket-offer-modal__eyebrow {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 8px;
+  color: #ffffffc2;
+  font-family:
+    IBM Plex Sans,
+    Arial,
+    sans-serif;
+  font-size: clamp(13px, 1vw, 15px);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.ticket-offer-modal__event-title {
+  position: relative;
+  z-index: 1;
+  display: block;
+  max-width: 100%;
+  margin: 0;
+  color: #ffffffeb;
+  font-family: Bounded, Arial, sans-serif;
+  font-size: clamp(18px, 1.55vw, 21px);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.035em;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.ticket-offer-modal__booking-title {
+  position: relative;
+  z-index: 1;
+  display: block;
+  max-width: 100%;
+  margin-top: clamp(14px, 1.4vw, 18px);
+  color: #fff;
+  background: linear-gradient(100deg, #fff 4% 28%, #cadbff 50%, #719eff 72%, #fff 96%);
+  background-size: 210% 100%;
+  background-position: 0% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: Bounded, Arial, sans-serif;
+  font-size: clamp(24px, 2.2vw, 30px);
+  font-weight: 600;
+  line-height: 1.16;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-transform: uppercase;
+  animation: ticket-offer-title-shimmer 5.5s ease-in-out infinite alternate;
+}
+.ticket-offer-modal p {
+  position: relative;
+  z-index: 1;
+  max-width: 510px;
+  margin: clamp(16px, 1.7vw, 22px) 0 0;
+  color: #ffffffc2;
+  font-family:
+    IBM Plex Sans,
+    Arial,
+    sans-serif;
+  font-size: clamp(16px, 1.3vw, 19px);
+  font-weight: 500;
+  line-height: 1.4;
+}
+.ticket-offer-modal p strong {
+  color: #43abff;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.ticket-offer-modal__countdown {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(4px, 0.55vw, 7px);
+  width: min(88%, 520px);
+  margin-top: clamp(24px, 2.7vw, 36px);
+}
+.ticket-offer-modal__countdown-item {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: clamp(68px, 6.1vw, 86px);
+  place-items: center;
+  padding: 10px 4px;
+  background:
+    linear-gradient(#43abff, #43abff) left top / 12px 2px no-repeat,
+    linear-gradient(#43abff, #43abff) left top / 2px 12px no-repeat,
+    linear-gradient(#43abff, #43abff) right top / 12px 2px no-repeat,
+    linear-gradient(#43abff, #43abff) right top / 2px 12px no-repeat,
+    linear-gradient(#43abff, #43abff) left bottom / 12px 2px no-repeat,
+    linear-gradient(#43abff, #43abff) left bottom / 2px 12px no-repeat,
+    linear-gradient(#43abff, #43abff) right bottom / 12px 2px no-repeat,
+    linear-gradient(#43abff, #43abff) right bottom / 2px 12px no-repeat,
+    radial-gradient(circle at 50% 36%, #0084d69e, #066ff09e 58%, #02265bad);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+.ticket-offer-modal__countdown-item strong {
+  color: #fff;
+  font-family:
+    IBM Plex Sans,
+    Arial,
+    sans-serif;
+  font-size: clamp(26px, 2.5vw, 38px);
+  font-weight: 400;
+  line-height: 1;
+}
+.ticket-offer-modal__countdown-item span {
+  color: #ffffffb8;
+  font-family:
+    IBM Plex Sans,
+    Arial,
+    sans-serif;
+  font-size: clamp(9px, 0.62vw, 10px);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.ticket-offer-modal__buy:hover,
+.ticket-offer-modal__buy:focus-visible {
+  filter: brightness(1.12);
+}
+.ticket-offer-modal__buy-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+@media (max-width: 699px) {
+  .ticket-offer-modal__dialog {
+    padding: 30px 12px 26px;
+  }
+  .ticket-offer-modal__close {
+    top: 12px;
+    right: 12px;
+  }
+  .ticket-offer-modal__logo {
+    width: 104px;
+    margin-bottom: 22px;
+  }
+  .ticket-offer-modal__planet {
+    top: -8px;
+    right: auto;
+    left: -35px;
+    width: 180px;
+    height: auto;
+    opacity: 0.62;
+  }
+  .ticket-offer-modal__eyebrow {
+    margin-bottom: 6px;
+    font-size: 12px;
+  }
+  .ticket-offer-modal__event-title {
+    max-width: 100%;
+    padding-inline: 0;
+    font-size: clamp(15px, 3.8vw, 17px);
+  }
+  .ticket-offer-modal__booking-title {
+    margin-top: 12px;
+    font-size: clamp(17px, 4.6vw, 20px);
+  }
+  .ticket-offer-modal p {
+    max-width: 320px;
+    font-size: 15px;
+  }
+  .ticket-offer-modal__countdown-item {
+    min-height: 64px;
+    padding: 8px 3px;
+  }
+  .ticket-offer-modal__countdown-item strong {
+    font-size: clamp(24px, 7vw, 30px);
+  }
+  .ticket-offer-modal__countdown-item span {
+    font-size: 9px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticket-offer-modal,
+  .ticket-offer-modal__dialog,
+  .ticket-offer-modal__planet,
+  .ticket-offer-modal__booking-title {
+    animation: none;
+  }
+  .ticket-offer-modal__booking-title {
+    background-position: 55% 50%;
+  }
+}
+
+.ticket-offer-modal__buy {
+  width: 250px;
+  margin-top: 30px;
+}
+@keyframes ticket-offer-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes ticket-offer-dialog-in {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes ticket-offer-planet-drift {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 2px 5px;
+  }
+}
+
+.ticket-offer-modal__dialog > * {
+  min-width: 0;
+}
+.ticket-offer-modal__event-title,
+.ticket-offer-modal__booking-title {
+  white-space: normal;
+  text-wrap: balance;
+  line-height: 1.3;
+}
+.ticket-offer-modal__event-title:focus {
+  outline: none;
+}
+.ticket-offer-modal__close:hover,
+.ticket-offer-modal__close:focus-visible {
+  transform: none;
+}

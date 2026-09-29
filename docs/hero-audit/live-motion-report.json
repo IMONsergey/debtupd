@@ -1,0 +1,31 @@
+[
+  {
+    "width": 390,
+    "gl": "ready",
+    "planetMoves": true,
+    "playButtonCount": 0,
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "gl": "ready",
+    "planetMoves": true,
+    "playButtonCount": 0,
+    "errors": [],
+    "video": {
+      "before": {
+        "time": 1.207509,
+        "muted": true,
+        "paused": false,
+        "ready": 4
+      },
+      "after": {
+        "time": 2.629827,
+        "muted": true,
+        "paused": false,
+        "ready": 4
+      },
+      "playing": true
+    }
+  }
+]

@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
-import { Pause, Play } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 
 function stars(seed, count) {
   let n = seed;
@@ -7,16 +6,24 @@ function stars(seed, count) {
     n = (n * 1664525 + 1013904223) >>> 0;
     return n / 4294967296;
   };
-  return Array.from({ length: count }, () => {
-    const x = (random() * 120).toFixed(2),
-      y = (random() * 140).toFixed(2);
-    const radius = (random() * 0.6).toFixed(2),
-      alpha = (0.18 + random() * 0.52).toFixed(2);
-    return `${x}vw ${y}vh 0 ${radius}px rgba(176,214,255,${alpha})`;
-  }).join(',');
+  return Array.from(
+    { length: count },
+    () =>
+      `${(random() * 130).toFixed(2)}vw ${(random() * 145).toFixed(2)}vh 0 ${(random() * 0.7).toFixed(2)}px rgba(181,221,255,${(0.23 + random() * 0.55).toFixed(2)})`,
+  ).join(',');
 }
-const fields = [stars(2026, 90), stars(13011, 58), stars(4431, 30)];
-
+const fields = [stars(2026, 130), stars(113, 68), stars(447, 34)];
+export function StarField({ className = '' }) {
+  return (
+    <div className={`star-field ${className}`} data-star-field aria-hidden="true">
+      {fields.map((field, index) => (
+        <div className={`star-field__depth star-field__depth--${index}`} key={index}>
+          <i className="cosmos__stars" style={{ '--star-points': field }} />
+        </div>
+      ))}
+    </div>
+  );
+}
 export function MenuAtmosphere() {
   return (
     <div className="menu-atmosphere" aria-hidden="true">
@@ -34,66 +41,53 @@ export function MenuAtmosphere() {
     </div>
   );
 }
-
 export function Cosmos() {
   const ref = useRef(null);
-  const [paused, setPaused] = useState(() => {
-    try {
-      return localStorage.getItem('debt-motion') === 'paused';
-    } catch {
-      return false;
-    }
-  });
-  const [reduced, setReduced] = useState(
-    () => matchMedia('(prefers-reduced-motion: reduce)').matches,
-  );
   useEffect(() => {
-    const mq = matchMedia('(prefers-reduced-motion: reduce)');
-    const sync = () => setReduced(mq.matches);
-    mq.addEventListener('change', sync);
-    return () => mq.removeEventListener('change', sync);
-  }, []);
-  useEffect(() => {
-    const disabled = paused || reduced;
-    document.documentElement.classList.toggle('motion-paused', disabled);
-    try {
-      localStorage.setItem('debt-motion', paused ? 'paused' : 'enabled');
-    } catch {}
-    window.dispatchEvent(new Event('debt-motion-change'));
-    if (disabled) return;
-    const element = ref.current;
+    // Remove the old stored manual pause. Motion preferences are now system-controlled only.
+    document.documentElement.classList.remove('motion-paused');
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    const layers = [...document.querySelectorAll('[data-star-field]')];
     let frame = 0,
-      active = true,
-      height = Math.max(1, document.documentElement.scrollHeight - innerHeight);
-    let x = 0,
+      x = 0,
       y = 0,
       s = 0,
       tx = 0,
       ty = 0,
-      ts = 0;
-    const render = () => {
+      ts = 0,
+      last = 0,
+      height = 1;
+    const tick = (now) => {
       frame = 0;
-      if (!active) return;
-      x += (tx - x) * 0.075;
-      y += (ty - y) * 0.075;
-      s += (ts - s) * 0.11;
-      element.style.setProperty('--space-x', `${x.toFixed(2)}px`);
-      element.style.setProperty('--space-y', `${y.toFixed(2)}px`);
-      element.style.setProperty('--space-scroll', `${s.toFixed(2)}px`);
-      if (Math.abs(tx - x) + Math.abs(ty - y) + Math.abs(ts - s) > 0.12)
-        frame = requestAnimationFrame(render);
+      if (document.hidden || reduced.matches) return;
+      const dt = Math.min(0.05, last ? (now - last) / 1000 : 1 / 60);
+      last = now;
+      const ease = 1 - Math.exp(-dt * 4);
+      x += (tx - x) * ease;
+      y += (ty - y) * ease;
+      s += (ts - s) * ease;
+      for (const layer of layers) {
+        layer.style.setProperty('--space-x', `${x.toFixed(2)}px`);
+        layer.style.setProperty('--space-y', `${y.toFixed(2)}px`);
+        layer.style.setProperty('--space-scroll', `${s.toFixed(2)}px`);
+      }
+      if (Math.abs(tx - x) + Math.abs(ty - y) + Math.abs(ts - s) > 0.08)
+        frame = requestAnimationFrame(tick);
     };
     const schedule = () => {
-      if (active && !frame) frame = requestAnimationFrame(render);
+      if (!frame && !reduced.matches && !document.hidden) {
+        last = 0;
+        frame = requestAnimationFrame(tick);
+      }
     };
     const pointer = (e) => {
       if (e.pointerType === 'touch') return;
-      tx = (e.clientX / innerWidth - 0.5) * 24;
-      ty = (e.clientY / innerHeight - 0.5) * 18;
+      tx = (e.clientX / innerWidth - 0.5) * 46;
+      ty = (e.clientY / innerHeight - 0.5) * 30;
       schedule();
     };
     const scroll = () => {
-      ts = Math.max(0, Math.min(1, scrollY / height)) * 140;
+      ts = Math.min(1, Math.max(0, scrollY / height)) * 240;
       schedule();
     };
     const resize = () => {
@@ -101,61 +95,46 @@ export function Cosmos() {
       scroll();
     };
     const leave = () => {
-      tx = 0;
-      ty = 0;
+      tx = ty = 0;
       schedule();
     };
     const visibility = () => {
-      active = !document.hidden;
-      element.classList.toggle('is-sleeping', !active);
-      document.documentElement.classList.toggle('motion-sleeping', !active);
-      if (active) schedule();
-      else {
+      document.documentElement.classList.toggle('motion-sleeping', document.hidden);
+      if (document.hidden) {
         cancelAnimationFrame(frame);
         frame = 0;
-      }
+      } else schedule();
     };
-    const observer = new ResizeObserver(resize);
-    observer.observe(document.body);
-    addEventListener('pointermove', pointer, { passive: true });
-    addEventListener('scroll', scroll, { passive: true });
-    addEventListener('resize', resize);
+    const preference = () => {
+      if (reduced.matches) {
+        cancelAnimationFrame(frame);
+        frame = 0;
+      } else schedule();
+    };
+    const ro = new ResizeObserver(resize);
+    ro.observe(document.body);
+    window.addEventListener('pointermove', pointer, { passive: true });
+    window.addEventListener('scroll', scroll, { passive: true });
+    window.addEventListener('resize', resize);
     document.addEventListener('pointerleave', leave);
     document.addEventListener('visibilitychange', visibility);
+    reduced.addEventListener('change', preference);
     resize();
-    visibility();
     return () => {
       cancelAnimationFrame(frame);
-      observer.disconnect();
-      removeEventListener('pointermove', pointer);
-      removeEventListener('scroll', scroll);
-      removeEventListener('resize', resize);
+      ro.disconnect();
+      window.removeEventListener('pointermove', pointer);
+      window.removeEventListener('scroll', scroll);
+      window.removeEventListener('resize', resize);
       document.removeEventListener('pointerleave', leave);
       document.removeEventListener('visibilitychange', visibility);
+      reduced.removeEventListener('change', preference);
     };
-  }, [paused, reduced]);
+  }, []);
   return (
-    <>
-      <div className="cosmos" ref={ref} aria-hidden="true">
-        <div className="cosmos__nebula" />
-        {fields.map((field, index) => (
-          <div className={`cosmos__depth cosmos__depth--${index}`} key={index}>
-            <i className="cosmos__stars" style={{ '--star-points': field }} />
-          </div>
-        ))}
-      </div>
-      {!reduced && (
-        <button
-          className="motion-toggle ui-icon-button"
-          type="button"
-          aria-label={paused ? 'Включить анимацию' : 'Приостановить анимацию'}
-          title={paused ? 'Включить анимацию' : 'Приостановить анимацию'}
-          aria-pressed={paused}
-          onClick={() => setPaused(!paused)}
-        >
-          {paused ? <Play size={16} /> : <Pause size={16} />}
-        </button>
-      )}
-    </>
+    <div className="cosmos" ref={ref} aria-hidden="true">
+      <div className="cosmos__nebula" />
+      <StarField />
+    </div>
   );
 }

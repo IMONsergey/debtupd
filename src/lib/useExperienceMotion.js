@@ -1,83 +1,75 @@
 import { useEffect } from 'react';
 import { initAnalytics } from './forms.js';
-
 export function useExperienceMotion() {
   useEffect(() => {
     initAnalytics();
-    const mq = matchMedia('(prefers-reduced-motion: reduce)');
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     let observer,
       frame = 0,
-      spot = null,
+      card = null,
       point = { x: 50, y: 25 };
-    const animations = new Set(),
-      seen = new WeakSet();
-    const disabled = () =>
-      mq.matches || document.documentElement.classList.contains('motion-paused');
-    const update = () => {
+    const running = new Set();
+    const start = () => {
       observer?.disconnect();
-      animations.forEach((animation) => animation.cancel());
-      animations.clear();
-      if (disabled()) return;
+      running.forEach((animation) => animation.finish());
+      running.clear();
+      if (reduced.matches) return;
       observer = new IntersectionObserver(
         (entries) =>
           entries.forEach((entry) => {
-            if (!entry.isIntersecting || seen.has(entry.target)) return;
-            seen.add(entry.target);
+            if (!entry.isIntersecting || entry.target.dataset.arrived) return;
+            entry.target.dataset.arrived = 'true';
             observer.unobserve(entry.target);
-            // No hidden pre-animation state: failed/disabled JS can never leave content invisible.
-            const delay = (Number(entry.target.dataset.motionOrder || 0) % 3) * 45;
+            // No opacity reset, no parent/child cascade: one small translation, once per grid.
             const animation = entry.target.animate(
-              [
-                { opacity: 0.45, translate: '0 14px' },
-                { opacity: 1, translate: '0 0' },
-              ],
-              { duration: 760, delay, easing: 'cubic-bezier(.16,1,.3,1)' },
+              [{ transform: 'translate3d(0,9px,0)' }, { transform: 'translate3d(0,0,0)' }],
+              { duration: 850, easing: 'cubic-bezier(.22,1,.36,1)' },
             );
-            animations.add(animation);
-            animation.finished.catch(() => {}).finally(() => animations.delete(animation));
+            running.add(animation);
+            animation.finished.catch(() => {}).finally(() => running.delete(animation));
           }),
-        { threshold: 0.04, rootMargin: '0px 0px 35px 0px' },
+        { threshold: 0.025, rootMargin: '0px 0px 30px 0px' },
       );
       document
         .querySelectorAll(
-          '.section-title,.about-copy,.about-photo,.stat,.participant-card,.service-photo,.service-copy,.topic-card,.speaker,.organizer-card,.tariff,.corporate-offer,.corporate-form,.sponsor-panel,.contact-grid',
+          '.about-grid,.stats-grid,.service-grid,.topics-grid,.speakers-grid,.organizer-grid,.tariff-grid,.sponsor-panel',
         )
-        .forEach((node, index) => {
-          node.dataset.motionOrder = String(index);
-          observer.observe(node);
+        .forEach((node) => {
+          if (node.getBoundingClientRect().top < innerHeight) {
+            node.dataset.arrived = 'true';
+            return;
+          }
+          if (!node.dataset.arrived) observer.observe(node);
         });
     };
     const render = () => {
       frame = 0;
-      if (!spot) return;
-      spot.style.setProperty('--light-x', `${point.x}%`);
-      spot.style.setProperty('--light-y', `${point.y}%`);
-    };
-    const pointer = (e) => {
-      if (disabled() || e.pointerType === 'touch') return;
-      const card = e.target.closest('.tariff,.discount');
-      if (!card) {
-        spot = null;
-        return;
+      if (card) {
+        card.style.setProperty('--light-x', `${point.x}%`);
+        card.style.setProperty('--light-y', `${point.y}%`);
       }
-      spot = card;
-      const rect = card.getBoundingClientRect();
+    };
+    const pointer = (event) => {
+      if (reduced.matches || event.pointerType === 'touch') return;
+      card = event.target.closest('.tariff,.discount');
+      if (!card) return;
+      const r = card.getBoundingClientRect();
       point = {
-        x: ((e.clientX - rect.left) / rect.width) * 100,
-        y: ((e.clientY - rect.top) / rect.height) * 100,
+        x: ((event.clientX - r.left) / r.width) * 100,
+        y: ((event.clientY - r.top) / r.height) * 100,
       };
       if (!frame) frame = requestAnimationFrame(render);
     };
-    update();
-    mq.addEventListener('change', update);
-    window.addEventListener('debt-motion-change', update);
+    if (!document.getElementById('site-preloader')) start();
+    document.addEventListener('debt:preloader-closed', start);
+    reduced.addEventListener('change', start);
     document.addEventListener('pointermove', pointer, { passive: true });
     return () => {
       observer?.disconnect();
       cancelAnimationFrame(frame);
-      animations.forEach((a) => a.cancel());
-      mq.removeEventListener('change', update);
-      window.removeEventListener('debt-motion-change', update);
+      running.forEach((animation) => animation.finish());
+      document.removeEventListener('debt:preloader-closed', start);
+      reduced.removeEventListener('change', start);
       document.removeEventListener('pointermove', pointer);
     };
   }, []);

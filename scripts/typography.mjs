@@ -12,7 +12,10 @@ export function typeset(text) {
     /(?:https?:\/\/|mailto:|tel:)/i.test(text)
   )
     return text;
-  return typograf.execute(text).replace(/(\d)[ \u00a0]+([₽%])/g, '$1\u00a0$2');
+  const leading = text.match(/^\s*/u)[0];
+  const trailing = text.match(/\s*$/u)[0];
+  const core = text.slice(leading.length, text.length - trailing.length);
+  return leading + typograf.execute(core).replace(/(\d)[ \u00a0]+([₽%])/g, '$1\u00a0$2') + trailing;
 }
 export function typographyBabel({ types: t }) {
   return {
@@ -20,6 +23,8 @@ export function typographyBabel({ types: t }) {
     visitor: {
       StringLiteral(path) {
         if (path.parent.type === 'ObjectProperty' && path.key === 'key') return;
+        // JSX attribute literals are HTML, not JavaScript strings; keep accessible names intact.
+        if (path.parent.type === 'JSXAttribute') return;
         const next = typeset(path.node.value);
         if (next !== path.node.value) {
           path.node.value = next;
