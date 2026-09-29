@@ -647,7 +647,7 @@
   .hero .hero-register,
   .hero .hero-stand {
     display: flex;
-    min-height: 52px;
+    min-height: var(--button-height);
     width: 100%;
     margin: 0;
   }
@@ -1263,5 +1263,26 @@
   .speakers-note-art img {
     width: 190px;
     right: 0;
+  }
+}
+
+/* Full category names stay readable on narrow phones. */
+@media (min-width: 360px) and (max-width: 429px) {
+  .audience-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .audience-card {
+    min-height: 112px;
+    height: auto;
+  }
+  .audience-card h3 {
+    font-size: 14px;
+    line-height: 1.45;
+  }
+}
+@media (min-width: 430px) and (max-width: 599px) {
+  .audience-card h3 {
+    font-size: clamp(12px, 2.8vw, 15px);
+    line-height: 1.45;
   }
 }

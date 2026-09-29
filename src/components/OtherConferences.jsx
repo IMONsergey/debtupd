@@ -30,9 +30,15 @@ export function OtherConferencesSection({ archive }) {
     const card = cardRefs.current[index];
     if (!viewport || !card) return;
 
+    window.clearTimeout(recenterTimerRef.current);
+    requestedIndexRef.current = null;
+    activeIndexRef.current = index;
     isRecenteringRef.current = true;
     viewport.classList.add('is-recentering');
-    viewport.scrollLeft = card.offsetLeft - (viewport.clientWidth - card.offsetWidth) / 2;
+    viewport.scrollTo({
+      left: card.offsetLeft - (viewport.clientWidth - card.offsetWidth) / 2,
+      behavior: 'instant',
+    });
     setActiveIndex(index);
 
     requestAnimationFrame(() => {
@@ -58,7 +64,7 @@ export function OtherConferencesSection({ archive }) {
   }, [items.length]);
 
   const activeIndexRef = useRef(activeIndex);
-  activeIndexRef.current = activeIndex;
+
   useEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport) return undefined;
@@ -85,12 +91,15 @@ export function OtherConferencesSection({ archive }) {
     const card = cardRefs.current[nextIndex];
     if (!viewport || !card) return;
 
+    window.clearTimeout(recenterTimerRef.current);
     requestedIndexRef.current = nextIndex;
     activeIndexRef.current = nextIndex;
     setActiveIndex(nextIndex);
     viewport.scrollTo({
       left: card.offsetLeft - (viewport.clientWidth - card.offsetWidth) / 2,
-      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'instant'
+        : 'smooth',
     });
   }
 
