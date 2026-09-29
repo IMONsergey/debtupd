@@ -12,6 +12,7 @@ import './styles/hero-scene.css';
 import './styles/ticket-offer.css';
 import './styles/buttons.css';
 import './styles/fluid-experience.css';
+import './styles/partner-review.css';
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />

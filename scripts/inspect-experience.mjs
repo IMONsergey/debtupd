@@ -19,6 +19,7 @@ for (const [width, height] of [
   [2560, 1440],
 ]) {
   const page = await browser.newPage({ viewport: { width, height }, reducedMotion: 'reduce' });
+  await page.addInitScript(() => sessionStorage.setItem('debt2026-early-booking-dismissed', '1'));
   await page.route('**/api/lead', (route) => route.abort());
   await page.goto(process.env.QA_BASE_URL || 'http://127.0.0.1:5173/', {
     waitUntil: 'networkidle',
@@ -54,8 +55,12 @@ for (const [width, height] of [
     '.organizer-heading',
     '.tariff-grid',
     '.other-conferences-carousel',
+    '.mobile-info',
+    '.contact-bottom',
+    '.footer-scene',
   ]) {
     const item = page.locator(selector).first();
+    if (!(await item.isVisible())) continue;
     await item.evaluate((node) =>
       scrollTo({ top: node.getBoundingClientRect().top + scrollY - 50, behavior: 'instant' }),
     );

@@ -148,7 +148,8 @@ export function ApplicationModal({ kind = 'early-registration', tariff, onClose 
     >
       <section
         ref={ref}
-        className="form-dialog"
+        className={`form-dialog${tariff ? ' form-dialog--' + tariff.id : ''}`}
+        data-tariff-id={tariff?.id}
         role="dialog"
         aria-modal="true"
         aria-labelledby="application-title"
@@ -158,7 +159,13 @@ export function ApplicationModal({ kind = 'early-registration', tariff, onClose 
           <X />
         </button>
         <span className="eyebrow">DEBT TECH / 2026</span>
-        <h2 id="application-title">{stand ? 'Забронировать стенд' : 'Ранняя регистрация'}</h2>
+        <h2 id="application-title">
+          {stand
+            ? 'Забронировать стенд'
+            : tariff
+              ? `Тариф «${tariff.title}»`
+              : 'Ранняя регистрация'}
+        </h2>
         {status === 'success' ? (
           <div className="form-success" role="status">
             <h3>Спасибо! Заявка отправлена</h3>
@@ -179,7 +186,7 @@ export function ApplicationModal({ kind = 'early-registration', tariff, onClose 
             </p>
             {tariff && (
               <p className="selected-tariff">
-                Выбранный тариф:{' '}
+                Участие в форуме:{' '}
                 <strong>
                   {tariff.title} · {tariff.price}
                 </strong>

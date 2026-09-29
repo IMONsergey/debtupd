@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ArrowUpRight, ArrowRight, Play, Info } from 'lucide-react';
 import { content } from './content.js';
+import { Supporters } from './components/Supporters.jsx';
+import { SpeakerCollection } from './components/SpeakerCollection.jsx';
 import { topics, stages, spaces, audience, partnerNames } from './data.js';
 import speakers from './speakers.json';
 import artDimensions from './art-dimensions.json';
@@ -52,10 +54,10 @@ function ArrowButton({ children, onClick, href, className = '', ...props }) {
     </Tag>
   );
 }
-function Channels() {
+function Channels({ items = content.forms.channels }) {
   return (
     <div className="channels">
-      {content.forms.channels.map((c) => (
+      {items.map((c) => (
         <a href={c.href} key={c.id} target="_blank" rel="noreferrer" aria-label={c.label}>
           <img
             src={assetUrl('assets/icons/' + c.id + '-contact.svg')}
@@ -104,9 +106,11 @@ function InfoBlock({ onVideo, onStand, sidebar = false }) {
           />
         </div>
         {sidebar && <ArrowButton href="#tariffs">Ранняя регистрация</ArrowButton>}
-        <ArrowButton className="secondary" onClick={onStand}>
-          Забронировать стенд
-        </ArrowButton>
+        {sidebar && (
+          <ArrowButton className="secondary" onClick={onStand}>
+            Забронировать стенд
+          </ArrowButton>
+        )}
       </div>
     </div>
   );
@@ -141,7 +145,7 @@ function Countdown() {
     </div>
   );
 }
-function Hero() {
+function Hero({ onStand }) {
   return (
     <header className="hero" id="top">
       <HeroScene />
@@ -160,17 +164,16 @@ function Hero() {
           <p>
             Стратегии, технологии и инновационные сервисы для работы с долговыми обязательствами
           </p>
-          <ArrowButton href="#tariffs" className="hero-register">
-            Ранняя регистрация
-          </ArrowButton>
+          <div className="hero-actions">
+            <ArrowButton href="#tariffs" className="hero-register">
+              Ранняя регистрация
+            </ArrowButton>
+            <ArrowButton onClick={onStand} className="hero-stand secondary">
+              Забронировать стенд
+            </ArrowButton>
+          </div>
         </div>
-        <div className="hero-supporters">
-          <Picture
-            name="supporters.svg"
-            alt="При поддержке Саморегулируемой организации МИР, НАПКА и НСФР"
-            eager
-          />
-        </div>
+        <Supporters />
         <Countdown />
       </div>
     </header>
@@ -242,7 +245,7 @@ function Participants() {
     <section className="section participants" id="participants">
       <div className="participants-heading">
         <SectionTitle>
-          Что ждёт
+          Что ждет
           <br />
           участников
         </SectionTitle>
@@ -258,7 +261,7 @@ function Participants() {
       </div>
       <div className="participants-layout">
         <div className="participants-select">
-          <div role="tablist" aria-label="Что ждёт участников" className="participant-tabs">
+          <div role="tablist" aria-label="Что ждет участников" className="participant-tabs">
             {['Сцены с деловой программой', 'Пространств для нетворкинга и отдыха'].map(
               (label, i) => (
                 <button
@@ -317,9 +320,35 @@ function Participants() {
                   <div className="participant-copy">
                     <div className="participant-kicker">
                       <span>{String(index + 1).padStart(2, '0')}</span>
-                      {card.audience && <small>[ {card.audience} ]</small>}
+                      {card.audience && (
+                        <div className="participant-audience">
+                          <small>
+                            Аудитория
+                            <br />
+                            (участников)
+                          </small>
+                          <strong>
+                            {index === 0 ? (
+                              '800'
+                            ) : (
+                              <>
+                                <em>до</em>150
+                              </>
+                            )}
+                          </strong>
+                        </div>
+                      )}
                     </div>
-                    <h3>{card.title}</h3>
+                    <h3>
+                      {i === 0 ? (
+                        <>
+                          {card.title.split(' ')[0]} <br className="program-title-break" />
+                          сцена
+                        </>
+                      ) : (
+                        card.title
+                      )}
+                    </h3>
                     {card.text?.map((text) => (
                       <p key={text}>{text}</p>
                     ))}
@@ -459,23 +488,7 @@ function Speakers() {
         <br />
         DEBT TECH 2026
       </SectionTitle>
-      <div className="speakers-grid">
-        {speakers.map((s) => (
-          <article className="speaker" key={s.name}>
-            <div className="speaker-portrait">
-              <Picture name={s.image} alt={s.name} />
-            </div>
-            <div className="speaker-info">
-              <h3>
-                {s.name.split(' ').map((part, i) => (
-                  <span key={i}>{part}</span>
-                ))}
-              </h3>
-              <p>{s.role.replaceAll('\u2028', '\n')}</p>
-            </div>
-          </article>
-        ))}
-      </div>
+      <SpeakerCollection speakers={speakers} />
       <div className="speakers-note-wrap">
         <div className="speakers-note">
           <span>Финальный состав спикеров согласовывается</span>
@@ -519,7 +532,7 @@ function Organizer() {
           форума
         </SectionTitle>
         <address className="organizer-contact">
-          <span className="eyebrow">Контакты организатора</span>
+          <span className="eyebrow">Контакты для связи</span>
           <div className="organizer-contact__primary">
             <a href={o.contacts.phoneHref}>{o.contacts.phone}</a>
             <a href={'mailto:' + o.contacts.email}>{o.contacts.email}</a>
@@ -533,7 +546,7 @@ function Organizer() {
             >
               rvzrus.ru <ActionArrow />
             </a>
-            <Channels />
+            <Channels items={o.contacts.channels} />
           </div>
         </address>
       </div>
@@ -641,7 +654,7 @@ function Tariffs({ onApply }) {
               ))}
             </ul>
             <div className="tariff-bottom">
-              <span>Стоимость</span>
+              <span>Стоимость*</span>
               <strong>{t.price}</strong>
               <ArrowButton className="secondary" onClick={() => onApply(t)}>
                 Принять участие
@@ -696,7 +709,7 @@ function Sponsor() {
   return (
     <section className="section sponsor" id="partners">
       <SectionTitle>
-        Партнёры
+        Партнеры
         <br />
         конференции
       </SectionTitle>
@@ -753,12 +766,15 @@ function Partners() {
       <SectionTitle>
         Информационные
         <br />
-        партнёры
+        партнеры
       </SectionTitle>
       <div className="partners-grid">
         {partnerNames.map((name, i) => (
           <div className="partner-card glass corners" style={{ '--cell': positions[i] }} key={name}>
-            <Picture name={'partner-' + (i + 1) + '.png'} alt={name} />
+            <Picture
+              name={'partner-' + (i + 1) + ([2, 4, 8].includes(i + 1) ? '.svg' : '.png')}
+              alt={name}
+            />
           </div>
         ))}
       </div>
@@ -776,9 +792,10 @@ function Contacts() {
           информация
         </SectionTitle>
         <a className="press-contact" href={'mailto:' + c.accreditationEmail}>
-          Аккредитация СМИ:
-          <br />
-          {c.accreditationEmail}
+          <span>
+            <small>Аккредитация СМИ</small>
+            <strong>{c.accreditationEmail}</strong>
+          </span>
           <Info size={32} />
         </a>
       </div>
@@ -793,7 +810,10 @@ function Contacts() {
           <Channels />
         </div>
         <div>
-          <h3>{c.partnership.title}</h3>
+          <h3>
+            По вопросам партнерства
+            <br />и выступления:
+          </h3>
           <span>E-mail</span>
           <a href={'mailto:' + c.partnership.email}>{c.partnership.email}</a>
           <span>Тел.</span>
@@ -813,11 +833,10 @@ function Contacts() {
       </div>
       <div className="contact-bottom">
         <div className="legal">
-          <Picture name="legal-logo.png" alt="DEBTPRICE / Рынок взыскания" />
+          <Picture name="legal-logo.svg" alt="DEBTPRICE / Рынок взыскания" />
           <p>© 2026. Все права защищены.</p>
           <a href={content.footer.privacyHref} target="_blank" rel="noreferrer">
-            Политика конфиденциальности
-            <br />и персональных данных
+            Политика конфиденциальности и персональных данных
           </a>
         </div>
         <a
@@ -864,7 +883,7 @@ export default function App() {
           onGallery={() => openMedia('gallery')}
           onStand={() => openForm('stand-booking')}
         />
-        <Hero />
+        <Hero onStand={() => openForm('stand-booking')} />
         <main className="main-grid">
           <div className="mobile-info">
             <InfoBlock

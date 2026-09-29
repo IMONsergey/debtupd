@@ -20,7 +20,7 @@ for (const width of widths)
     page.on('pageerror', (e) => errors.push(e.message));
     await page.goto('/');
     await page.evaluate(() => document.fonts.ready);
-    await expect(page.locator('.speaker')).toHaveCount(13);
+    await expect(page.locator('.speaker')).toHaveCount(15);
     await expect(page.locator('.tariff')).toHaveCount(3);
     await expect(page.getByRole('heading', { name: 'MULTIPASS' })).toBeVisible();
     const issues = await page.evaluate(() => ({
@@ -39,7 +39,11 @@ for (const width of widths)
     await page.getByRole('tab', { name: /Пространств/ }).click();
     await expect(page.locator('#panel-1')).toBeVisible();
     await expect(page.locator('#panel-0')).toHaveAttribute('inert', '');
-    expect(Math.abs((await section.boundingBox()).height - h1)).toBeLessThan(2);
+    if (width >= 900) expect(Math.abs((await section.boundingBox()).height - h1)).toBeLessThan(2);
+    else
+      expect(
+        await page.locator('#panel-0').evaluate((node) => getComputedStyle(node).display),
+      ).toBe('none');
     const escapedDiscounts = await page.locator('.discount').evaluateAll(
       (nodes) =>
         nodes.filter((node) => {
@@ -49,7 +53,7 @@ for (const width of widths)
         }).length,
     );
     expect(escapedDiscounts).toBe(0);
-    if (width >= 700) {
+    if (width >= 900) {
       const photoTops = await page
         .locator('#panel-1 .participant-photo')
         .evaluateAll((nodes) => nodes.map((n) => n.getBoundingClientRect().top));

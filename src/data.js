@@ -97,12 +97,12 @@ export const spaces = [
     image: 'space-1.png',
   },
   {
-    title: 'Тематиче\u00adские зоны',
+    title: 'Тематические зоны',
     items: ['Гадание по звёздам', 'Центр притяжения инвестиций', 'DEBT TECH / Навигатор'],
     image: 'space-2.png',
   },
   {
-    title: 'Развлека\u00adтельная программа',
+    title: 'Развлекательная программа',
     items: ['Криозона (шоу + еда с азотом)', 'Вечерний фуршет', 'SpaceDisco Afterparty'],
     image: 'space-3.png',
   },

@@ -29,7 +29,10 @@ for (const engine of engines) {
     const page = await browser.newPage({ reducedMotion: 'reduce', deviceScaleFactor: 1 });
     await page.addInitScript(() => sessionStorage.setItem('debt2026-early-booking-dismissed', '1'));
     await page.route('https://kinescope.io/**', (route) =>
-      route.fulfill({ contentType: 'text/html', body: '<body>Video fixture</body>' }),
+      route.fulfill({
+        contentType: 'text/html',
+        body: '<body style="margin:0;background:transparent"></body>',
+      }),
     );
     await page.route('**/api/lead', (route) => route.abort('blockedbyclient'));
     let errors = [];
