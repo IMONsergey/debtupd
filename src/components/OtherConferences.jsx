@@ -20,6 +20,9 @@ export function OtherConferencesSection({ archive }) {
   const cardRefs = useRef([]);
   const recenterTimerRef = useRef(null);
   const isRecenteringRef = useRef(false);
+  const metricsRef = useRef({ centers: [], width: 0 });
+  const scrollFrameRef = useRef(0);
+  const requestedIndexRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(items.length);
 
   function centerCardInstantly(index) {
@@ -49,6 +52,7 @@ export function OtherConferencesSection({ archive }) {
 
     return () => {
       cancelAnimationFrame(frame);
+      cancelAnimationFrame(scrollFrameRef.current);
       window.clearTimeout(recenterTimerRef.current);
     };
   }, [items.length]);
@@ -58,7 +62,15 @@ export function OtherConferencesSection({ archive }) {
   useEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport) return undefined;
-    const observer = new ResizeObserver(() => centerCardInstantly(activeIndexRef.current));
+    const observer = new ResizeObserver(() => {
+      metricsRef.current = {
+        centers: cardRefs.current.map((card) =>
+          card ? card.offsetLeft + card.offsetWidth / 2 : 0,
+        ),
+        width: viewport.clientWidth,
+      };
+      centerCardInstantly(activeIndexRef.current);
+    });
     observer.observe(viewport);
     return () => observer.disconnect();
   }, []);
@@ -73,6 +85,8 @@ export function OtherConferencesSection({ archive }) {
     const card = cardRefs.current[nextIndex];
     if (!viewport || !card) return;
 
+    requestedIndexRef.current = nextIndex;
+    activeIndexRef.current = nextIndex;
     setActiveIndex(nextIndex);
     viewport.scrollTo({
       left: card.offsetLeft - (viewport.clientWidth - card.offsetWidth) / 2,
@@ -81,30 +95,31 @@ export function OtherConferencesSection({ archive }) {
   }
 
   function handleScroll() {
-    const viewport = viewportRef.current;
-    if (!viewport || isRecenteringRef.current) return;
-
-    const center = viewport.scrollLeft + viewport.clientWidth / 2;
-    const nearest = cardRefs.current.reduce((best, card, index) => {
-      if (!card) return best;
-      const bestCard = cardRefs.current[best];
-      const distance = Math.abs(card.offsetLeft + card.offsetWidth / 2 - center);
-      const bestDistance = bestCard
-        ? Math.abs(bestCard.offsetLeft + bestCard.offsetWidth / 2 - center)
-        : Number.POSITIVE_INFINITY;
-      return distance < bestDistance ? index : best;
-    }, 0);
-
-    setActiveIndex(nearest);
-
-    window.clearTimeout(recenterTimerRef.current);
-    recenterTimerRef.current = window.setTimeout(() => {
-      if (nearest >= items.length && nearest < items.length * 2) return;
-
-      const sourceIndex = ((nearest % items.length) + items.length) % items.length;
-      const middleIndex = items.length + sourceIndex;
-      centerCardInstantly(middleIndex);
-    }, 140);
+    if (scrollFrameRef.current) return;
+    scrollFrameRef.current = requestAnimationFrame(() => {
+      scrollFrameRef.current = 0;
+      const viewport = viewportRef.current;
+      if (!viewport || isRecenteringRef.current) return;
+      const center = viewport.scrollLeft + metricsRef.current.width / 2;
+      const nearest = metricsRef.current.centers.reduce(
+        (best, value, index, centers) =>
+          Math.abs(value - center) < Math.abs(centers[best] - center) ? index : best,
+        0,
+      );
+      if (requestedIndexRef.current === null && nearest !== activeIndexRef.current) {
+        activeIndexRef.current = nearest;
+        setActiveIndex(nearest);
+      }
+      window.clearTimeout(recenterTimerRef.current);
+      recenterTimerRef.current = window.setTimeout(() => {
+        requestedIndexRef.current = null;
+        activeIndexRef.current = nearest;
+        setActiveIndex(nearest);
+        if (nearest >= items.length && nearest < items.length * 2) return;
+        const sourceIndex = ((nearest % items.length) + items.length) % items.length;
+        centerCardInstantly(items.length + sourceIndex);
+      }, 180);
+    });
   }
 
   return (
@@ -128,14 +143,20 @@ export function OtherConferencesSection({ archive }) {
           role="region"
           aria-label="Архив конференций"
           onScroll={handleScroll}
+          onPointerDown={() => {
+            requestedIndexRef.current = null;
+          }}
+          onWheel={() => {
+            requestedIndexRef.current = null;
+          }}
           onKeyDown={(event) => {
             if (event.key === 'ArrowLeft') {
               event.preventDefault();
-              selectCard(activeIndex - 1);
+              selectCard(activeIndexRef.current - 1);
             }
             if (event.key === 'ArrowRight') {
               event.preventDefault();
-              selectCard(activeIndex + 1);
+              selectCard(activeIndexRef.current + 1);
             }
           }}
         >
@@ -173,7 +194,7 @@ export function OtherConferencesSection({ archive }) {
           className="other-conferences-carousel__control other-conferences-carousel__control--previous"
           type="button"
           aria-label="Предыдущая конференция"
-          onClick={() => selectCard(activeIndex - 1)}
+          onClick={() => selectCard(activeIndexRef.current - 1)}
         >
           <img
             className="other-conferences-carousel__control-icon other-conferences-carousel__control-icon--previous"
@@ -186,7 +207,7 @@ export function OtherConferencesSection({ archive }) {
           className="other-conferences-carousel__control other-conferences-carousel__control--next"
           type="button"
           aria-label="Следующая конференция"
-          onClick={() => selectCard(activeIndex + 1)}
+          onClick={() => selectCard(activeIndexRef.current + 1)}
         >
           <img
             className="other-conferences-carousel__control-icon other-conferences-carousel__control-icon--next"

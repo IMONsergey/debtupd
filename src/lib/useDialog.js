@@ -8,6 +8,7 @@ export function useDialog(ref, onClose) {
     body.style.overflow = 'hidden';
     const wasInert = root?.inert;
     if (root) root.inert = true;
+    document.dispatchEvent(new Event('debt:dialog-change'));
     const panel = ref.current;
     const focusables = () =>
       [
@@ -45,6 +46,7 @@ export function useDialog(ref, onClose) {
     return () => {
       body.style.overflow = previous;
       if (root) root.inert = wasInert;
+      document.dispatchEvent(new Event('debt:dialog-change'));
       document.removeEventListener('keydown', handle);
       if (active?.isConnected) active.focus({ preventScroll: true });
     };

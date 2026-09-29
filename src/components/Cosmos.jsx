@@ -27,13 +27,13 @@ export function StarField({ className = '' }) {
 export function MenuAtmosphere() {
   return (
     <div className="menu-atmosphere" aria-hidden="true">
-      {[0.5, 1, 2, 4, 8, 16].map((blur, index) => (
+      {[2, 5, 10].map((blur, index) => (
         <span
           key={blur}
           style={{
             '--blur': `${blur}px`,
-            '--opaque': `${Math.max(0, 59 - index * 11)}%`,
-            '--clear': `${96 - index * 10}%`,
+            '--opaque': `${Math.max(0, 58 - index * 25)}%`,
+            '--clear': `${96 - index * 23}%`,
           }}
         />
       ))}
@@ -44,10 +44,16 @@ export function MenuAtmosphere() {
 export function Cosmos() {
   const ref = useRef(null);
   useEffect(() => {
-    // Remove the old stored manual pause. Motion preferences are now system-controlled only.
     document.documentElement.classList.remove('motion-paused');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-    const layers = [...document.querySelectorAll('[data-star-field]')];
+    const modalBlocked = () => !!document.getElementById('page-content')?.inert;
+    const fields = [...document.querySelectorAll('[data-star-field]')].map((node) => ({
+      node,
+      visible: true,
+      layers: [...node.querySelectorAll('.star-field__depth')],
+    }));
+    const state = { x: 0, y: 0, scroll: 0, running: false };
+    ref.current._starState = state;
     let frame = 0,
       x = 0,
       y = 0,
@@ -57,37 +63,48 @@ export function Cosmos() {
       ts = 0,
       last = 0,
       height = 1;
+    const factors = [0.35, 0.65, 1],
+      depth = [0.18, 0.37, 0.6];
+    const paint = () => {
+      for (const field of fields)
+        if (field.visible)
+          field.layers.forEach((layer, index) => {
+            // Direct transforms do not invalidate inherited custom properties through the field.
+            layer.style.transform = `translate3d(${(x * factors[index]).toFixed(2)}px,${(y * factors[index] - s * depth[index]).toFixed(2)}px,0)`;
+          });
+      Object.assign(state, { x, y, scroll: s });
+    };
     const tick = (now) => {
       frame = 0;
-      if (document.hidden || reduced.matches) return;
+      if (document.hidden || reduced.matches || modalBlocked()) {
+        state.running = false;
+        return;
+      }
       const dt = Math.min(0.05, last ? (now - last) / 1000 : 1 / 60);
       last = now;
-      const ease = 1 - Math.exp(-dt * 4);
+      const ease = 1 - Math.exp(-dt * 5);
       x += (tx - x) * ease;
       y += (ty - y) * ease;
       s += (ts - s) * ease;
-      for (const layer of layers) {
-        layer.style.setProperty('--space-x', `${x.toFixed(2)}px`);
-        layer.style.setProperty('--space-y', `${y.toFixed(2)}px`);
-        layer.style.setProperty('--space-scroll', `${s.toFixed(2)}px`);
-      }
-      if (Math.abs(tx - x) + Math.abs(ty - y) + Math.abs(ts - s) > 0.08)
-        frame = requestAnimationFrame(tick);
+      paint();
+      const moving = Math.abs(tx - x) + Math.abs(ty - y) + Math.abs(ts - s) > 0.1;
+      state.running = moving;
+      if (moving) frame = requestAnimationFrame(tick);
     };
     const schedule = () => {
-      if (!frame && !reduced.matches && !document.hidden) {
+      if (!frame && !reduced.matches && !document.hidden && !modalBlocked()) {
         last = 0;
         frame = requestAnimationFrame(tick);
       }
     };
-    const pointer = (e) => {
-      if (e.pointerType === 'touch') return;
-      tx = (e.clientX / innerWidth - 0.5) * 46;
-      ty = (e.clientY / innerHeight - 0.5) * 30;
+    const pointer = (event) => {
+      if (event.pointerType === 'touch') return;
+      tx = (event.clientX / innerWidth - 0.5) * 64;
+      ty = (event.clientY / innerHeight - 0.5) * 42;
       schedule();
     };
     const scroll = () => {
-      ts = Math.min(1, Math.max(0, scrollY / height)) * 240;
+      ts = Math.min(1, Math.max(0, scrollY / height)) * 280;
       schedule();
     };
     const resize = () => {
@@ -103,31 +120,51 @@ export function Cosmos() {
       if (document.hidden) {
         cancelAnimationFrame(frame);
         frame = 0;
+        state.running = false;
       } else schedule();
     };
     const preference = () => {
       if (reduced.matches) {
         cancelAnimationFrame(frame);
         frame = 0;
+        state.running = false;
+        fields.forEach((field) =>
+          field.layers.forEach((layer) => (layer.style.transform = 'none')),
+        );
       } else schedule();
     };
     const ro = new ResizeObserver(resize);
     ro.observe(document.body);
-    window.addEventListener('pointermove', pointer, { passive: true });
-    window.addEventListener('scroll', scroll, { passive: true });
-    window.addEventListener('resize', resize);
+    const io = new IntersectionObserver((entries) =>
+      entries.forEach((entry) => {
+        const field = fields.find((item) => item.node === entry.target);
+        if (field) {
+          field.visible = entry.isIntersecting;
+          field.node.classList.toggle('is-dormant', !field.visible);
+          if (field.visible) paint();
+        }
+      }),
+    );
+    fields.forEach((field) => io.observe(field.node));
+    addEventListener('pointermove', pointer, { passive: true });
+    addEventListener('scroll', scroll, { passive: true });
+    addEventListener('resize', resize);
     document.addEventListener('pointerleave', leave);
     document.addEventListener('visibilitychange', visibility);
+    document.addEventListener('debt:dialog-change', schedule);
     reduced.addEventListener('change', preference);
     resize();
+    visibility();
     return () => {
       cancelAnimationFrame(frame);
       ro.disconnect();
-      window.removeEventListener('pointermove', pointer);
-      window.removeEventListener('scroll', scroll);
-      window.removeEventListener('resize', resize);
+      io.disconnect();
+      removeEventListener('pointermove', pointer);
+      removeEventListener('scroll', scroll);
+      removeEventListener('resize', resize);
       document.removeEventListener('pointerleave', leave);
       document.removeEventListener('visibilitychange', visibility);
+      document.removeEventListener('debt:dialog-change', schedule);
       reduced.removeEventListener('change', preference);
     };
   }, []);

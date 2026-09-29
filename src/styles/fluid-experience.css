@@ -1,0 +1,241 @@
+/* Motion repair pass: compositor movement, bounded light and earlier image decoding. */
+[data-reveal='shown'] {
+  transition:
+    opacity 860ms cubic-bezier(0.22, 0.7, 0.25, 1),
+    translate 1000ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-reveal='waiting'] {
+  opacity: 0;
+  translate: 0 20px;
+  transition: none;
+}
+[data-reveal='shown'] {
+  opacity: 1;
+  translate: 0 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    translate: none;
+    transition: none;
+  }
+}
+.hero {
+  background: transparent;
+}
+.hero-layer-scene {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 72%,
+    rgba(0, 0, 0, 0.98) 80%,
+    rgba(0, 0, 0, 0.65) 91%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 72%,
+    rgba(0, 0, 0, 0.98) 80%,
+    rgba(0, 0, 0, 0.65) 91%,
+    transparent 100%
+  );
+}
+.hero-horizon {
+  background: transparent;
+}
+.hero-horizon[data-gl='ready']::before,
+.hero-horizon[data-gl='ready']::after {
+  opacity: 0;
+}
+.hero-planet-disc {
+  clip-path: none;
+}
+.hero-planet-crown {
+  opacity: 0.56;
+}
+.hero-bottom-shade {
+  background: linear-gradient(180deg, transparent 62%, #03091b52 84%, #03091b 100%);
+}
+.cosmos__nebula {
+  animation: nebula-drift 44s ease-in-out infinite alternate;
+}
+.star-field__depth {
+  transform: translate3d(0, 0, 0);
+}
+.star-field__depth--1,
+.star-field__depth--2 {
+  transform: translate3d(0, 0, 0);
+}
+.cosmos__stars {
+  animation: stellar-drift 48s ease-in-out infinite alternate;
+}
+.star-field__depth--1 .cosmos__stars {
+  animation-duration: 30s;
+}
+.star-field__depth--2 .cosmos__stars {
+  animation-duration: 22s;
+}
+.star-field.is-dormant .cosmos__stars {
+  animation-play-state: paused;
+}
+@keyframes stellar-drift {
+  from {
+    transform: translate3d(-70px, 55px, 0);
+  }
+  to {
+    transform: translate3d(100px, -85px, 0);
+  }
+}
+@keyframes nebula-drift {
+  from {
+    transform: translate3d(-25px, 10px, 0);
+    opacity: 0.7;
+  }
+  to {
+    transform: translate3d(35px, -20px, 0);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cosmos__nebula,
+  .cosmos__stars {
+    animation: none;
+  }
+}
+/* Static glass color, rather than 20 independent backdrop captures over the animated sky. */
+.audience-card,
+.partner-card {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.desktop-sidebar-video__frame,
+.desktop-sidebar-video__frame:not(.is-open):hover {
+  border: 0;
+  box-shadow: none;
+  transform: none;
+  background: transparent;
+}
+.desktop-sidebar-video__frame iframe {
+  inset: -1px;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  border: 0;
+  outline: 0;
+}
+.desktop-sidebar-video__caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.desktop-sidebar-video__caption a {
+  color: #8ac5f2;
+  font: inherit;
+  text-decoration: none;
+}
+.space-route__ship {
+  transition: transform 800ms cubic-bezier(0.22, 0.7, 0.25, 1);
+}
+@media (min-width: 1181px) {
+  .fixed-menu .space-route {
+    --stop-height: 32px;
+  }
+  .fixed-menu .space-route__label {
+    font-size: 12px;
+  }
+  .fixed-menu__brand {
+    margin-bottom: 28px;
+  }
+}
+@media (min-width: 1181px) and (max-height: 800px) {
+  .fixed-menu .space-route {
+    --stop-height: 28px;
+  }
+  .fixed-menu .space-route__label {
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .space-route__ship {
+    transition: none;
+  }
+}
+/* All desktop contact actions, not merely the phone and email, are on one baseline. */
+@media (min-width: 1181px) {
+  .organizer-heading {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .organizer-contact {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 24px;
+    padding: 18px 0;
+    border-left: 0;
+    border-top: 1px solid #5295ce38;
+    border-bottom: 1px solid #5295ce38;
+    width: 100%;
+  }
+  .organizer-contact > .eyebrow {
+    margin: 0;
+    flex: 1;
+    white-space: nowrap;
+  }
+  .organizer-contact__primary {
+    display: flex;
+    flex-wrap: nowrap;
+    margin: 0;
+    gap: 24px;
+  }
+  .organizer-contact__primary a {
+    font-size: clamp(14px, 1.2cqi, 18px);
+  }
+  .organizer-contact__bottom {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 20px;
+    margin: 0;
+  }
+  .organizer-contact__site {
+    white-space: nowrap;
+  }
+}
+input[name='participants_count'] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+input[name='participants_count']::-webkit-inner-spin-button,
+input[name='participants_count']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.conference-link-card {
+  transition:
+    opacity 500ms ease,
+    border-color 300ms ease;
+}
+.conference-link-card.is-active,
+.conference-link-card:hover,
+.conference-link-card:focus-visible {
+  transform: none;
+  filter: none;
+}
+
+.ticker {
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 22px,
+    #000 calc(100% - 22px),
+    transparent
+  );
+  mask-image: linear-gradient(90deg, transparent, #000 22px, #000 calc(100% - 22px), transparent);
+}
+
+#page-content[inert] .cosmos__stars,
+#page-content[inert] .cosmos__nebula,
+#page-content[inert] .hero-planet-rotation {
+  animation-play-state: paused;
+}

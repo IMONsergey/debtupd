@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { VERT, FRAG } from './orbit-shaders.js';
-
 function compile(gl, type, source) {
   const shader = gl.createShader(type);
   if (!shader) return null;
@@ -12,7 +11,6 @@ function compile(gl, type, source) {
   }
   return shader;
 }
-// One low-resolution volumetric layer. No animation loop while offscreen or in another tab.
 export function OrbitGlow({ orbitRef }) {
   const canvasRef = useRef(null),
     [revision, setRevision] = useState(0);
@@ -21,7 +19,8 @@ export function OrbitGlow({ orbitRef }) {
       host = canvas?.parentElement;
     if (!canvas || !host) return;
     const gl = canvas.getContext('webgl', {
-      alpha: false,
+      alpha: true,
+      premultipliedAlpha: false,
       antialias: false,
       depth: false,
       stencil: false,
@@ -34,6 +33,8 @@ export function OrbitGlow({ orbitRef }) {
     const vs = compile(gl, gl.VERTEX_SHADER, VERT),
       fs = compile(gl, gl.FRAGMENT_SHADER, FRAG);
     if (!vs || !fs) {
+      if (vs) gl.deleteShader(vs);
+      if (fs) gl.deleteShader(fs);
       host.dataset.gl = 'fallback';
       return;
     }
@@ -42,6 +43,9 @@ export function OrbitGlow({ orbitRef }) {
     gl.attachShader(program, fs);
     gl.linkProgram(program);
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      gl.deleteProgram(program);
+      gl.deleteShader(vs);
+      gl.deleteShader(fs);
       host.dataset.gl = 'fallback';
       return;
     }
@@ -49,62 +53,65 @@ export function OrbitGlow({ orbitRef }) {
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    const attribute = gl.getAttribLocation(program, 'aPos');
-    gl.enableVertexAttribArray(attribute);
-    gl.vertexAttribPointer(attribute, 2, gl.FLOAT, false, 0, 0);
-    const names = [
-      'uRes',
-      'uTime',
-      'uMouse',
-      'uHover',
-      'uBright',
-      'uHorizonY',
-      'uHorizonX',
-      'uHorizonR',
-      'uHaze',
-      'uCoreSize',
-      'uCoreHover',
-      'uRimSpread',
-      'uParallax',
-      'uFit',
-      'uBg',
-      'uCore',
-      'uMid',
-      'uDeep',
-    ];
-    const u = Object.fromEntries(names.map((name) => [name, gl.getUniformLocation(program, name)]));
+    const position = gl.getAttribLocation(program, 'aPos');
+    gl.enableVertexAttribArray(position);
+    gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+    const u = Object.fromEntries(
+      ['uRes', 'uTime', 'uMouse', 'uHover', 'uHorizonY', 'uHorizonX', 'uHorizonR'].map((name) => [
+        name,
+        gl.getUniformLocation(program, name),
+      ]),
+    );
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    const modalBlocked = () => !!document.getElementById('page-content')?.inert;
     let frame = 0,
       visible = true,
       lost = false,
       disposed = false,
+      loading = !!document.getElementById('site-preloader'),
       w = 0,
       h = 0,
       time = 0,
       last = 0,
       lastDraw = 0;
-    let x = 0,
-      y = 0,
-      tx = 0,
-      ty = 0,
+    let x = 0.54,
+      y = 0.3,
+      tx = 0.54,
+      ty = 0.3,
       hover = 0,
       targetHover = 0;
-    let geometry = { cx: 0.54, top: 0.53, radius: 0.76 };
+    let geometry = { cx: 0.54, top: 0.53, radius: 0.78 },
+      bounds = { left: 0, top: 0, width: 1, height: 1 };
+    const state = { draws: 0, time: 0, hover: 0, x, y, running: false };
+    canvas._orbitState = state;
+    const draw = () => {
+      if (disposed || lost || !w) return;
+      gl.uniform2f(u.uRes, w, h);
+      gl.uniform1f(u.uTime, time);
+      gl.uniform2f(u.uMouse, x, y);
+      gl.uniform1f(u.uHover, hover);
+      gl.uniform1f(u.uHorizonY, geometry.top);
+      gl.uniform1f(u.uHorizonX, geometry.cx);
+      gl.uniform1f(u.uHorizonR, geometry.radius);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      if (host.dataset.gl !== 'ready') host.dataset.gl = 'ready';
+      Object.assign(state, { draws: state.draws + 1, time, hover, x, y });
+    };
     const resize = () => {
-      const hostBox = host.getBoundingClientRect(),
-        planetBox = orbitRef.current?.getBoundingClientRect();
-      if (!hostBox.width || !hostBox.height) return;
-      if (planetBox)
+      const box = host.getBoundingClientRect(),
+        planet = orbitRef.current?.getBoundingClientRect();
+      if (!box.width || !box.height) return;
+      bounds = { left: box.left, top: box.top + scrollY, width: box.width, height: box.height };
+      if (planet)
         geometry = {
-          cx: (planetBox.left - hostBox.left + planetBox.width / 2) / hostBox.width,
-          top: (planetBox.top - hostBox.top) / hostBox.height,
-          radius: planetBox.width / 2 / hostBox.width,
+          cx: (planet.left - box.left + planet.width / 2) / box.width,
+          top: (planet.top - box.top) / box.height,
+          radius: planet.width / 2 / box.width,
         };
-      // Exact shared silhouette; deliberately NOT displaced by cursor parallax.
-      const budget = hostBox.width < 700 ? 120000 : 210000;
-      const scale = Math.min(1, Math.sqrt(budget / (hostBox.width * hostBox.height)));
-      w = Math.max(2, Math.round(hostBox.width * scale));
-      h = Math.max(2, Math.round(hostBox.height * scale));
+      const budget = box.width < 700 ? 90000 : 150000;
+      const scale = Math.min(1, Math.sqrt(budget / (box.width * box.height)));
+      w = Math.max(2, Math.round(box.width * scale));
+      h = Math.max(2, Math.round(box.height * scale));
       if (canvas.width !== w || canvas.height !== h) {
         canvas.width = w;
         canvas.height = h;
@@ -115,69 +122,74 @@ export function OrbitGlow({ orbitRef }) {
       canvas.dataset.radius = String(geometry.radius);
       draw();
     };
-    const draw = () => {
-      if (disposed || lost || !w) return;
-      gl.uniform2f(u.uRes, w, h);
-      gl.uniform1f(u.uTime, time * 0.5);
-      gl.uniform2f(u.uMouse, x, y);
-      gl.uniform1f(u.uHover, hover);
-      gl.uniform1f(u.uBright, 1.45);
-      gl.uniform1f(u.uHorizonY, geometry.top);
-      gl.uniform1f(u.uHorizonX, geometry.cx);
-      gl.uniform1f(u.uHorizonR, geometry.radius);
-      gl.uniform1f(u.uHaze, 3.3);
-      gl.uniform1f(u.uCoreSize, 0.013);
-      gl.uniform1f(u.uCoreHover, 0.024);
-      gl.uniform1f(u.uRimSpread, 0.15);
-      gl.uniform1f(u.uParallax, 1.1);
-      gl.uniform1f(u.uFit, 0);
-      gl.uniform3f(u.uBg, 3 / 255, 9 / 255, 27 / 255);
-      gl.uniform3f(u.uCore, 0.62, 0.92, 1);
-      gl.uniform3f(u.uMid, 0.1, 0.46, 0.94);
-      gl.uniform3f(u.uDeep, 0.015, 0.085, 0.32);
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
-      host.dataset.gl = 'ready';
-    };
     const tick = (now) => {
       frame = 0;
-      if (disposed || lost || document.hidden || !visible || reduced.matches) return;
-      const dt = Math.min(0.05, last ? (now - last) / 1000 : 0);
+      if (
+        disposed ||
+        lost ||
+        document.hidden ||
+        !visible ||
+        reduced.matches ||
+        loading ||
+        modalBlocked()
+      ) {
+        state.running = false;
+        return;
+      }
+      const dt = Math.min(0.05, last ? (now - last) / 1000 : 1 / 60);
       last = now;
       time += dt;
-      const ease = 1 - Math.exp(-dt * 3.5);
+      const ease = 1 - Math.exp(-dt * 9);
       x += (tx - x) * ease;
       y += (ty - y) * ease;
       hover += (targetHover - hover) * ease;
-      if (now - lastDraw >= 32) {
+      // Active pointer = up to display refresh; ambient drift = 30 fps. No expensive 3D sampling.
+      if (now - lastDraw >= (hover > 0.05 ? 15 : 32)) {
         draw();
         lastDraw = now;
       }
+      state.running = true;
       frame = requestAnimationFrame(tick);
     };
     const sync = () => {
       cancelAnimationFrame(frame);
       frame = 0;
       last = 0;
+      state.running = false;
       if (reduced.matches) draw();
-      else if (visible && !document.hidden && !lost) frame = requestAnimationFrame(tick);
+      else if (visible && !document.hidden && !lost && !loading && !modalBlocked())
+        frame = requestAnimationFrame(tick);
     };
-    const move = (e) => {
-      if (e.pointerType === 'touch') return;
-      const r = host.getBoundingClientRect();
-      tx = (e.clientX - r.left) / r.width - 0.5;
-      ty = (e.clientY - r.top) / r.height - 0.5;
-      targetHover = 0.5;
+    const ready = () => {
+      loading = false;
+      sync();
+    };
+    const move = (event) => {
+      if (event.pointerType === 'touch' || !visible) return;
+      if (
+        event.clientY + scrollY < bounds.top ||
+        event.clientY + scrollY > bounds.top + bounds.height
+      ) {
+        targetHover = 0;
+        return;
+      }
+      tx = (event.clientX - bounds.left) / bounds.width;
+      ty = (event.clientY + scrollY - bounds.top) / bounds.height;
+      targetHover = 1;
     };
     const leave = () => {
-      tx = ty = targetHover = 0;
+      targetHover = 0;
+      tx = geometry.cx;
+      ty = 0.3;
     };
-    const contextLost = (e) => {
-      e.preventDefault();
+    const contextLost = (event) => {
+      event.preventDefault();
       lost = true;
       host.dataset.gl = 'fallback';
       cancelAnimationFrame(frame);
+      state.running = false;
     };
-    const contextRestored = () => setRevision((value) => value + 1);
+    const restored = () => setRevision((value) => value + 1);
     const ro = new ResizeObserver(resize);
     ro.observe(host);
     if (orbitRef.current) ro.observe(orbitRef.current);
@@ -189,12 +201,14 @@ export function OrbitGlow({ orbitRef }) {
       { threshold: 0 },
     );
     io.observe(host);
-    const pointerHost = host.closest('.hero');
+    const pointerHost = window;
     pointerHost?.addEventListener('pointermove', move, { passive: true });
     pointerHost?.addEventListener('pointerleave', leave);
     canvas.addEventListener('webglcontextlost', contextLost);
-    canvas.addEventListener('webglcontextrestored', contextRestored);
+    canvas.addEventListener('webglcontextrestored', restored);
     document.addEventListener('visibilitychange', sync);
+    document.addEventListener('debt:dialog-change', sync);
+    document.addEventListener('debt:preloader-closed', ready);
     reduced.addEventListener('change', sync);
     resize();
     sync();
@@ -206,9 +220,11 @@ export function OrbitGlow({ orbitRef }) {
       pointerHost?.removeEventListener('pointermove', move);
       pointerHost?.removeEventListener('pointerleave', leave);
       document.removeEventListener('visibilitychange', sync);
+      document.removeEventListener('debt:dialog-change', sync);
+      document.removeEventListener('debt:preloader-closed', ready);
       reduced.removeEventListener('change', sync);
       canvas.removeEventListener('webglcontextlost', contextLost);
-      canvas.removeEventListener('webglcontextrestored', contextRestored);
+      canvas.removeEventListener('webglcontextrestored', restored);
       if (!lost) {
         gl.deleteBuffer(buffer);
         gl.deleteProgram(program);

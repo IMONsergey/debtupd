@@ -65,12 +65,12 @@ test('Russian prepositions are typeset without changing links or numeric values'
   );
   await expect(page.locator('.tariff--business .tariff-bottom strong')).toHaveText(/44\s*000\s*₽/);
 });
-test('Six progressive blur layers fade right, with a less opaque sidebar tint', async ({
+test('Three progressive blur layers fade right, with a less opaque sidebar tint', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
-  await expect(page.locator('.menu-atmosphere>span')).toHaveCount(6);
+  await expect(page.locator('.menu-atmosphere>span')).toHaveCount(3);
   const layers = await page.locator('.menu-atmosphere>span').evaluateAll((nodes) =>
     nodes.map((node) => {
       const style = getComputedStyle(node);
@@ -80,8 +80,8 @@ test('Six progressive blur layers fade right, with a less opaque sidebar tint', 
       };
     }),
   );
-  expect(layers[0].blur).toContain('0.5px');
-  expect(layers[5].blur).toContain('16px');
+  expect(layers[0].blur).toContain('2px');
+  expect(layers[2].blur).toContain('10px');
   expect(layers.every((layer) => layer.mask.includes('gradient'))).toBe(true);
   const brand = await page.locator('.fixed-menu__brand').boundingBox(),
     nav = await page.locator('.fixed-menu .space-navigation').boundingBox();
@@ -148,7 +148,7 @@ test('CSS stars respond continuously with no floating playback control', async (
     .poll(() =>
       page
         .locator('.cosmos .star-field')
-        .evaluate((node) => parseFloat(node.style.getPropertyValue('--space-x')) || 0),
+        .evaluate((node) => document.querySelector('.cosmos')._starState.x || 0),
     )
     .toBeGreaterThan(3);
   await page.evaluate(() => scrollTo({ top: 4000, behavior: 'instant' }));
@@ -156,7 +156,7 @@ test('CSS stars respond continuously with no floating playback control', async (
     .poll(() =>
       page
         .locator('.cosmos .star-field')
-        .evaluate((node) => parseFloat(node.style.getPropertyValue('--space-scroll')) || 0),
+        .evaluate((node) => document.querySelector('.cosmos')._starState.scroll || 0),
     )
     .toBeGreaterThan(5);
   expect(

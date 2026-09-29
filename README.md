@@ -109,3 +109,14 @@ VITE_BASE_PATH=/debtupd/ npm run preview -- --host 127.0.0.1 --port 4173
 # В другом терминале:
 QA_BASE_URL=http://127.0.0.1:4173/debtupd/ npm run audit:visual
 ```
+
+## Текущий проход: отзывчивость и плавность
+
+[Отчёт и реальные замеры выполнения](docs/FLUIDITY_AUDIT_2026-09-29.md). Текущая навигация определяется в `src/navigation.js`. Шейдер атмосферы аналитический; объёмный ray-march из предыдущего прохода заменён. Звёзды используют прямые transform-обновления. Появления карточек подготавливаются до входа в экран; показанный контент не скрывается повторно. Все контакты организатора на десктопе собраны в одну строку.
+
+```sh
+# При запущенном dev-сервере:
+node scripts/benchmark-runtime.mjs
+# С конкретным опубликованным URL:
+QA_BASE_URL=https://imonsergey.github.io/debtupd/ QA_LABEL=published node scripts/benchmark-runtime.mjs
+```

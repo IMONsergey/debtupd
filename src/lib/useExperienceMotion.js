@@ -1,76 +1,109 @@
 import { useEffect } from 'react';
 import { initAnalytics } from './forms.js';
+
 export function useExperienceMotion() {
   useEffect(() => {
     initAnalytics();
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-    let observer,
-      frame = 0,
-      card = null,
-      point = { x: 50, y: 25 };
-    const running = new Set();
-    const start = () => {
-      observer?.disconnect();
-      running.forEach((animation) => animation.finish());
-      running.clear();
-      if (reduced.matches) return;
-      observer = new IntersectionObserver(
-        (entries) =>
-          entries.forEach((entry) => {
-            if (!entry.isIntersecting || entry.target.dataset.arrived) return;
-            entry.target.dataset.arrived = 'true';
-            observer.unobserve(entry.target);
-            // No opacity reset, no parent/child cascade: one small translation, once per grid.
-            const animation = entry.target.animate(
-              [{ transform: 'translate3d(0,9px,0)' }, { transform: 'translate3d(0,0,0)' }],
-              { duration: 850, easing: 'cubic-bezier(.22,1,.36,1)' },
-            );
-            running.add(animation);
-            animation.finished.catch(() => {}).finally(() => running.delete(animation));
-          }),
-        { threshold: 0.025, rootMargin: '0px 0px 30px 0px' },
-      );
-      document
-        .querySelectorAll(
-          '.about-grid,.stats-grid,.service-grid,.topics-grid,.speakers-grid,.organizer-grid,.tariff-grid,.sponsor-panel',
-        )
-        .forEach((node) => {
-          if (node.getBoundingClientRect().top < innerHeight) {
-            node.dataset.arrived = 'true';
-            return;
-          }
-          if (!node.dataset.arrived) observer.observe(node);
-        });
-    };
-    const render = () => {
-      frame = 0;
-      if (card) {
-        card.style.setProperty('--light-x', `${point.x}%`);
-        card.style.setProperty('--light-y', `${point.y}%`);
+    let revealObserver,
+      disposed = false,
+      activeLoads = 0;
+    const queue = [],
+      queued = new WeakSet(),
+      targets = [];
+    // Decode just ahead of the viewport, at most two assets at a time.
+    // This avoids a burst of decoder/raster work when a whole section first becomes visible.
+    const drain = () => {
+      if (disposed) return;
+      while (activeLoads < 2 && queue.length) {
+        const img = queue.shift();
+        activeLoads++;
+        img.loading = 'eager';
+        img.decoding = 'async';
+        const loaded = img.complete
+          ? Promise.resolve()
+          : new Promise((resolve) => {
+              img.addEventListener('load', resolve, { once: true });
+              img.addEventListener('error', resolve, { once: true });
+            });
+        loaded
+          .then(() => img.decode().catch(() => {}))
+          .finally(() => {
+            activeLoads--;
+            img.dataset.decoded = 'true';
+            drain();
+          });
       }
     };
-    const pointer = (event) => {
-      if (reduced.matches || event.pointerType === 'touch') return;
-      card = event.target.closest('.tariff,.discount');
-      if (!card) return;
-      const r = card.getBoundingClientRect();
-      point = {
-        x: ((event.clientX - r.left) / r.width) * 100,
-        y: ((event.clientY - r.top) / r.height) * 100,
-      };
-      if (!frame) frame = requestAnimationFrame(render);
+    const warmObserver = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          warmObserver.unobserve(entry.target);
+          if (!queued.has(entry.target)) {
+            queued.add(entry.target);
+            queue.push(entry.target);
+            drain();
+          }
+        }),
+      { rootMargin: '1600px 0px', threshold: 0 },
+    );
+    document
+      .querySelectorAll('main img[loading="lazy"]')
+      .forEach((img) => warmObserver.observe(img));
+    const start = () => {
+      revealObserver?.disconnect();
+      if (reduced.matches) {
+        targets.forEach((node) => node.removeAttribute('data-reveal'));
+        return;
+      }
+      revealObserver = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.dataset.reveal = 'shown';
+            revealObserver.unobserve(entry.target);
+          }),
+        { rootMargin: '0px 0px -20px 0px', threshold: 0 },
+      );
+      if (!targets.length)
+        targets.push(
+          ...document.querySelectorAll(
+            '.section-title,.about-copy,.about-photo,.stat,.participant-card,.service-photo,.service-copy,.topic-card,.speaker,.audience-card,.organizer-card,.tariff,.corporate,.sponsor-panel,.partner-card,.contact-grid',
+          ),
+        );
+      targets.forEach((node) => {
+        // Initial hidden state is set only while a node is still offscreen. Never reset a visible card.
+        if (node.dataset.reveal === 'shown') return;
+        if (node.getBoundingClientRect().top < innerHeight) {
+          node.dataset.reveal = 'shown';
+          return;
+        }
+        node.dataset.reveal = 'waiting';
+        revealObserver.observe(node);
+      });
+    };
+    const revealTarget = (event) => {
+      if (event.key === 'Tab')
+        requestAnimationFrame(() =>
+          document.activeElement
+            ?.closest('[data-reveal="waiting"]')
+            ?.setAttribute('data-reveal', 'shown'),
+        );
     };
     if (!document.getElementById('site-preloader')) start();
     document.addEventListener('debt:preloader-closed', start);
     reduced.addEventListener('change', start);
-    document.addEventListener('pointermove', pointer, { passive: true });
+    document.addEventListener('keyup', revealTarget);
     return () => {
-      observer?.disconnect();
-      cancelAnimationFrame(frame);
-      running.forEach((animation) => animation.finish());
+      disposed = true;
+      queue.length = 0;
+      warmObserver.disconnect();
+      revealObserver?.disconnect();
+      targets.forEach((node) => node.removeAttribute('data-reveal'));
       document.removeEventListener('debt:preloader-closed', start);
       reduced.removeEventListener('change', start);
-      document.removeEventListener('pointermove', pointer);
+      document.removeEventListener('keyup', revealTarget);
     };
   }, []);
 }

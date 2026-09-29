@@ -1,0 +1,49 @@
+{
+  "label": "before",
+  "base": "http://127.0.0.1:5173/",
+  "browser": "154.0.8037.58",
+  "viewport": "1440x900, DPR 1",
+  "video": "blocked for repeatable comparison",
+  "phases": [
+    {
+      "mode": "pointer",
+      "elapsed": 6016.4,
+      "frames": 313,
+      "medianMs": 16.69999999999891,
+      "p95Ms": 33.30000000000109,
+      "maxMs": 166.70000000000073,
+      "over33": 2,
+      "over50": 2,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "mainThread": {
+        "TaskDuration": 1.6742,
+        "ScriptDuration": 0.1209,
+        "RecalcStyleDuration": 0.8823,
+        "LayoutDuration": 0.0017,
+        "RecalcStyleCount": 314,
+        "LayoutCount": 6
+      }
+    },
+    {
+      "mode": "scroll",
+      "elapsed": 12016.1,
+      "frames": 678,
+      "medianMs": 16.700000000000728,
+      "p95Ms": 33.29999999999927,
+      "maxMs": 66.59999999999854,
+      "over33": 3,
+      "over50": 1,
+      "longTasks": 0,
+      "longTaskMs": 0,
+      "mainThread": {
+        "TaskDuration": 3.8002,
+        "ScriptDuration": 0.311,
+        "RecalcStyleDuration": 1.8743,
+        "LayoutDuration": 0.014,
+        "RecalcStyleCount": 1362,
+        "LayoutCount": 57
+      }
+    }
+  ]
+}

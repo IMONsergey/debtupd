@@ -24,7 +24,19 @@ export function ProductionMenu({ onVideo, onGallery, onStand }) {
         <SpaceNavigation onGallery={onGallery} />
         <div className="fixed-menu__info">
           <div className="desktop-sidebar-video">
-            <span className="desktop-sidebar-video__caption">Как это было в 2025</span>
+            <div className="desktop-sidebar-video__caption">
+              <span>Как это было в 2025</span>
+              <a
+                href="#gallery"
+                aria-label="Кадры с DEBT TECH 2025"
+                onClick={(event) => {
+                  event.preventDefault();
+                  onGallery();
+                }}
+              >
+                Фото ↗
+              </a>
+            </div>
             <div className="desktop-sidebar-video__frame">
               <img
                 className="desktop-sidebar-video__poster"
