@@ -92,6 +92,7 @@ ol {
   margin: 0;
 }
 img {
+  height: auto;
   display: block;
   max-width: 100%;
 }
@@ -191,35 +192,9 @@ textarea {
   justify-content: space-between;
   align-items: center;
   gap: 14px;
-  min-height: 54px;
-  padding: 14px 20px;
-  border: 1px solid #4a9fe678;
-  border-radius: 3px;
-  background: linear-gradient(110deg, #28699d, #124171);
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 1.3;
-  transition:
-    background 0.2s,
-    box-shadow 0.2s,
-    transform 0.2s;
 }
 .button svg {
   flex: none;
-}
-.button:hover {
-  background: linear-gradient(110deg, #357fb8, #20578c);
-  box-shadow: 0 0 26px #168afa26;
-}
-.button:active {
-  transform: translateY(1px);
-}
-.button.secondary {
-  background: linear-gradient(120deg, #19334d55, #203a5140);
-  border-color: #56718d;
-}
-.button.secondary:hover {
-  background: #28547788;
 }
 .icon-button,
 .circle-button {
@@ -435,11 +410,6 @@ textarea {
 }
 .info-block--sidebar {
   gap: 20px;
-}
-.info-block--sidebar .button {
-  font-size: 13px;
-  min-height: 42px;
-  padding: 10px 12px;
 }
 .mobile-brand,
 .mobile-info {
@@ -1124,12 +1094,6 @@ textarea {
 .audience {
   margin-bottom: 248px;
 }
-.audience-art {
-  width: 880px;
-  right: -245px;
-  top: -250px;
-  opacity: 0.85;
-}
 .audience-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1356,20 +1320,6 @@ textarea {
   width: 63%;
   height: auto;
 }
-.tariff-planet {
-  width: 33%;
-  top: -290px;
-  left: 31%;
-  filter: blur(5px);
-}
-.tariff-astronaut {
-  width: 63%;
-  max-width: 710px;
-  right: -22px;
-  top: -345px;
-  z-index: -1;
-  animation: float 16s ease-in-out infinite;
-}
 .tariff-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1436,11 +1386,6 @@ textarea {
   margin: 6px 0 24px;
   white-space: nowrap;
 }
-.tariff-bottom > .button {
-  font-size: 14px;
-  min-height: 47px;
-  border-color: #ffffff42;
-}
 .tariff--full {
   box-shadow: inset 0 0 60px #2d52a033;
 }
@@ -1480,35 +1425,6 @@ textarea {
 }
 .corporate .muted {
   font-size: 14px;
-}
-.discounts {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 36px;
-  margin-top: 44px;
-}
-.discount > span {
-  display: block;
-  font:
-    467 18px/1.5 Bounded,
-    sans-serif;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: 18px;
-}
-.discount > img {
-  height: 97px;
-  width: 100%;
-  max-width: 196px;
-  object-fit: contain;
-  object-position: left;
-}
-.discount > p {
-  margin-top: 20px;
-  color: #a3bad4;
-  font-size: 15px;
-  line-height: 1.5;
-  max-width: 190px;
 }
 .corporate-form h3 {
   font-size: 20px;
@@ -1640,100 +1556,6 @@ fieldset:disabled {
   font-size: 16px;
   color: #839cbb;
   white-space: nowrap;
-}
-.conference-viewport {
-  position: relative;
-  overflow: hidden;
-  padding: 0 18% 20px;
-  touch-action: pan-y;
-}
-.conference-main {
-  display: block;
-  position: relative;
-  aspect-ratio: 692/404;
-  z-index: 2;
-  overflow: hidden;
-  border: 1px solid #427097;
-  border-radius: 3px;
-  background: #061731;
-}
-.conference-main > img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.6s;
-}
-.conference-main:hover > img {
-  transform: scale(1.035);
-}
-.conference-main:after {
-  content: '';
-  position: absolute;
-  inset: 45% 0 0;
-  background: linear-gradient(transparent, #010b24bb);
-  pointer-events: none;
-}
-.conference-badge {
-  position: absolute;
-  left: 20px;
-  top: 18px;
-  z-index: 2;
-  padding: 4px 10px;
-  border: 1px solid #9fc6e573;
-  border-radius: 3px;
-  background: #05122599;
-  text-transform: uppercase;
-  font-size: 13px;
-}
-.conference-main > strong {
-  position: absolute;
-  bottom: 5px;
-  left: 28px;
-  z-index: 2;
-  color: #ddebff;
-  font: 400 100px/1 'Bebas Neue';
-  letter-spacing: 0.04em;
-  text-shadow: 0 4px 20px #000a;
-}
-.conference-external {
-  position: absolute;
-  right: 20px;
-  bottom: 20px;
-  z-index: 2;
-}
-.conference-side {
-  position: absolute;
-  top: 9%;
-  bottom: 14%;
-  width: 50%;
-  opacity: 0.43;
-  border: 1px solid #264b73;
-  overflow: hidden;
-}
-.conference-side img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.conference-side.previous {
-  left: -35%;
-}
-.conference-side.next {
-  right: -35%;
-}
-.conference-prev,
-.conference-next {
-  position: absolute;
-  top: calc(50% - 32px);
-  z-index: 3;
-  background: #07182a;
-  box-shadow: 0 0 20px #00152a;
-}
-.conference-prev {
-  left: calc(18% - 22px);
-}
-.conference-next {
-  right: calc(18% - 22px);
 }
 .sponsor {
   margin-bottom: 171px;
@@ -2244,11 +2066,6 @@ fieldset:disabled {
   .tariff-bottom > strong {
     font-size: 43px;
   }
-  .tariff-astronaut {
-    top: -450px;
-    width: 58%;
-    max-width: 900px;
-  }
   .corporate {
     padding: 50px;
     gap: 65px;
@@ -2258,12 +2075,6 @@ fieldset:disabled {
   }
   .corporate-form h3 {
     font-size: 24px;
-  }
-  .discount > p {
-    font-size: 18px;
-  }
-  .conference-main > strong {
-    font-size: 130px;
   }
   .conference-heading .section-title {
     font-size: 38px;
@@ -2339,10 +2150,6 @@ fieldset:disabled {
   }
   .sidebar-brand {
     width: 170px;
-  }
-  .info-block--sidebar .button {
-    font-size: 16px;
-    min-height: 52px;
   }
   .about-copy {
     padding: 50px;
@@ -2488,9 +2295,6 @@ fieldset:disabled {
   .tariff-bottom > strong {
     font-size: 53px;
   }
-  .tariff-bottom > .button {
-    font-size: 18px;
-  }
   .tariffs-heading h2 {
     font-size: 82px;
     max-width: 750px;
@@ -2517,10 +2321,6 @@ fieldset:disabled {
   }
   .consent {
     font-size: 14px;
-  }
-  .discount > p {
-    font-size: 22px;
-    max-width: 290px;
   }
   .sponsor-copy {
     font-size: 24px;
@@ -2568,10 +2368,6 @@ fieldset:disabled {
   }
   .sidebar .info-contact a {
     font-size: 12px;
-  }
-  .info-block--sidebar .button {
-    font-size: 12px;
-    padding: 10px;
   }
   .hero-lead p {
     font-size: 20px;
@@ -2695,10 +2491,6 @@ fieldset:disabled {
     font-size: 12px;
     padding-bottom: 5px;
   }
-  .sidebar .button {
-    min-height: 38px;
-    padding-block: 8px;
-  }
   .sidebar .meta-label {
     font-size: 11px;
   }
@@ -2798,9 +2590,6 @@ fieldset:disabled {
   .mobile-info .info-organizers img {
     max-width: 270px;
     height: 36px;
-  }
-  .mobile-info .button {
-    min-height: 50px;
   }
   .mobile-info .video-caption {
     font-size: 16px;
@@ -2976,20 +2765,6 @@ fieldset:disabled {
     position: relative;
     z-index: 1;
   }
-  .tariff-astronaut {
-    width: 45%;
-    right: 0;
-    top: 70px;
-    max-height: 330px;
-    object-fit: contain;
-    object-position: right;
-  }
-  .tariff-planet {
-    width: 24%;
-    left: auto;
-    right: 30%;
-    top: 170px;
-  }
   .tariff {
     padding: 23px 22px;
     min-height: 545px;
@@ -3013,15 +2788,6 @@ fieldset:disabled {
   .corporate .section-title {
     font-size: 29px;
     letter-spacing: 0.15em;
-  }
-  .discounts {
-    gap: 25px;
-  }
-  .discount > span {
-    font-size: 16px;
-  }
-  .discount > p {
-    font-size: 14px;
   }
   .conference-heading .section-title {
     font-size: 27px;
@@ -3064,11 +2830,6 @@ fieldset:disabled {
   .footer-scene {
     height: 870px;
     margin-top: -60px;
-  }
-  .audience-art {
-    right: -130px;
-    width: 72%;
-    top: -130px;
   }
   .partners-satellite {
     top: -200px;
@@ -3258,11 +3019,6 @@ fieldset:disabled {
   .service-grid {
     gap: 14px;
   }
-  .service-copy .button {
-    font-size: 13px;
-    min-height: 46px;
-    padding: 12px;
-  }
   .numbered-list {
     font-size: 12px;
     gap: 16px;
@@ -3353,14 +3109,6 @@ fieldset:disabled {
     font-size: 54px;
     max-width: 480px;
   }
-  .tariff-astronaut {
-    width: 47%;
-    top: 95px;
-    max-height: 310px;
-  }
-  .tariff-planet {
-    top: 150px;
-  }
   .tariff {
     padding: 21px 14px;
     min-height: 545px;
@@ -3380,9 +3128,6 @@ fieldset:disabled {
     font-size: 25px;
   }
   .tariff-bottom > .button {
-    padding: 12px 10px;
-    font-size: 12px;
-    min-height: 47px;
     gap: 6px;
   }
   .tariff-bottom > .button svg {
@@ -3405,22 +3150,6 @@ fieldset:disabled {
   .corporate .muted {
     grid-column: 1/-1;
   }
-  .discounts {
-    grid-column: 1/-1;
-    margin-top: 18px;
-    gap: 38px;
-  }
-  .discount > span {
-    font-size: 19px;
-  }
-  .discount > img {
-    width: 100%;
-    height: 88px;
-  }
-  .discount > p {
-    font-size: 16px;
-    max-width: 240px;
-  }
   .corporate-form {
     padding-top: 30px;
     border-top: 1px solid #45739e44;
@@ -3440,21 +3169,6 @@ fieldset:disabled {
   }
   .conference-heading > span {
     font-size: 13px;
-  }
-  .conference-viewport {
-    padding-inline: 12%;
-  }
-  .conference-prev {
-    left: calc(12% - 22px);
-  }
-  .conference-next {
-    right: calc(12% - 22px);
-  }
-  .conference-side.previous {
-    left: -41%;
-  }
-  .conference-side.next {
-    right: -41%;
   }
   .sponsor-panel {
     gap: 25px;
@@ -3549,9 +3263,6 @@ fieldset:disabled {
   }
   .mobile-info .info-meta {
     gap: 20px;
-  }
-  .mobile-info .button {
-    font-size: 13px;
   }
   .about-grid {
     grid-template-columns: 1fr;
@@ -3773,15 +3484,8 @@ fieldset:disabled {
   .tariff-bottom > strong {
     font-size: 40px;
   }
-  .tariff-bottom > .button {
-    font-size: 16px;
-    min-height: 54px;
-  }
   .tariff-note {
     font-size: 13px;
-  }
-  .tariff-astronaut {
-    top: 112px;
   }
   .tariffs-heading h2 {
     font-size: 48px;
@@ -3800,12 +3504,6 @@ fieldset:disabled {
   }
   .conference-heading .section-title {
     font-size: 25px;
-  }
-  .conference-main > strong {
-    font-size: 77px;
-  }
-  .conference-badge {
-    font-size: 11px;
   }
   .sponsor-panel {
     grid-template-columns: 1fr;
@@ -3892,11 +3590,6 @@ fieldset:disabled {
     line-height: 1.5;
     letter-spacing: 0.25em;
     margin-bottom: 30px;
-  }
-  .button {
-    min-height: 52px;
-    font-size: 15px;
-    padding: 14px 17px;
   }
   .hero {
     padding-top: 472px;
@@ -4018,9 +3711,6 @@ fieldset:disabled {
   .mobile-info .info-organizers img {
     width: 255px;
     max-height: 34px;
-  }
-  .mobile-info .button {
-    font-size: 15px;
   }
   .meta-label {
     font-size: 12px;
@@ -4338,12 +4028,6 @@ fieldset:disabled {
     font-size: 15px;
     line-height: 1.55;
   }
-  .audience-art {
-    width: 115%;
-    right: -100px;
-    top: -50px;
-    opacity: 0.35;
-  }
   .organizer-heading {
     flex-direction: column;
     gap: 24px;
@@ -4449,22 +4133,6 @@ fieldset:disabled {
     width: 70%;
     max-width: 290px;
   }
-  .tariff-astronaut {
-    top: 100px;
-    right: -5px;
-    width: 75%;
-    height: 250px;
-    max-height: none;
-    object-fit: contain;
-  }
-  .tariff-planet {
-    top: 155px;
-    right: auto;
-    left: 0;
-    width: 43%;
-    height: 140px;
-    object-fit: contain;
-  }
   .tariff-grid {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -4489,10 +4157,6 @@ fieldset:disabled {
     font-size: 34px;
     margin: 7px 0 23px;
   }
-  .tariff-bottom > .button {
-    font-size: 15px;
-    min-height: 52px;
-  }
   .tariff-note {
     justify-content: flex-start;
     font-size: 12px;
@@ -4516,25 +4180,6 @@ fieldset:disabled {
   }
   .corporate .muted {
     font-size: 12px;
-  }
-  .discounts {
-    gap: 20px;
-    margin-top: 30px;
-  }
-  .discount > span {
-    font-size: 16px;
-    letter-spacing: 0.08em;
-    margin-bottom: 16px;
-  }
-  .discount > img {
-    height: 72px;
-    max-width: 100%;
-    width: 100%;
-  }
-  .discount > p {
-    font-size: 13px;
-    line-height: 1.5;
-    margin-top: 15px;
   }
   .corporate-form {
     border-top: 1px solid #456a9038;
@@ -4562,10 +4207,6 @@ fieldset:disabled {
     gap: 9px;
     margin: 20px 0;
   }
-  .corporate-form .button {
-    font-size: 14px;
-    padding: 14px;
-  }
   .conference-heading {
     display: block;
     margin-bottom: 28px;
@@ -4578,52 +4219,6 @@ fieldset:disabled {
   }
   .conference-heading > span {
     font-size: 13px;
-  }
-  .conference-viewport {
-    padding: 0 7% 20px;
-    overflow: visible;
-    margin-inline: -8px;
-  }
-  .conference-main {
-    aspect-ratio: 1.4;
-  }
-  .conference-prev {
-    left: 0;
-    width: 39px;
-    height: 39px;
-  }
-  .conference-next {
-    right: 0;
-    width: 39px;
-    height: 39px;
-  }
-  .conference-side {
-    width: 55%;
-    top: 10%;
-    bottom: 17%;
-    opacity: 0.28;
-  }
-  .conference-side.previous {
-    left: -50%;
-  }
-  .conference-side.next {
-    right: -50%;
-  }
-  .conference-main > strong {
-    font-size: 70px;
-    left: 20px;
-    bottom: 12px;
-  }
-  .conference-badge {
-    font-size: 10px;
-    left: 14px;
-    top: 14px;
-    padding: 4px 7px;
-    max-width: calc(100% - 28px);
-  }
-  .conference-external {
-    right: 17px;
-    bottom: 18px;
   }
   .sponsor-panel {
     display: block;
@@ -4808,9 +4403,6 @@ fieldset:disabled {
   .form-dialog .consent {
     font-size: 11px;
   }
-  .form-dialog .button {
-    font-size: 14px;
-  }
   .selected-tariff {
     font-size: 13px;
   }
@@ -4914,10 +4506,6 @@ fieldset:disabled {
   .service-copy h3 {
     font-size: 20px;
   }
-  .service-copy .button {
-    font-size: 12px;
-    padding: 13px;
-  }
   .topic-card {
     padding: 22px 20px;
   }
@@ -4993,18 +4581,6 @@ fieldset:disabled {
     font-size: 20px;
     letter-spacing: 0.13em;
   }
-  .discounts {
-    gap: 15px;
-  }
-  .discount > span {
-    font-size: 14px;
-  }
-  .discount > p {
-    font-size: 12px;
-  }
-  .discount > img {
-    height: 61px;
-  }
   .corporate-form h3 {
     font-size: 18px;
   }
@@ -5015,10 +4591,6 @@ fieldset:disabled {
   .field select {
     font-size: 13px;
     padding: 10px 8px;
-  }
-  .corporate-form .button {
-    font-size: 13px;
-    padding: 13px 11px;
   }
   .conference-heading .section-title {
     font-size: 20px;
@@ -5086,9 +4658,6 @@ fieldset:disabled {
   }
   .cosmos i {
     animation: none;
-  }
-  .tariff-astronaut {
-    transform: none;
   }
   .speaker:hover .speaker-portrait img,
   .conference-main:hover > img {
@@ -5357,133 +4926,13 @@ fieldset:disabled {
   bottom: 7%;
   height: 19%;
 }
-.audience-art {
-  width: 175%;
-  max-width: none;
-  left: -53%;
-  right: auto;
-  top: -34%;
-  opacity: 0.88;
-  mask-image: radial-gradient(ellipse, #000 40%, transparent 73%);
-}
-.discounts {
-  gap: 24px;
-  max-width: 455px;
-  margin-top: 28px;
-}
-.discount {
-  position: relative;
-  isolation: isolate;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 290px;
-  padding: 25px 17px 24px;
-  border: 1px solid #398dd680;
-  border-radius: 9px;
-  background:
-    radial-gradient(ellipse at 20% 80%, #089bfd55, transparent 60%),
-    linear-gradient(145deg, #123762d9, #08162e 65%, #135281);
-  box-shadow:
-    inset 0 0 30px #249cff1b,
-    0 4px 18px #001228;
-}
-.discount:before {
-  content: '';
-  position: absolute;
-  inset: 7px;
-  border: 1px solid #5bc6fa25;
-  border-radius: 5px;
-  pointer-events: none;
-}
-.discount > span {
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-weight: 600;
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  padding: 7px 16px;
-  border: 1px solid #4aaaff;
-  border-radius: 30px;
-  background: linear-gradient(#087ece80, #245c7622);
-  box-shadow: 0 0 9px #2ca5ff55;
-  margin-bottom: 18px;
-}
-.discount > img {
-  width: 100%;
-  height: auto;
-  max-height: 96px;
-  object-fit: contain;
-  object-position: center;
-  filter: drop-shadow(0 6px 15px #2195ff66);
-}
-.discount > p {
-  text-align: center;
-  font-size: 13px;
-  line-height: 1.65;
-  color: #d2e5f5;
-  margin-top: 23px;
-  max-width: 180px;
-}
-@media (min-width: 1700px) {
-  .discounts {
-    max-width: 600px;
-    gap: 30px;
-  }
-  .discount {
-    min-height: 350px;
-    padding: 30px 24px;
-  }
-  .discount > span {
-    font-size: 15px;
-  }
-  .discount > img {
-    max-width: 240px;
-    max-height: 130px;
-  }
-  .discount > p {
-    font-size: 17px;
-    max-width: 240px;
-  }
-}
-@media (min-width: 2200px) {
-  .discounts {
-    max-width: 780px;
-  }
-  .discount {
-    min-height: 400px;
-  }
-  .discount > p {
-    font-size: 20px;
-    max-width: 290px;
-  }
-}
 @media (max-width: 1180px) {
   .footer-scene {
     height: 112vw;
     margin-top: -30vw;
   }
-  .audience-art {
-    width: 170%;
-    left: -50%;
-    top: -20%;
-    opacity: 0.65;
-  }
 }
 @media (max-width: 999px) {
-  .discounts {
-    max-width: none;
-  }
-  .discount {
-    min-height: 285px;
-  }
-  .discount > p {
-    font-size: 15px;
-  }
-  .discount > img {
-    max-width: 180px;
-    max-height: 97px;
-  }
   .footer-scene {
     height: 130vw;
     margin-top: -22vw;
@@ -5505,54 +4954,8 @@ fieldset:disabled {
     width: 70%;
     height: 17%;
   }
-  .audience-art {
-    width: 180%;
-    left: -55%;
-    top: 3%;
-    opacity: 0.25;
-  }
-  .discounts {
-    gap: 14px;
-    margin-top: 25px;
-  }
-  .discount {
-    padding: 18px 10px 17px;
-    min-height: 223px;
-    border-radius: 6px;
-  }
-  .discount > span {
-    font-size: 10px;
-    padding: 5px 10px;
-    margin-bottom: 12px;
-  }
-  .discount > img {
-    max-height: 67px;
-  }
-  .discount > p {
-    font-size: 11px;
-    line-height: 1.5;
-    margin-top: 18px;
-  }
   .corporate .section-title {
     margin-bottom: 12px;
-  }
-}
-@media (max-width: 359px) {
-  .discounts {
-    gap: 11px;
-  }
-  .discount {
-    min-height: 214px;
-    padding-inline: 8px;
-  }
-  .discount > img {
-    max-height: 58px;
-  }
-  .discount > p {
-    font-size: 10px;
-  }
-  .discount > span {
-    font-size: 9px;
   }
 }
 .participant-photo {

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-const widths = [320, 360, 390, 430, 600, 768, 1024, 1180, 1181, 1280, 1440, 1920, 2560];
+const widths = [320, 360, 390, 430, 600, 768, 1024, 1180, 1181, 1280, 1440, 1920, 2048, 2560];
 test.beforeEach(async ({ page }) => {
   await page.route('**/api/lead', (r) =>
     r.fulfill({
@@ -36,6 +36,21 @@ for (const width of widths)
     await expect(page.locator('#panel-1')).toBeVisible();
     await expect(page.locator('#panel-0')).toHaveAttribute('inert', '');
     expect(Math.abs((await section.boundingBox()).height - h1)).toBeLessThan(2);
+    const escapedDiscounts = await page.locator('.discount').evaluateAll(
+      (nodes) =>
+        nodes.filter((node) => {
+          const card = node.getBoundingClientRect();
+          const grid = node.parentElement.getBoundingClientRect();
+          return card.left < grid.left - 1 || card.right > grid.right + 1;
+        }).length,
+    );
+    expect(escapedDiscounts).toBe(0);
+    if (width >= 700) {
+      const photoTops = await page
+        .locator('#panel-1 .participant-photo')
+        .evaluateAll((nodes) => nodes.map((n) => n.getBoundingClientRect().top));
+      expect(Math.max(...photoTops) - Math.min(...photoTops)).toBeLessThan(1);
+    }
   });
 test('Production mobile menu closes on Escape, outside click and navigation', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -189,11 +204,77 @@ test('Video loads on demand; gallery and conference controls work', async ({ pag
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('.gallery-controls')).toContainText('2 / 20');
   await page.keyboard.press('Escape');
-  const before = await page.locator('.conference-main').getAttribute('href');
+  const activeConference = page.locator('.conference-link-card.is-active');
+  const before = await activeConference.getAttribute('href');
   await page.getByRole('button', { name: 'Следующая конференция' }).click();
-  expect(await page.locator('.conference-main').getAttribute('href')).not.toBe(before);
+  await expect(activeConference).not.toHaveAttribute('href', before);
   await page.getByRole('button', { name: 'Предыдущая конференция' }).click();
-  await expect(page.locator('.conference-main')).toHaveAttribute('href', before);
+  await expect(activeConference).toHaveAttribute('href', before);
+});
+
+test('Artwork keeps its natural proportions and CTA styles stay unified', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(async () => {
+    document.querySelectorAll('img').forEach((img) => {
+      img.loading = 'eager';
+    });
+    await Promise.all([...document.images].map((img) => img.decode().catch(() => {})));
+  });
+  for (const width of [320, 390, 768, 1181, 1440, 2048, 2560]) {
+    await page.setViewportSize({ width, height: 1000 });
+    const distorted = await page.evaluate(() =>
+      [...document.images]
+        .filter(
+          (img) =>
+            img.offsetWidth &&
+            img.offsetHeight &&
+            img.naturalWidth &&
+            getComputedStyle(img).objectFit === 'fill' &&
+            Math.abs(
+              img.offsetWidth / img.offsetHeight / (img.naturalWidth / img.naturalHeight) - 1,
+            ) > 0.025,
+        )
+        .map((img) => img.getAttribute('src')),
+    );
+    expect(distorted, `Stretched artwork at ${width}px`).toEqual([]);
+    const variants = await page.locator('.button, .fixed-menu__cta').evaluateAll((nodes) => [
+      ...new Set(
+        nodes
+          .filter((n) => n.offsetWidth)
+          .map((n) => {
+            const c = getComputedStyle(n);
+            return JSON.stringify([
+              c.backgroundImage,
+              c.backgroundColor,
+              c.borderRadius,
+              c.fontSize,
+              c.fontWeight,
+              c.minHeight,
+            ]);
+          }),
+      ),
+    ]);
+    expect(variants.length).toBeLessThanOrEqual(2);
+  }
+});
+
+test('Archive cards stay centered after resize and wrap in both directions', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/');
+  const active = page.locator('.conference-link-card.is-active');
+  await page.getByRole('button', { name: 'Предыдущая конференция' }).click();
+  await expect(active).toContainText('2021');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect
+    .poll(async () => {
+      const card = await active.boundingBox();
+      const viewport = await page.locator('.other-conferences-carousel__viewport').boundingBox();
+      return Math.abs(card.x + card.width / 2 - viewport.x - viewport.width / 2);
+    })
+    .toBeLessThan(2);
+  await page.getByRole('button', { name: 'Следующая конференция' }).click();
+  await expect(active).toContainText('DOLG TALK Казань');
+  await expect(active).toContainText('2026');
 });
 test('Reduced motion and preview analytics isolation', async ({ page }) => {
   await page.goto('/');

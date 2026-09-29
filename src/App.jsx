@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowUpRight, ArrowLeft, ArrowRight, Play, Info } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { ArrowUpRight, ArrowRight, Play, Info } from 'lucide-react';
 import { content } from './content.js';
 import { topics, stages, spaces, audience, partnerNames } from './data.js';
 import speakers from './speakers.json';
 import artDimensions from './art-dimensions.json';
+import { OtherConferencesSection } from './components/OtherConferences.jsx';
 import { ProductionMenu } from './components/ProductionMenu.jsx';
 import { ApplicationModal, CorporateForm } from './components/Forms.jsx';
 import { MediaModal } from './components/MediaModal.jsx';
@@ -15,7 +16,7 @@ function Picture({ name, alt = '', className = '', eager = false, ...props }) {
     <img
       src={art(name)}
       alt={alt}
-      className={className}
+      className={'figma-art ' + className}
       width={artDimensions[name]?.[0]}
       height={artDimensions[name]?.[1]}
       loading={eager ? 'eager' : 'lazy'}
@@ -608,11 +609,7 @@ function Tariffs({ onApply }) {
       </div>
       <div className="tariff-grid">
         {content.tariffs.items.map((t) => (
-          <article
-            className={'tariff tariff--' + t.id + ' corners'}
-            key={t.id}
-            style={{ backgroundImage: `url(${t.background})` }}
-          >
+          <article className={'tariff tariff--' + t.id + ' corners'} key={t.id}>
             <h3>{t.title}</h3>
             <ul>
               {t.features.map((f) => (
@@ -676,71 +673,6 @@ function Corporate() {
         </div>
       </div>
       <CorporateForm />
-    </section>
-  );
-}
-function Conferences() {
-  const [slide, setSlide] = useState(0);
-  const start = useRef(null);
-  const items = content.otherConferences.items;
-  const shift = (d) => setSlide((s) => (s + d + items.length) % items.length);
-  return (
-    <section className="section conferences" id="other-conferences">
-      <div className="conference-heading">
-        <SectionTitle>
-          Другие конференции
-          <br />
-          СМИ «Рынок взыскания»
-        </SectionTitle>
-        <span>[ 2021 – 2026 ]</span>
-      </div>
-      <div
-        className="conference-viewport"
-        onTouchStart={(e) => (start.current = e.touches[0].clientX)}
-        onTouchEnd={(e) => {
-          const d = e.changedTouches[0].clientX - start.current;
-          if (Math.abs(d) > 45) shift(d < 0 ? 1 : -1);
-          start.current = null;
-        }}
-      >
-        <div className="conference-side previous" aria-hidden="true">
-          <img src={items[(slide + 1) % items.length].image} alt="" />
-        </div>
-        <a
-          className="conference-main"
-          href={items[slide].href}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={'Открыть конференцию ' + items[slide].title}
-        >
-          <img src={items[slide].image} alt={items[slide].title} loading="lazy" />
-          <span className="conference-badge">{items[slide].title}</span>
-          <strong>{items[slide].year}</strong>
-          <span className="conference-external">
-            <ArrowUpRight />
-          </span>
-        </a>
-        <div className="conference-side next" aria-hidden="true">
-          <img src={items[(slide + 1) % items.length].image} alt="" />
-        </div>
-        <button
-          className="conference-prev circle-button"
-          aria-label="Предыдущая конференция"
-          onClick={() => shift(-1)}
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <button
-          className="conference-next circle-button"
-          aria-label="Следующая конференция"
-          onClick={() => shift(1)}
-        >
-          <ArrowRight size={20} />
-        </button>
-      </div>
-      <span className="sr-only" aria-live="polite">
-        {items[slide].title}
-      </span>
     </section>
   );
 }
@@ -961,7 +893,7 @@ export default function App() {
           <Organizer />
           <Tariffs onApply={(t) => openForm('early-registration', t)} />
           <Corporate />
-          <Conferences />
+          <OtherConferencesSection archive={content.otherConferences} />
           <Sponsor />
           <Partners />
           <Contacts />
