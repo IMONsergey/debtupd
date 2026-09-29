@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowUpRight, X } from 'lucide-react';
+import { X } from 'lucide-react';
+import { ActionArrow } from './ActionArrow.jsx';
 import { submitLead, formatPhone } from '../lib/forms.js';
 import { useDialog } from '../lib/useDialog.js';
 import { calculateCorporatePrice, MAX_CORPORATE_PARTICIPANTS } from '../lib/corporate-pricing.js';
@@ -163,7 +164,7 @@ export function ApplicationModal({ kind = 'early-registration', tariff, onClose 
             <h3>Спасибо! Заявка отправлена</h3>
             <p>Мы получили ваши данные и свяжемся с вами в ближайшее время.</p>
             <a className="button" href={content.forms.telegramUrl} target="_blank" rel="noreferrer">
-              Наш Telegram <ArrowUpRight size={18} />
+              Наш Telegram <ActionArrow />
             </a>
             <button className="button secondary" onClick={onClose}>
               Закрыть
@@ -219,7 +220,7 @@ export function ApplicationModal({ kind = 'early-registration', tariff, onClose 
                 <Consent id="application-consent" />
                 <button className="button" type="submit">
                   {status === 'sending' ? 'Отправляем…' : 'Отправить заявку'}
-                  <ArrowUpRight size={19} />
+                  <ActionArrow />
                 </button>
               </fieldset>
               <p className="form-feedback" aria-live="polite">
@@ -349,7 +350,7 @@ export function CorporateForm() {
             <Consent id="corporate-consent" />
             <button className="button" type="submit">
               {status === 'sending' ? 'Отправляем…' : 'Рассчитать стоимость'}
-              <ArrowUpRight size={19} />
+              <ActionArrow />
             </button>
           </fieldset>
           <p className="form-feedback" aria-live="polite">

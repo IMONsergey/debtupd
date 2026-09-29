@@ -64,6 +64,7 @@
 }
 
 .button > svg,
+.button > .action-arrow,
 .fixed-menu__cta-icon {
   flex: 0 0 16px;
   width: 16px;

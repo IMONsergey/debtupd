@@ -5,6 +5,7 @@ import { topics, stages, spaces, audience, partnerNames } from './data.js';
 import speakers from './speakers.json';
 import artDimensions from './art-dimensions.json';
 import { OtherConferencesSection } from './components/OtherConferences.jsx';
+import { ActionArrow } from './components/ActionArrow.jsx';
 import { ProductionMenu } from './components/ProductionMenu.jsx';
 import { ApplicationModal, CorporateForm } from './components/Forms.jsx';
 import { MediaModal } from './components/MediaModal.jsx';
@@ -37,7 +38,7 @@ function ArrowButton({ children, onClick, href, className = '', ...props }) {
   return (
     <Tag className={'button ' + className} href={href} onClick={onClick} {...props}>
       <span>{children}</span>
-      <ArrowUpRight size={20} aria-hidden="true" />
+      <ActionArrow />
     </Tag>
   );
 }
