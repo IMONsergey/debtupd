@@ -256,10 +256,6 @@
 .is-flying .space-route__ship-image {
   filter: drop-shadow(0 0 7px #3aaeff99);
 }
-.hero-only-view .has-space-route .fixed-menu__brand {
-  width: 132px;
-  margin-bottom: 20px;
-}
 .hero-only-view .has-space-route .fixed-menu__info {
   --menu-info-gap: 12px;
 }
@@ -340,10 +336,6 @@ body:has(.video-widget.is-open) .space-navigation--mobile {
   }
   .space-navigation {
     margin-bottom: 16px;
-  }
-  .hero-only-view .has-space-route .fixed-menu__brand {
-    width: 104px;
-    margin-bottom: 10px;
   }
   .hero-only-view .has-space-route .fixed-menu__info {
     --menu-info-gap: 6px;

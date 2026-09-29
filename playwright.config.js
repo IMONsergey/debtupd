@@ -11,13 +11,7 @@ export default defineConfig({
       ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
         ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH }
         : {}),
-      args: [
-        '--no-sandbox',
-        '--disable-dev-shm-usage',
-        '--use-gl=angle',
-        '--use-angle=swiftshader',
-        '--enable-unsafe-swiftshader',
-      ],
+      args: ['--no-sandbox', '--disable-dev-shm-usage'],
     },
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',

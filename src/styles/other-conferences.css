@@ -153,37 +153,6 @@
   filter: brightness(0) saturate(100%);
 }
 
-.other-conferences-carousel__control {
-  position: absolute;
-  z-index: 4;
-  top: 50%;
-  display: grid;
-  width: 44px;
-  height: 44px;
-  place-items: center;
-  padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 50%;
-  background: #ffffff;
-  transform: translateY(-50%);
-  transition:
-    background-color 220ms ease,
-    transform 220ms ease;
-}
-
-.other-conferences-carousel__control:hover,
-.other-conferences-carousel__control:focus-visible,
-.other-conferences-carousel__control:active {
-  border-color: #43abff;
-  background: #43abff;
-  transform: translateY(-50%) scale(1.06);
-}
-
-.other-conferences-carousel__control:focus-visible {
-  outline: 2px solid #43abff;
-  outline-offset: 4px;
-}
-
 .other-conferences-carousel__control--previous {
   left: calc(50% - (var(--conference-card-width) / 2) + var(--conference-control-inset));
 }
@@ -248,23 +217,11 @@
     height: 44px;
   }
 
-  .other-conferences-carousel__control {
-    top: auto;
-    bottom: 0;
-    transform: none;
-  }
-
   .other-conferences-carousel__control--previous {
     left: calc(50% - 50px);
   }
 
   .other-conferences-carousel__control--next {
     right: calc(50% - 50px);
-  }
-
-  .other-conferences-carousel__control:hover,
-  .other-conferences-carousel__control:focus-visible,
-  .other-conferences-carousel__control:active {
-    transform: none;
   }
 }

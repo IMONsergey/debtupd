@@ -1,6 +1,5 @@
 /* Intrinsic artwork proportions and content-driven layouts. */
 .decor,
-.speakers-note img,
 .channels img {
   height: auto;
 }
@@ -77,132 +76,6 @@
 }
 
 /* CSS gradients fill the card at any aspect ratio; SVG viewBox fitting did not. */
-.tariff--business {
-  background: radial-gradient(ellipse at 46% 15%, #2d4059, #172c49 48%, #001839);
-}
-.tariff--full {
-  background: radial-gradient(ellipse at 37% 35%, #011955, #005ed2);
-}
-.tariff--full-plus {
-  background: radial-gradient(ellipse at 37% 35%, #0b0f5a, #5d21a7);
-}
-
-.corporate {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: clamp(32px, 4vw, 64px);
-  background:
-    radial-gradient(ellipse at 0% 55%, #005ee52e, transparent 52%),
-    linear-gradient(180deg, #00040921, #0073ff21);
-}
-
-.corporate-offer {
-  display: block;
-}
-
-.discounts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 28px;
-  margin-top: 30px;
-  width: 100%;
-}
-
-.discount {
-  position: relative;
-  isolation: isolate;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  min-width: 0;
-  width: 100%;
-  aspect-ratio: 221 / 317;
-  padding: 24px 18px;
-  border: 1px solid #49adff;
-  border-radius: 20px;
-  background:
-    linear-gradient(-45deg, #38a6ff 2.6%, transparent 26.7%),
-    linear-gradient(130deg, #38a6ff 0%, transparent 24.8%),
-    linear-gradient(162deg, #0c479a 5.5%, #0d173184 70.5%);
-  box-shadow:
-    0 4px 4px #38a6ff,
-    0 4px 24px #003dc1;
-}
-
-.discount::before {
-  content: '';
-  position: absolute;
-  inset: -7px;
-  border: 1px solid #008dff;
-  border-radius: 26px;
-  pointer-events: none;
-}
-
-.discount > span {
-  padding: 9px 13px;
-  border: 1px solid #38a6ff;
-  border-radius: 30px;
-  background: linear-gradient(#007fff80, #5bd0ff0d);
-  box-shadow: 0 0 6px #008dff8f;
-  font:
-    600 11px/19px 'IBM Plex Sans',
-    sans-serif;
-  text-transform: uppercase;
-}
-
-.discount > img {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-}
-
-.discount > p {
-  margin: 0;
-  color: #fff;
-  font-size: 11px;
-  line-height: 19px;
-  text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.corporate-form h3 {
-  padding-bottom: 30px;
-  margin-bottom: 30px;
-  border-bottom: 1px solid #38a6ff33;
-  font-size: 24px;
-  line-height: 28px;
-  font-weight: 400;
-  text-transform: uppercase;
-  background: linear-gradient(90deg, #fff, #38a6ff);
-  background-clip: text;
-  color: transparent;
-}
-
-.corporate-form .field > span {
-  font-size: 11px;
-  line-height: 16px;
-  text-transform: uppercase;
-  color: #eef4ff;
-}
-
-.corporate-form .form-grid {
-  align-items: end;
-}
-
-.corporate-form .field input,
-.corporate-form .field select {
-  font-size: 15px;
-  border-color: #8db1dc3b;
-  border-radius: 4px;
-  background: linear-gradient(105deg, #ffffff08, #3763a318);
-}
-
-.corporate-form .button {
-  width: fit-content;
-  min-width: 265px;
-  max-width: 100%;
-}
 
 .sponsor-panel {
   height: auto;
@@ -252,38 +125,11 @@
 }
 
 @media (min-width: 1181px) {
-  .corporate {
-    padding: 44px 48px;
-  }
-  .corporate .section-title {
-    font-size: clamp(24px, 2.08vw, 30px);
-    letter-spacing: 0.22em;
-    line-height: 1.25;
-  }
-  .corporate-form {
-    align-self: center;
-  }
   .participant-photo {
     height: auto;
     min-height: 0;
     aspect-ratio: 262 / 242;
     max-height: none;
-  }
-}
-
-@media (min-width: 1700px) {
-  .discount > span {
-    font-size: 13px;
-  }
-  .discount > p {
-    font-size: 13px;
-    line-height: 21px;
-  }
-  .corporate-form .field > span {
-    font-size: 12px;
-  }
-  .corporate-form .consent {
-    font-size: 12px;
   }
 }
 
@@ -299,19 +145,6 @@
     width: 30%;
     bottom: 65px;
     left: 27%;
-  }
-  .corporate {
-    grid-template-columns: 1fr;
-    gap: 50px;
-  }
-  .discounts {
-    max-width: 510px;
-  }
-  .corporate-form h3 {
-    max-width: none;
-  }
-  .corporate-form .button {
-    width: 100%;
   }
 }
 
@@ -339,55 +172,11 @@
     transform: translateY(-49%);
     opacity: 0.65;
   }
-  .corporate {
-    padding: 28px 20px;
-    gap: 40px;
-  }
-  .discounts {
-    gap: 22px;
-    margin-top: 28px;
-  }
-  .discount {
-    padding: 16px 10px;
-    border-radius: 14px;
-    min-height: 218px;
-  }
-  .discount::before {
-    inset: -5px;
-    border-radius: 19px;
-  }
-  .discount > span {
-    padding: 5px 10px;
-    font-size: 10px;
-  }
-  .discount > p {
-    font-size: 10px;
-    line-height: 16px;
-    letter-spacing: 0.02em;
-  }
-  .corporate-form h3 {
-    font-size: 21px;
-    line-height: 26px;
-    padding-bottom: 22px;
-    margin-bottom: 22px;
-  }
-  .corporate-form .button {
-    min-width: 0;
-  }
   .sponsor-brand {
     min-height: 365px;
   }
   .sponsor-brand .debtprice-logo {
     margin-block: 65px;
-  }
-}
-
-@media (max-width: 359px) {
-  .corporate-form .form-grid {
-    grid-template-columns: 1fr;
-  }
-  .corporate-form .span-two {
-    grid-column: auto;
   }
 }
 
@@ -473,10 +262,6 @@
 .tariffs-heading h2 {
   max-width: 53%;
 }
-.tariff-grid {
-  position: relative;
-  z-index: 1;
-}
 .tariff-note b,
 .tariff-note strong {
   color: #65baff;
@@ -488,12 +273,6 @@
   pointer-events: auto;
 }
 @media (min-width: 1181px) {
-  .hero .hero-register {
-    display: none;
-  }
-  .hero-lead p {
-    font-weight: 400;
-  }
   .about-grid {
     align-items: stretch;
   }
@@ -586,13 +365,6 @@
     font-size: clamp(13px, 1.18cqi, 17px);
     line-height: 1.5;
   }
-  .speaker-info {
-    min-height: clamp(157px, 14.3cqi, 218px);
-  }
-  .speaker p {
-    font-size: clamp(12px, 1.09cqi, 16px);
-    line-height: 1.45;
-  }
   .audience-card {
     height: auto;
     min-height: 0;
@@ -608,23 +380,6 @@
   .audience-card:nth-child(5) h3 {
     font-size: clamp(20px, 2cqi, 28px);
     line-height: 1.35;
-  }
-  .organizer-heading {
-    display: grid;
-    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-    gap: 24px;
-  }
-  .organizer-heading .section-title,
-  .organizer-heading > div {
-    max-width: none;
-  }
-  .organizer-links {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    column-gap: 16px;
-    row-gap: 7px;
-    font-size: clamp(12px, 1.18cqi, 16px);
   }
   .tariffs-heading h2 {
     font-size: clamp(40px, 5.83cqi, 78px);
@@ -706,10 +461,6 @@
     min-height: 0;
     aspect-ratio: 1.1;
   }
-  .speaker p {
-    font-size: 13px;
-    line-height: 1.5;
-  }
 }
 
 /* Narrow cards must grow with their content; their old fixed ratios clipped the final lines. */
@@ -722,15 +473,6 @@
   color: #fff;
 }
 @media (max-width: 1180px) {
-  .organizer-heading {
-    flex-wrap: wrap;
-    gap: 24px;
-  }
-  .organizer-heading .section-title,
-  .organizer-heading > div {
-    max-width: 100%;
-    min-width: 0;
-  }
   .organizer-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
@@ -874,13 +616,10 @@
 @media (max-width: 599px) {
   .field input,
   .field select,
-  .field textarea,
-  .corporate-form .field input,
-  .corporate-form .field select {
+  .field textarea {
     font-size: 16px;
   }
-  .channels a,
-  .organizer-heading .channels a {
+  .channels a {
     min-width: 44px;
     min-height: 44px;
     display: inline-flex;

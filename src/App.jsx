@@ -10,7 +10,9 @@ import { ProductionMenu } from './components/ProductionMenu.jsx';
 import { ApplicationModal, CorporateForm } from './components/Forms.jsx';
 import { MediaModal } from './components/MediaModal.jsx';
 import { assetUrl } from './lib/assets.js';
-import { initAnalytics, goal } from './lib/forms.js';
+import { goal } from './lib/forms.js';
+import { Cosmos } from './components/Cosmos.jsx';
+import { useExperienceMotion } from './lib/useExperienceMotion.js';
 const art = (n) => assetUrl('assets/figma/' + n.replace(/\.png$/, '.webp'));
 function Picture({ name, alt = '', className = '', eager = false, ...props }) {
   return (
@@ -36,8 +38,14 @@ function SectionTitle({ children, className = '', ...props }) {
 function ArrowButton({ children, onClick, href, className = '', ...props }) {
   const Tag = href ? 'a' : 'button';
   return (
-    <Tag className={'button ' + className} href={href} onClick={onClick} {...props}>
-      <span>{children}</span>
+    <Tag
+      type={href ? undefined : 'button'}
+      className={'button ' + className}
+      href={href}
+      onClick={onClick}
+      {...props}
+    >
+      <span className="button-label">{children}</span>
       <ActionArrow />
     </Tag>
   );
@@ -474,9 +482,13 @@ function Speakers() {
           </article>
         ))}
       </div>
-      <div className="speakers-note">
-        Финальный состав спикеров согласовывается
-        <Picture name="tariff-astronaut.png" />
+      <div className="speakers-note-wrap">
+        <div className="speakers-note">
+          <span>Финальный состав спикеров согласовывается</span>
+          <div className="speakers-note-art" aria-hidden="true">
+            <Picture name="note-astronaut.png" />
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -512,17 +524,24 @@ function Organizer() {
           <br />
           форума
         </SectionTitle>
-        <div>
-          <span className="eyebrow">[ Контакты для связи ]</span>
-          <div className="organizer-links">
+        <address className="organizer-contact">
+          <span className="eyebrow">Контакты организатора</span>
+          <div className="organizer-contact__primary">
             <a href={o.contacts.phoneHref}>{o.contacts.phone}</a>
             <a href={'mailto:' + o.contacts.email}>{o.contacts.email}</a>
-            <a href={o.contacts.websiteHref} target="_blank" rel="noreferrer">
-              Сайт ↗
-            </a>
           </div>
-          <Channels />
-        </div>
+          <div className="organizer-contact__bottom">
+            <a
+              className="organizer-contact__site"
+              href={o.contacts.websiteHref}
+              target="_blank"
+              rel="noreferrer"
+            >
+              rvzrus.ru <ActionArrow />
+            </a>
+            <Channels />
+          </div>
+        </address>
       </div>
       <div className="organizer-grid">
         <a
@@ -825,30 +844,6 @@ function Contacts() {
     </section>
   );
 }
-function useMotion() {
-  useEffect(() => {
-    initAnalytics();
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-    if (reduced.matches) return;
-    const observer = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('revealed');
-            observer.unobserve(entry.target);
-          }
-        }),
-      { rootMargin: '0px 0px 100px 0px', threshold: 0.03 },
-    );
-    document.querySelectorAll('.section').forEach((n) => {
-      if (n.getBoundingClientRect().top > innerHeight) {
-        n.classList.add('reveal');
-        observer.observe(n);
-      }
-    });
-    return () => observer.disconnect();
-  }, []);
-}
 export default function App() {
   const [form, setForm] = useState(null),
     [media, setMedia] = useState(null);
@@ -862,18 +857,14 @@ export default function App() {
     setMedia(kind);
     goal(kind === 'video' ? 'video_open' : 'gallery_open');
   };
-  useMotion();
+  useExperienceMotion();
   return (
     <>
       <div id="page-content" className="hero-only-view">
         <a className="skip-link" href="#about-forum">
           Перейти к содержимому
         </a>
-        <div className="cosmos" aria-hidden="true">
-          <i />
-          <i />
-          <i />
-        </div>
+        <Cosmos />
         <ProductionMenu
           onVideo={() => openMedia('video')}
           onGallery={() => openMedia('gallery')}

@@ -1,0 +1,262 @@
+/* CSS space: three bounded compositor layers; no bitmap, canvas or WebGL. */
+:root {
+  --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cosmos {
+  position: fixed;
+  inset: 0;
+  height: 100lvh;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -3;
+  background: #03091b;
+  --space-x: 0px;
+  --space-y: 0px;
+  --space-scroll: 0px;
+}
+.cosmos__nebula {
+  position: absolute;
+  inset: -100px;
+  background:
+    radial-gradient(ellipse at 92% 31%, #073f8f66, transparent 50%),
+    radial-gradient(ellipse at 3% 75%, #00538b42, transparent 47%),
+    radial-gradient(ellipse at 61% 110%, #123b6840, transparent 50%);
+  transform: translate3d(
+    calc(var(--space-x) * 0.35),
+    calc(var(--space-y) * 0.35 - var(--space-scroll) * 0.3),
+    0
+  );
+  animation: space-breathe 36s ease-in-out infinite alternate;
+}
+.cosmos__depth {
+  position: absolute;
+  inset: -100px;
+  transform: translate3d(
+    calc(var(--space-x) * 0.35),
+    calc(var(--space-y) * 0.35 - var(--space-scroll) * 0.2),
+    0
+  );
+}
+.cosmos__depth--1 {
+  transform: translate3d(
+    calc(var(--space-x) * 0.6),
+    calc(var(--space-y) * 0.6 - var(--space-scroll) * 0.4),
+    0
+  );
+}
+.cosmos__depth--2 {
+  transform: translate3d(var(--space-x), calc(var(--space-y) - var(--space-scroll) * 0.6), 0);
+}
+.cosmos__stars {
+  position: absolute;
+  left: 60px;
+  top: 60px;
+  width: 1px;
+  height: 1px;
+  display: block;
+  border-radius: 50%;
+  box-shadow: var(--star-points);
+  animation: space-drift 110s ease-in-out infinite alternate;
+}
+.cosmos__depth--1 .cosmos__stars {
+  opacity: 0.55;
+  animation-duration: 85s;
+  animation-direction: alternate-reverse;
+}
+.cosmos__depth--2 .cosmos__stars {
+  opacity: 0.5;
+  animation-duration: 64s;
+}
+.cosmos.is-sleeping * {
+  animation-play-state: paused;
+}
+.motion-toggle {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  z-index: 20;
+  opacity: 0.7;
+}
+.motion-toggle:hover,
+.motion-toggle:focus-visible {
+  opacity: 1;
+}
+.hero-wordmark {
+  animation: wordmark-arrive 1.2s var(--ease-soft) both;
+}
+.hero-rays {
+  animation: space-breathe 24s ease-in-out infinite alternate;
+}
+.participant-panel {
+  transition:
+    opacity 0.4s ease,
+    visibility 0.4s;
+}
+.speaker,
+.tariff,
+.discount,
+.organizer-card {
+  transition:
+    border-color 0.35s ease,
+    box-shadow 0.45s ease;
+}
+.speaker-portrait img,
+.service-photo img,
+.participant-photo img {
+  transition: transform 0.9s var(--ease-soft);
+}
+@media (hover: hover) and (pointer: fine) {
+  .speaker:hover {
+    border-color: #6ac4ff99;
+    box-shadow: 0 8px 30px #07599135;
+  }
+  .speaker:hover .speaker-portrait img {
+    transform: scale(1.025);
+  }
+  .service-photo:hover img,
+  .participant-card:hover .participant-photo img {
+    transform: scale(1.018);
+  }
+  .tariff:hover {
+    border-color: #9cdfffaa;
+    box-shadow:
+      0 8px 35px #197ee32e,
+      inset 0 0 22px #75c3ff08;
+  }
+  .tariff::before,
+  .discount::after {
+    transition: opacity 0.45s ease;
+  }
+  .tariff:hover::before,
+  .discount:hover::after {
+    opacity: 0.8;
+  }
+  .discount:hover {
+    box-shadow:
+      0 4px 17px #1998ef70,
+      inset 0 0 0 3px #1765a233;
+  }
+  .organizer-card:hover {
+    box-shadow: 0 8px 30px #125eaa24;
+  }
+  .organizer-contact a {
+    transition: color 0.25s ease;
+  }
+  .organizer-contact a:hover {
+    color: #8bd5ff;
+  }
+}
+@keyframes space-drift {
+  from {
+    translate: -10px 8px;
+  }
+  to {
+    translate: 14px -12px;
+  }
+}
+@keyframes space-breathe {
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes wordmark-arrive {
+  from {
+    opacity: 0.35;
+    translate: 0 12px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cosmos *,
+  .hero-wordmark,
+  .hero-rays {
+    animation: none !important;
+  }
+  .cosmos__depth,
+  .cosmos__nebula {
+    transform: none;
+  }
+  .participant-panel,
+  .speaker-portrait img,
+  .service-photo img,
+  .participant-photo img {
+    transition: none !important;
+  }
+}
+.motion-paused .cosmos *,
+.motion-paused .hero-wordmark,
+.motion-paused .hero-rays {
+  animation: none !important;
+}
+.motion-paused .cosmos__depth,
+.motion-paused .cosmos__nebula {
+  transform: none;
+}
+.motion-paused .ticker-track,
+.motion-paused .decor {
+  animation-play-state: paused;
+}
+@media (max-width: 599px) {
+  .cosmos__depth--2 {
+    display: none;
+  }
+  .motion-toggle {
+    bottom: 12px;
+    right: 12px;
+  }
+}
+
+.tariffs-heading::after {
+  content: '';
+  position: absolute;
+  z-index: -2;
+  inset: 8% -5% -10% 24%;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 65% 64%, #1389e42d, transparent 65%);
+  animation: space-breathe 20s ease-in-out infinite alternate;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tariff-astronaut {
+    animation: astronaut-drift 18s ease-in-out infinite alternate;
+  }
+  .tariff-planet {
+    animation: planet-drift 22s ease-in-out infinite alternate;
+  }
+}
+@keyframes astronaut-drift {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: -3px 7px;
+  }
+}
+@keyframes planet-drift {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 5px -4px;
+  }
+}
+.motion-paused .tariff-astronaut,
+.motion-paused .tariff-planet,
+.motion-paused .tariffs-heading::after {
+  animation: none !important;
+}
+.motion-sleeping *,
+.motion-sleeping *::before,
+.motion-sleeping *::after {
+  animation-play-state: paused !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tariffs-heading::after {
+    animation: none;
+  }
+}

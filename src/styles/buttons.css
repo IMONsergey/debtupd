@@ -1,72 +1,179 @@
-/* Two shared CTA variants, including the production navigation and forms. */
+/* Two treatments: filled primary and outlined secondary. Icon controls use secondary. */
 :root {
   --button-height: 54px;
   --button-radius: 6px;
-  --button-primary: linear-gradient(90deg, #155ecf, #0788e4);
-  --button-secondary: rgba(7, 71, 145, 0.28);
-  --button-border: rgba(67, 171, 255, 0.48);
+  --button-primary: linear-gradient(100deg, #145cbe, #008cdf);
+  --button-secondary: #0b396526;
+  --button-border: #65baff66;
 }
-
 .button,
 .fixed-menu__cta {
-  display: flex;
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  flex-shrink: 0;
+  gap: 16px;
   min-height: var(--button-height);
   height: auto;
-  padding: 14px 16px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 15px 18px;
   border: 1px solid transparent;
   border-radius: var(--button-radius);
   background: var(--button-primary);
   color: #fff;
   font:
-    600 14px/20px 'IBM Plex Sans',
+    500 14px/22px 'IBM Plex Sans',
     sans-serif;
-  letter-spacing: 0;
+  letter-spacing: 0.025em;
   text-align: left;
+  text-decoration: none;
   text-transform: uppercase;
+  white-space: normal;
   box-shadow: none;
+  cursor: pointer;
   transition:
-    background-color 180ms ease,
-    border-color 180ms ease,
-    filter 180ms ease;
+    box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    filter 0.3s ease;
 }
-
 .button.secondary,
 .fixed-menu__cta--secondary {
   border-color: var(--button-border);
   background: var(--button-secondary);
-  box-shadow: inset 0 0 24px rgba(0, 140, 255, 0.08);
+  box-shadow: none;
 }
-
-.button:hover,
-.fixed-menu__cta:hover {
-  filter: brightness(1.12);
+.button-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
-
-.button.secondary:hover,
-.fixed-menu__cta--secondary:hover {
-  border-color: rgba(104, 193, 255, 0.72);
-  background: rgba(9, 91, 184, 0.38);
+.button em {
+  font: inherit;
 }
-
-.button:focus-visible,
-.fixed-menu__cta:focus-visible {
-  outline: 2px solid #89d5ff;
-  outline-offset: 4px;
-}
-
-.button:disabled,
-.fixed-menu__cta:disabled {
-  opacity: 0.6;
-  filter: none;
-}
-
-.button > svg,
 .button > .action-arrow,
+.button > svg,
 .fixed-menu__cta-icon {
+  display: block;
   flex: 0 0 16px;
   width: 16px;
   height: 16px;
+  margin: 0;
+  transition: translate 0.3s var(--ease-soft, ease);
+}
+.button:hover,
+.fixed-menu__cta:hover {
+  filter: brightness(1.09);
+  box-shadow: 0 5px 22px #0782d82b;
+}
+.button:hover > .action-arrow,
+.fixed-menu__cta:hover > .fixed-menu__cta-icon {
+  translate: 2px -2px;
+}
+.button.secondary:hover,
+.fixed-menu__cta--secondary:hover {
+  border-color: #9bd8ffb3;
+  background: var(--button-secondary);
+}
+.button:focus-visible,
+.fixed-menu__cta:focus-visible,
+.ui-icon-button:focus-visible {
+  outline: 2px solid #9bddff;
+  outline-offset: 4px;
+}
+.button:active,
+.fixed-menu__cta:active {
+  filter: brightness(0.97);
+}
+.button:disabled,
+.fixed-menu__cta:disabled {
+  opacity: 0.55;
+  cursor: wait;
+  box-shadow: none;
+}
+.fixed-menu__cta {
+  width: 100%;
+}
+.service-copy .button {
+  margin-top: auto;
+  align-self: flex-start;
+  width: fit-content;
+  min-width: 0;
+}
+.tariff-bottom .button {
+  width: 100%;
+}
+.corporate-form .button {
+  margin-top: auto;
+  width: 100%;
+}
+.form-dialog .button {
+  min-width: 0;
+}
+.ui-icon-button,
+.circle-button,
+.icon-button,
+.other-conferences-carousel__control {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 12px;
+  border: 1px solid var(--button-border);
+  border-radius: var(--button-radius);
+  background: var(--button-secondary);
+  color: #cdeeff;
+  box-shadow: none;
+  cursor: pointer;
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
+.ui-icon-button:hover,
+.circle-button:hover,
+.icon-button:hover,
+.other-conferences-carousel__control:hover {
+  border-color: #9bd8ff;
+  background: var(--button-secondary);
+}
+.other-conferences-carousel__control-icon {
+  width: 18px;
+  height: 18px;
+  filter: none;
+}
+@media (max-width: 599px) {
+  .button,
+  .fixed-menu__cta {
+    font-size: 13px;
+    line-height: 21px;
+    padding: 15px 18px;
+  }
+  .hero-register,
+  .service-copy .button {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .fixed-menu__cta,
+  .button > .action-arrow,
+  .fixed-menu__cta-icon {
+    transition: none;
+  }
+}
+
+.organizer-card .circle-button {
+  position: absolute;
+  left: 24px;
+  bottom: 22px;
+}
+.other-conferences-carousel__control {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
 }

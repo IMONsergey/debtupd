@@ -33,10 +33,6 @@
     400 16px/1.2 'IBM Plex Sans',
     sans-serif;
 }
-.hero-only-view .has-space-route .fixed-menu__brand {
-  width: 132px;
-  margin-bottom: 20px;
-}
 .hero-only-view .has-space-route .fixed-menu__info {
   --menu-info-gap: 12px;
 }
@@ -69,10 +65,6 @@
   }
 }
 @media (min-width: 1181px) and (max-height: 850px) {
-  .hero-only-view .has-space-route .fixed-menu__brand {
-    width: 104px;
-    margin-bottom: 10px;
-  }
   .hero-only-view .has-space-route .fixed-menu__info {
     --menu-info-gap: 6px;
   }
@@ -82,50 +74,6 @@
     display: block;
   }
 }
-
-.cosmos {
-  background-image:
-    radial-gradient(ellipse 650px 650px at -200px 4750px, #0663c975, transparent 80%),
-    radial-gradient(ellipse 800px 700px at 105% 6900px, #0763c95c, transparent 80%),
-    radial-gradient(ellipse 800px 650px at 0 9800px, #075da56b, transparent 80%),
-    url('/assets/figma/stars-original.webp');
-  background-size:
-    auto,
-    auto,
-    auto,
-    2447px 1080px;
-  background-position:
-    0 0,
-    0 0,
-    0 0,
-    center 959px;
-  background-repeat: no-repeat, no-repeat, no-repeat, repeat-y;
-  background-color: #01081f;
-}
-.hero-rays {
-  opacity: 0.22;
-}
-.hero-date span {
-  color: #3896f8;
-}
-.countdown-cell {
-  border-color: #1f83c84a;
-  background: linear-gradient(132deg, #006dc5b8 0%, #020d2733 25%, #020a23 68%, #0878d4ba 100%);
-}
-.countdown-cell small {
-  color: #fff;
-  text-transform: uppercase;
-}
-.countdown-caption {
-  color: #fff;
-  letter-spacing: -0.01em;
-  font-weight: 500;
-}
-.countdown-caption i {
-  width: 8px;
-  height: 8px;
-  box-shadow: 0 0 0 4px #408dcc55;
-}
 .corners:after {
   background:
     linear-gradient(#32abff, #32abff) left top/18px 2px no-repeat,
@@ -134,7 +82,6 @@
     linear-gradient(#32abff, #32abff) right bottom/2px 20px no-repeat;
   opacity: 0.9;
 }
-.countdown-cell:after,
 .participant-photo:after {
   background:
     linear-gradient(#38adff, #38adff) left top/9px 1px no-repeat,
@@ -150,7 +97,6 @@
   transform: scaleX(-1);
 }
 .stat strong,
-.participant-tab > strong,
 .participant-kicker > span,
 .topic-number {
   background: linear-gradient(90deg, #bce0ff, #38a6ff 47%, #c1e3ff);
@@ -197,59 +143,6 @@
   font-family: Inter, 'IBM Plex Sans', sans-serif;
   font-weight: 300;
 }
-.participant-tab {
-  background: linear-gradient(142deg, #172c46, #03091c 62%, #152340);
-  color: #fff;
-}
-.participant-tab > strong {
-  opacity: 0.55;
-}
-.participant-tab.active {
-  background: linear-gradient(145deg, #0578c5, #0b1b37 54%, #0678c5);
-  border-color: #798b9c;
-}
-.participant-tab.active > strong {
-  opacity: 1;
-}
-.participant-tab > span {
-  text-transform: uppercase;
-  font-weight: 500;
-}
-.participant-tab > i {
-  width: 28px;
-  height: 18px;
-  border: 1px solid #bbc9df78;
-  border-radius: 20px;
-  background: #01081f;
-  box-shadow: none;
-}
-.participant-tab > i:after {
-  content: '';
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  top: 2px;
-  left: 2px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #eaf5ff, #6f819f 60%, #182d4f);
-}
-.participant-tab.active > i {
-  background: #043151;
-  box-shadow: 0 0 9px #208cff50;
-}
-.participant-tab.active > i:after {
-  left: 12px;
-  background: linear-gradient(135deg, #e1faff, #2694ed 65%, #12395a);
-}
-.participant-controls {
-  font-size: 10px;
-  letter-spacing: 0.04em;
-}
-.participant-controls .circle-button {
-  width: 30px;
-  height: 30px;
-  border-color: #fff;
-}
 .flight-banner {
   background: linear-gradient(90deg, #03264d, #0571c894 52%, transparent 85%);
 }
@@ -263,11 +156,6 @@
     linear-gradient(-28deg, #38a6ff99 2.6%, transparent 26.7%),
     linear-gradient(147deg, #006ac1, #07203f48 24.8%);
   border-color: #0b4a73;
-}
-.service-copy .button {
-  align-self: start;
-  width: auto;
-  min-width: 213px;
 }
 .service-copy .interview {
   width: 100%;
@@ -286,34 +174,6 @@
   background:
     linear-gradient(-30deg, #38a6ff88 2.6%, transparent 26.7%),
     linear-gradient(144deg, #006ac1d9, #07203f48 24.8%);
-}
-.speaker {
-  background: linear-gradient(136deg, #0a70b47a, #010b22 40%, #0e416c 100%);
-}
-.speaker-info {
-  padding: 16px 21px 20px;
-  min-height: 148px;
-}
-.speaker h3 {
-  font:
-    567 21px/23px Bounded,
-    sans-serif;
-  letter-spacing: 4.43px;
-  gap: 0;
-  margin: 0 0 26px;
-}
-.speaker p {
-  font:
-    500 10.8px/13.1px 'IBM Plex Sans',
-    sans-serif;
-  letter-spacing: -0.01em;
-  max-width: 100%;
-  color: #fff;
-}
-.speakers-note {
-  background: linear-gradient(90deg, #0e4679, #021029 70%, #276799);
-  border-top: 1px solid #42a4ee;
-  text-transform: uppercase;
 }
 .audience-card,
 .partner-card {
@@ -363,11 +223,6 @@
   text-transform: uppercase;
   color: #fff;
 }
-.organizer-card .circle-button {
-  left: 6.5%;
-  right: auto;
-  bottom: 8%;
-}
 .organizer-metrics > div {
   display: block;
 }
@@ -402,11 +257,6 @@
   position: relative;
   z-index: 1;
 }
-.tariff-bottom > span {
-  font-family: Bounded, sans-serif;
-  font-weight: 467;
-  text-transform: uppercase;
-}
 .partner-card img {
   filter: none;
 }
@@ -426,99 +276,6 @@
 @media (min-width: 1181px) {
   :root {
     --section-gap: 208px;
-  }
-  .hero {
-    min-height: 959px;
-    height: 959px;
-    padding: 0;
-  }
-  .hero-visual {
-    height: 959px;
-    inset: 0 0 auto;
-  }
-  .hero-scene {
-    width: 100%;
-    height: 959px;
-    object-fit: cover;
-    object-position: center top;
-    left: 0;
-    top: 0;
-    transform: none;
-    opacity: 1;
-    mask-image: none;
-  }
-  .hero-visual:after {
-    display: none;
-  }
-  .hero-wordmark {
-    width: 536px;
-    max-width: none;
-    left: calc(50% - 200px);
-    top: 146px;
-    height: auto;
-  }
-  .hero-date {
-    top: 26px;
-    right: var(--edge);
-    font-size: 28px;
-    line-height: 35px;
-    gap: 4px;
-  }
-  .hero-date span {
-    font-size: 28px;
-    letter-spacing: 0.07em;
-  }
-  .hero-content {
-    height: 959px;
-  }
-  .hero-lead {
-    left: 0;
-    bottom: 32px;
-    width: 635px;
-    max-width: calc(100% - 460px);
-  }
-  .hero-lead p {
-    font-size: 28px;
-    font-weight: 500;
-    line-height: 37px;
-    letter-spacing: 0;
-  }
-  .hero-supporters {
-    width: 212px;
-    right: -22px;
-    top: 535px;
-  }
-  .countdown {
-    width: 417px;
-    right: 0;
-    bottom: 31px;
-    max-width: none;
-  }
-  .countdown-grid {
-    gap: 7px;
-  }
-  .countdown-caption {
-    font-size: 15px;
-    line-height: 18px;
-    margin-bottom: 18px;
-  }
-  .countdown-cell {
-    height: 100px;
-    min-height: 100px;
-    padding: 13px 8px 9px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  .countdown-cell > span {
-    font:
-      400 41px/39px 'IBM Plex Sans',
-      sans-serif;
-  }
-  .countdown-cell small {
-    font-size: 10px;
-    margin: 10px 0 0;
   }
   .main-grid > .ticker {
     padding-top: 34px;
@@ -654,39 +411,6 @@
   .participants-layout {
     grid-template-columns: 233px minmax(0, 1fr);
     gap: 46px;
-  }
-  .participants-select {
-    justify-content: flex-start;
-  }
-  .participant-tabs {
-    gap: 12px;
-  }
-  .participant-tab {
-    min-height: 162px;
-    padding: 16px 17px;
-  }
-  .participant-tab:nth-child(2) {
-    min-height: 180px;
-  }
-  .participant-tab > strong {
-    font-size: 105px;
-    line-height: 1;
-  }
-  .participant-tab > span {
-    font-size: 17px;
-    line-height: 19px;
-    width: 100%;
-    margin: 2px 0 0;
-    letter-spacing: 0.04em;
-  }
-  .participant-tab > i {
-    top: 16px;
-    right: 15px;
-  }
-  .participant-controls {
-    margin-top: 28px;
-    padding: 0;
-    font-size: 10px;
   }
   .participant-panel {
     gap: 17px;
@@ -832,42 +556,6 @@
     letter-spacing: 0.56em;
     margin-bottom: 55px;
   }
-  .speakers-grid {
-    gap: 20px 14px;
-  }
-  .speaker-portrait {
-    aspect-ratio: 357/292;
-  }
-  .speaker-info {
-    padding: 16px 21px 20px;
-    min-height: 148px;
-  }
-  .speaker h3 {
-    font-size: 21px;
-    line-height: 23px;
-    letter-spacing: 4.43px;
-    margin-bottom: 26px;
-  }
-  .speaker p {
-    font-size: 10.8px;
-    line-height: 13.1px;
-  }
-  .speakers-note {
-    min-height: 78px;
-    height: 78px;
-    margin-top: 38px;
-    text-align: left;
-    padding: 24px 160px 24px 28px;
-    font-family: Bounded, sans-serif;
-    font-size: 15px;
-    line-height: 23px;
-    letter-spacing: 0.06em;
-  }
-  .speakers-note img {
-    width: 90px;
-    right: 28px;
-    top: -10px;
-  }
   .speakers-rocket {
     width: 266px;
     right: -75px;
@@ -906,33 +594,6 @@
   }
   .organizer {
     margin-bottom: 44px;
-  }
-  .organizer-heading {
-    min-height: 130px;
-    margin-bottom: 44px;
-  }
-  .organizer-heading .section-title {
-    font-size: 41px;
-    line-height: 65px;
-    letter-spacing: 0.48em;
-    max-width: 65%;
-  }
-  .organizer-heading > div {
-    align-self: flex-end;
-    padding: 0;
-    max-width: 42%;
-    min-width: 0;
-  }
-  .organizer-links {
-    font-size: 13px;
-    margin: 6px 0;
-  }
-  .organizer-heading .channels {
-    justify-content: flex-end;
-  }
-  .organizer-heading .channels a {
-    width: 30px;
-    height: 30px;
   }
   .organizer-grid {
     gap: 26px 20px;
@@ -1036,76 +697,10 @@
     font-size: 64px;
     max-width: 560px;
   }
-  .tariff {
-    min-height: 547px;
-    padding: 23px 32px 27px;
-  }
-  .tariff h3 {
-    font-size: 25.2px;
-    line-height: 47px;
-    margin-bottom: 20px;
-  }
-  .tariff ul {
-    gap: 4px;
-    margin-bottom: 18px;
-  }
-  .tariff li {
-    min-height: 33px;
-    font-size: 13px;
-    line-height: 17px;
-    padding: 8px 9px;
-    gap: 10px;
-  }
-  .tariff-bottom > span {
-    font-size: 11px;
-    line-height: 18px;
-  }
-  .tariff-bottom > strong {
-    font-size: 28.2px;
-    line-height: 47px;
-    margin: 0 0 21px;
-  }
   .tariff-note {
     font-size: 13px;
     line-height: 20px;
     justify-content: flex-start;
-  }
-  .corporate {
-    padding: 40px 48px;
-    gap: 70px;
-    min-height: 540px;
-    margin-bottom: 236px;
-  }
-  .corporate .section-title {
-    font-size: 30px;
-    line-height: 37px;
-    letter-spacing: 0.36em;
-    margin-bottom: 11px;
-  }
-  .corporate-subtitle {
-    font-size: 14px;
-  }
-  .corporate-form h3 {
-    font-size: 24.8px;
-    line-height: 26px;
-    margin-bottom: 42px;
-  }
-  .corporate-form .field > span {
-    font-size: 9px;
-    line-height: 15px;
-  }
-  .corporate-form .field input,
-  .corporate-form .field select {
-    min-height: 48px;
-    font-size: 14.8px;
-  }
-  .corporate-form .form-grid {
-    gap: 14px 12px;
-  }
-  .corporate-form .consent {
-    font-size: 10px;
-    line-height: 19px;
-    margin: 14px 0 20px;
   }
   .conferences {
     margin-bottom: 120px;
@@ -1264,18 +859,7 @@
 }
 
 @media (min-width: 1181px) and (max-width: 1399px) {
-  .hero-lead p {
-    font-size: 25px;
-    line-height: 34px;
-  }
-  .hero-lead {
-    max-width: calc(100% - 385px);
-  }
-  .countdown {
-    width: 360px;
-  }
-  .section-title,
-  .organizer-heading .section-title {
+  .section-title {
     font-size: 36px;
   }
   .participants-layout {
@@ -1297,20 +881,9 @@
   .service-copy h3 {
     font-size: 23px;
   }
-  .speaker h3 {
-    font-size: 18px;
-    letter-spacing: 3.2px;
-  }
   .audience-card h3 {
     font-size: 16px;
     line-height: 25px;
-  }
-  .corporate {
-    padding: 35px;
-    gap: 35px;
-  }
-  .corporate .section-title {
-    font-size: 25px;
   }
   .contact-heading .section-title {
     font-size: 34px;
@@ -1320,18 +893,6 @@
   }
   .press-contact {
     font-size: 20px;
-  }
-  .tariff {
-    padding: 22px;
-  }
-  .tariff h3 {
-    font-size: 21px;
-  }
-  .tariff li {
-    font-size: 11px;
-  }
-  .tariff-bottom > strong {
-    font-size: 25px;
   }
 }
 
@@ -1365,19 +926,6 @@
   .participant-copy {
     min-height: 0;
   }
-  .speaker h3 {
-    font-size: 21px;
-    line-height: 23px;
-    letter-spacing: 4.43px;
-  }
-  .speaker-info {
-    padding: 16px 21px 22px;
-    min-height: 170px;
-  }
-  .speaker p {
-    font-size: 13px;
-    line-height: 18px;
-  }
   .topic-card h3 {
     font-size: 16px;
     line-height: 22px;
@@ -1388,10 +936,6 @@
     line-height: 27px;
     margin-bottom: 10px;
   }
-  .organizer-card .circle-button {
-    left: 23px;
-    right: auto;
-  }
   .press-contact {
     padding: 16px 60px 16px 20px;
   }
@@ -1399,7 +943,6 @@
 @media (min-width: 600px) and (max-width: 1180px) {
   .about .section-title,
   .speakers .section-title,
-  .organizer-heading .section-title,
   .partners .section-title,
   .contact-heading .section-title {
     font-size: 34px;
@@ -1430,32 +973,17 @@
     line-height: 20px;
     letter-spacing: 0;
   }
-  .corporate .section-title {
-    font-size: 29px;
-    line-height: 37px;
-    letter-spacing: 0.12em;
-  }
 }
 @media (max-width: 599px) {
   .section-title,
   .about .section-title,
   .speakers .section-title,
-  .organizer-heading .section-title,
   .partners .section-title,
   .contact-heading .section-title {
     font-size: 26px;
     line-height: 34px;
     letter-spacing: 0.08em;
     margin-bottom: 28px;
-  }
-  .hero-date span {
-    color: #3896f8;
-  }
-  .hero-wordmark {
-    max-width: none;
-  }
-  .hero-scene {
-    object-fit: cover;
   }
   .about-copy {
     padding: 28px 22px;
@@ -1529,20 +1057,6 @@
   .flight-banner > img:last-child {
     width: 66px;
   }
-  .participant-tab {
-    min-height: 170px;
-    padding: 16px;
-  }
-  .participant-tab > strong {
-    font-size: 80px;
-    line-height: 1;
-  }
-  .participant-tab > span {
-    font-size: 14px;
-    line-height: 18px;
-    width: 100%;
-    margin-top: 8px;
-  }
   .participant-copy {
     padding: 22px;
     min-height: 0;
@@ -1591,9 +1105,6 @@
   .numbered-list {
     gap: 10px;
   }
-  .service-copy .button {
-    width: 100%;
-  }
   .topic-card {
     min-height: 0;
     padding: 18px 21px 24px;
@@ -1613,15 +1124,6 @@
   .topic-card .slash-list {
     gap: 9px;
   }
-  .speaker-info {
-    min-height: 170px;
-  }
-  .speakers-note {
-    min-height: 86px;
-    padding: 20px 100px 20px 15px;
-    font-size: 11px;
-    line-height: 17px;
-  }
   .audience-card {
     min-height: 140px;
     padding: 20px 10px;
@@ -1635,9 +1137,6 @@
     font-size: 9px;
     top: 10px;
     left: 12px;
-  }
-  .organizer-heading {
-    margin-bottom: 24px;
   }
   .organizer-card {
     aspect-ratio: 352/243;
@@ -1712,28 +1211,6 @@
     width: 100%;
     height: auto;
   }
-  .tariff {
-    min-height: 547px;
-    padding: 24px;
-  }
-  .tariff h3 {
-    font-size: 25.2px;
-    line-height: 36px;
-  }
-  .tariff li {
-    font-size: 13px;
-  }
-  .tariff-bottom > strong {
-    font-size: 28.2px;
-  }
-  .tariff-bottom > span {
-    font-size: 11px;
-  }
-  .corporate .section-title {
-    font-size: 22px;
-    line-height: 29px;
-    letter-spacing: 0.04em;
-  }
   .conference-heading .section-title {
     font-size: 23px;
     line-height: 31px;
@@ -1773,17 +1250,11 @@
   .section-title,
   .about .section-title,
   .speakers .section-title,
-  .organizer-heading .section-title,
   .partners .section-title,
   .contact-heading .section-title {
     font-size: 23px;
     line-height: 31px;
     letter-spacing: 0.06em;
-  }
-  .speaker h3 {
-    font-size: 18px;
-    line-height: 22px;
-    letter-spacing: 3.2px;
   }
   .stat {
     padding-inline: 12px;
@@ -1828,15 +1299,6 @@
 }
 
 /* Finish pass from side-by-side original/Figma screenshots. */
-.cosmos {
-  background-color: #050a1b;
-}
-.cosmos:before {
-  content: '';
-  position: absolute;
-  inset: 959px 0 0;
-  background: #040b20b0;
-}
 .glass {
   background-color: #050c1e;
 }
@@ -1850,40 +1312,6 @@
   background:
     linear-gradient(-30deg, #38a6ff99 2.6%, transparent 26.7%),
     linear-gradient(144deg, #006ac1, #050c1e 24.8%);
-}
-.speaker {
-  border-radius: 18px 18px 12px 12px;
-  overflow: hidden;
-  border: 1px solid #064578;
-  box-shadow: 0 4px 16px #006bc047;
-}
-.speaker-portrait {
-  position: relative;
-}
-.speaker-portrait img {
-  position: absolute;
-  max-width: none;
-  width: 108.4034%;
-  height: auto;
-  left: -4.2017%;
-  top: -5.137%;
-  object-fit: contain;
-}
-.speaker-info {
-  position: relative;
-  background: #041027 url('/assets/figma/speaker-info-bg.webp') center/100% 100% no-repeat;
-}
-.speaker-info:after {
-  content: '';
-  position: absolute;
-  top: 75px;
-  left: 21px;
-  width: 50px;
-  height: 1px;
-  background: linear-gradient(90deg, #0578c4, transparent);
-}
-.speaker p {
-  white-space: pre-line;
 }
 .organizer-brand {
   background: linear-gradient(55deg, #0861b8, #102b86 65%, #7449a9);
@@ -1919,18 +1347,6 @@
   color: #fff;
 }
 @media (min-width: 1181px) {
-  .hero-lead {
-    width: 630px;
-    max-width: calc(100% - 460px);
-  }
-  .hero-lead p {
-    max-width: 620px;
-  }
-  .hero-supporters {
-    width: 218px;
-    right: -20px;
-    top: 535px;
-  }
   .ticker-copy i {
     font-size: 18px;
     line-height: 16px;
@@ -1940,25 +1356,6 @@
   }
   .participant-copy {
     flex: 1;
-  }
-  .participant-tab {
-    height: 162px;
-    min-height: 162px;
-  }
-  .participant-tab:nth-child(2) {
-    height: 180px;
-  }
-  .participant-tab > strong {
-    line-height: 0.85;
-  }
-  .participant-tab > span {
-    margin-top: 12px;
-  }
-  .speaker-info {
-    min-height: 157px;
-  }
-  .speakers-grid {
-    row-gap: 13px;
   }
   .organizer-brand > img {
     height: calc(55 * var(--org-unit));
@@ -1991,108 +1388,6 @@
   }
 }
 @media (max-width: 599px) {
-  .hero {
-    padding-top: calc(50vw + 278px);
-    min-height: 0;
-    padding-bottom: 64px;
-  }
-  .hero-visual {
-    height: 760px;
-  }
-  .hero-scene {
-    width: 1080px;
-    height: 719px;
-    max-width: none;
-    object-fit: contain;
-    left: calc(50% - 540px);
-    top: 33px;
-    transform: none;
-    opacity: 1;
-    mask-image: linear-gradient(#000 74%, transparent);
-  }
-  .hero-visual:after {
-    display: none;
-  }
-  .hero-wordmark {
-    width: calc(100% - 32px);
-    left: 16px;
-    top: 168px;
-  }
-  .hero-date {
-    top: 100px;
-    left: 16px;
-    right: auto;
-    text-align: left;
-    align-items: flex-start;
-    font-size: 20px;
-    line-height: 25px;
-  }
-  .hero-date span {
-    font-size: 20px;
-    line-height: 25px;
-  }
-  .hero-rays {
-    display: none;
-  }
-  .mobile-brand {
-    top: 24px;
-  }
-  .mobile-brand > img {
-    width: 103px;
-  }
-  .hero-content {
-    position: relative;
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
-  }
-  .hero-lead {
-    position: static;
-    width: 100%;
-    max-width: none;
-  }
-  .hero-lead p {
-    font-size: 22px;
-    line-height: 30px;
-    letter-spacing: 0;
-    max-width: none;
-  }
-  .hero-register {
-    margin-top: 24px;
-    width: 100%;
-    height: 52px;
-    min-height: 52px;
-    background: linear-gradient(90deg, #155bea, #009cf1);
-    border: 0;
-    border-radius: 7px;
-  }
-  .countdown {
-    position: static;
-    width: 100%;
-    max-width: none;
-  }
-  .countdown-caption {
-    font-size: 10px;
-    margin-bottom: 15px;
-  }
-  .countdown-grid {
-    gap: 7px;
-  }
-  .countdown-cell {
-    min-height: 86px;
-    height: 86px;
-  }
-  .hero-supporters {
-    position: static;
-    width: 212px;
-    padding: 0;
-    margin: -52px 0 0;
-    order: 3;
-  }
-  .hero-supporters img {
-    width: 100%;
-  }
   .about-photo {
     aspect-ratio: 539/478;
     height: auto;
@@ -2123,9 +1418,6 @@
     line-height: 18px;
     letter-spacing: -0.01em;
   }
-  .speaker-info {
-    min-height: 162px;
-  }
   .organizer-brand h3 {
     margin-top: 0;
   }
@@ -2141,33 +1433,12 @@
     color: #fff;
   }
 }
-@media (max-width: 359px) {
-  .hero-lead p {
-    font-size: 20px;
-    line-height: 28px;
-  }
-  .hero-wordmark {
-    top: 170px;
-  }
-  .hero-scene {
-    top: 2px;
-  }
-  .hero-supporters {
-    margin-top: -52px;
-  }
-  .speaker-info:after {
-    top: 70px;
-  }
-}
 #page-content[inert] .space-navigation--mobile {
   visibility: hidden;
 }
 .rating-number {
   width: 100%;
   overflow: hidden;
-}
-.speaker-info {
-  background-size: 108.4034% 119.1083%;
 }
 .sponsor-panel {
   background:
@@ -2222,43 +1493,10 @@
   }
 }
 @media (max-width: 599px) {
-  .hero-wordmark {
-    transform: none;
-  }
-  .hero-date,
-  .hero-date span {
-    font-size: 18px;
-    line-height: 24px;
-    letter-spacing: 0.07em;
-  }
-  .hero-scene {
-    mask-image: linear-gradient(transparent, #000 10%, #000 74%, transparent);
-  }
-  .hero-supporters {
-    align-self: flex-start;
-  }
-  .hero-supporters img {
-    max-width: none;
-    width: 100%;
-  }
   .sponsor-copy {
     font-family: Inter, sans-serif;
     font-size: 14px;
     line-height: 22px;
-  }
-}
-@media (min-width: 600px) and (max-width: 767px) {
-  .speaker h3 {
-    font-size: 17px;
-    line-height: 22px;
-    letter-spacing: 2.8px;
-  }
-  .speaker-info {
-    padding-inline: 18px;
-  }
-  .speaker-info:after {
-    left: 18px;
-    top: 72px;
   }
 }
 @media (max-width: 359px) {
@@ -2266,18 +1504,8 @@
     font-size: 19px;
     letter-spacing: 0.03em;
   }
-  .corporate .section-title {
-    font-size: 18.5px;
-    letter-spacing: 0.025em;
-  }
 }
 @media (min-width: 1181px) {
-  .hero-scene {
-    object-position: center 44.45%;
-  }
-  .hero-wordmark {
-    left: calc(59.84vw - 341.83px);
-  }
   .sponsor-panel {
     grid-template-columns: 1fr 1fr;
   }
@@ -2291,114 +1519,6 @@
   }
 }
 @media (min-width: 600px) and (max-width: 1180px) {
-  .hero {
-    padding: 0;
-    min-height: 960px;
-    height: 960px;
-  }
-  .hero-visual {
-    height: 960px;
-  }
-  .hero-visual:after {
-    display: none;
-  }
-  .hero-scene {
-    width: 100%;
-    height: 960px;
-    left: 0;
-    top: 0;
-    object-fit: cover;
-    object-position: center;
-    mask-image: none;
-    transform: none;
-  }
-  .hero-wordmark {
-    width: 535px;
-    left: calc(50% - 267.5px);
-    top: 146px;
-    transform: none;
-  }
-  .hero-rays {
-    opacity: 0.12;
-  }
-  .hero-date {
-    top: 30px;
-    right: 22%;
-    font-size: 24px;
-    line-height: 30px;
-    text-align: left;
-    align-items: flex-start;
-  }
-  .hero-date span {
-    font-size: 24px;
-    line-height: 30px;
-  }
-  .hero-content {
-    height: 960px;
-    display: block;
-  }
-  .hero-lead {
-    position: absolute;
-    left: 0;
-    top: 675px;
-    width: calc(100% - 280px);
-    max-width: 600px;
-  }
-  .hero-lead p {
-    text-transform: uppercase;
-    font-size: 24px;
-    line-height: 34px;
-  }
-  .hero-register {
-    width: 300px;
-    min-height: 52px;
-    margin-top: 35px;
-    border: 0;
-    border-radius: 7px;
-    background: linear-gradient(90deg, #155bea, #009cf1);
-    font-size: 13px;
-  }
-  .hero-supporters {
-    position: absolute;
-    width: 218px;
-    height: auto;
-    right: -16px;
-    top: 527px;
-    padding: 0;
-  }
-  .hero-supporters img {
-    width: 100%;
-    max-width: none;
-    height: auto;
-  }
-  .countdown {
-    position: absolute;
-    right: 0;
-    bottom: 51px;
-    width: 250px;
-    max-width: none;
-  }
-  .countdown-caption {
-    font-size: 11px;
-    margin-bottom: 14px;
-  }
-  .countdown-grid {
-    gap: 5px;
-  }
-  .countdown-cell {
-    padding: 8px 5px 4px;
-    height: 59px;
-    min-height: 59px;
-  }
-  .countdown-cell > span {
-    font:
-      400 24px/26px 'IBM Plex Sans',
-      sans-serif;
-  }
-  .countdown-cell small {
-    font-size: 8px;
-    margin: 7px 0 0;
-  }
   .participants-heading .section-title {
     font-size: 24px;
     line-height: 32px;
@@ -2431,44 +1551,8 @@
   }
 }
 @media (min-width: 600px) and (max-width: 699px) {
-  .hero-lead {
-    width: 54%;
-  }
-  .hero-lead p {
-    font-size: 20px;
-    line-height: 28px;
-  }
-  .hero-register {
-    width: 100%;
-    margin-top: 25px;
-    font-size: 12px;
-  }
-  .hero-supporters {
-    top: 540px;
-    width: 190px;
-  }
-  .countdown {
-    width: 220px;
-  }
   .flight-banner > img:nth-child(2) {
     opacity: 0.5;
-  }
-}
-@media (max-width: 599px) {
-  .hero {
-    padding-top: calc(50vw + 275px);
-    padding-bottom: 26px;
-  }
-  .hero-visual {
-    height: 100%;
-  }
-  .hero-scene {
-    width: 100%;
-    height: auto;
-    left: 0;
-    top: 0;
-    object-fit: contain;
-    mask-image: none;
   }
 }
 @media (min-width: 600px) and (max-width: 699px) {

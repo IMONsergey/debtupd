@@ -41,6 +41,13 @@ for (const engine of engines) {
         });
         await Promise.all([...document.images].map((img) => img.decode().catch(() => {})));
       });
+      // Firefox may reject decode() before a newly eager image starts loading.
+      // Wait for completion independently, then still report real image failures.
+      await page.waitForFunction(
+        () => [...document.images].every((image) => image.complete),
+        null,
+        { timeout: 20000 },
+      );
       const layout = await page.evaluate(() => {
         const visible = (element) => element.getBoundingClientRect().width > 0;
         const label = (element) => ({
