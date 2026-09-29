@@ -75,6 +75,10 @@ export async function submitLead(fields, { endpoint, signal, timeout = 20000 } =
   } catch (error) {
     if (error.name === 'AbortError')
       throw new Error('Сервер не ответил вовремя. Попробуйте ещё раз.');
+    if (error instanceof TypeError)
+      throw new Error(
+        'Не удалось связаться с сервером заявок. Данные не отправлены. Повторите попытку или свяжитесь с организатором.',
+      );
     throw error;
   } finally {
     clearTimeout(timer);

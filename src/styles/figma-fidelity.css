@@ -260,8 +260,8 @@
 }
 .service-copy {
   background:
-    linear-gradient(-30deg, #097cc66b, transparent 45%),
-    linear-gradient(145deg, #0a35604f, #071021 40%);
+    linear-gradient(-28deg, #38a6ff99 2.6%, transparent 26.7%),
+    linear-gradient(147deg, #006ac1, #07203f48 24.8%);
   border-color: #0b4a73;
 }
 .service-copy .button {
@@ -905,7 +905,7 @@
     font-size: 10px;
   }
   .organizer {
-    margin-bottom: 571px;
+    margin-bottom: 44px;
   }
   .organizer-heading {
     min-height: 130px;
@@ -983,7 +983,8 @@
     line-height: 1;
   }
   .organizer-metrics {
-    gap: 7%;
+    gap: 0;
+    justify-content: space-between;
   }
   .organizer-metrics > p {
     font-size: calc(13 * var(--org-unit));
@@ -1107,7 +1108,7 @@
     margin: 14px 0 20px;
   }
   .conferences {
-    margin-bottom: 31px;
+    margin-bottom: 120px;
   }
   .conference-heading {
     margin-bottom: 56px;

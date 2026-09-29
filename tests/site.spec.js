@@ -286,3 +286,133 @@ test('Reduced motion and preview analytics isolation', async ({ page }) => {
   ).toBe('none');
   expect(await page.evaluate(() => typeof window.ym)).toBe('undefined');
 });
+
+test('Card copy never overflows vertically across breakpoint boundaries', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => document.fonts.ready);
+  for (const width of [
+    320, 359, 390, 599, 600, 699, 768, 849, 850, 899, 900, 1024, 1180, 1181, 1440, 1920, 2560,
+  ]) {
+    await page.setViewportSize({ width, height: 900 });
+    const clipped = await page
+      .locator('.organizer-card,.service-copy,.speaker-info,.tariff,.topic-card,.about-copy')
+      .evaluateAll((nodes) =>
+        nodes
+          .filter((node) => node.offsetWidth && node.scrollHeight > node.clientHeight + 3)
+          .map((node) => ({ class: node.className, text: node.textContent.slice(0, 80) })),
+      );
+    expect(clipped, `Vertical clipping at ${width}px`).toEqual([]);
+  }
+});
+
+test('The complete astronaut enters with the tariff section, not above its anchor', async ({
+  page,
+}) => {
+  await page.goto('/');
+  for (const width of [320, 390, 600, 768, 1180, 1181, 1440, 1920, 2560]) {
+    await page.setViewportSize({ width, height: 900 });
+    const geometry = await page.evaluate(() => {
+      const art = document.querySelector('.tariff-astronaut').getBoundingClientRect();
+      const heading = document.querySelector('.tariffs-heading').getBoundingClientRect();
+      return { top: art.top - heading.top, width: art.width, height: art.height };
+    });
+    expect(
+      geometry.top,
+      `Astronaut cropped above tariff anchor at ${width}px`,
+    ).toBeGreaterThanOrEqual(-2);
+    expect(geometry.width / geometry.height).toBeCloseTo(685 / 721, 2);
+  }
+});
+
+test('Large-screen about photography retains the original crop ratio', async ({ page }) => {
+  await page.goto('/');
+  for (const width of [1181, 1440, 1920, 2560]) {
+    await page.setViewportSize({ width, height: 960 });
+    const box = await page.locator('.about-photo').boundingBox();
+    expect(box.width / box.height).toBeCloseTo(539 / 479, 2);
+  }
+});
+
+test('Sidebar uses a stable poster and does not boot the external video player', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const requests = [];
+  page.on('request', (request) => {
+    if (request.url().includes('kinescope.io')) requests.push(request.url());
+  });
+  await page.goto('/');
+  await expect(page.locator('.desktop-sidebar-video__poster')).toBeVisible();
+  await expect(page.locator('.desktop-sidebar-video iframe')).toHaveCount(0);
+  expect(requests).toEqual([]);
+});
+
+test('Network failures preserve the application and provide a Russian recovery message', async ({
+  page,
+}) => {
+  await page.unroute('**/api/lead');
+  await page.route('**/api/lead', (route) => route.abort('failed'));
+  const form = await openRegistration(page);
+  await form.locator('[name="consent"]').check();
+  await form.getByRole('button', { name: 'Отправить заявку' }).click();
+  await expect(form.locator('.form-feedback')).toContainText('Данные не отправлены');
+  await expect(form.locator('[name="full_name"]')).toHaveValue('Проверка интерфейса');
+  await expect(form.getByRole('link', { name: /Связаться с организатором/ })).toBeVisible();
+  await expect(page.getByText('Спасибо! Заявка отправлена')).toHaveCount(0);
+});
+
+test('Phone inputs and contact buttons remain usable on narrow screens', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto('/');
+  expect(
+    await page
+      .locator('.corporate-form input[name="phone"]')
+      .evaluate((node) => parseFloat(getComputedStyle(node).fontSize)),
+  ).toBeGreaterThanOrEqual(16);
+  const contacts = await page.locator('.contact-grid .channels a').evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const rect = node.getBoundingClientRect();
+      return [rect.width, rect.height];
+    }),
+  );
+  expect(contacts.length).toBeGreaterThan(0);
+  for (const [width, height] of contacts) {
+    expect(width).toBeGreaterThanOrEqual(44);
+    expect(height).toBeGreaterThanOrEqual(44);
+  }
+  const title = await page.locator('.partners .section-title').boundingBox();
+  const decoration = await page.locator('.partners-satellite').boundingBox();
+  expect(decoration.y).toBeGreaterThan(title.y + title.height);
+});
+
+test('Responsive grid cards do not collide when their intrinsic height changes', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.evaluate(() => document.fonts.ready);
+  for (const width of [320, 390, 430, 599, 600, 768, 1024, 1181, 1440, 1920]) {
+    await page.setViewportSize({ width, height: 900 });
+    const overlapping = await page.evaluate(() => {
+      const issues = [];
+      for (const grid of document.querySelectorAll(
+        '.partners-grid,.audience-grid,.speakers-grid,.organizer-grid,.topics-grid',
+      )) {
+        const cards = [...grid.children].filter(
+          (card) => card.offsetWidth && !card.classList.contains('empty-cell'),
+        );
+        for (let i = 0; i < cards.length; i++)
+          for (let j = i + 1; j < cards.length; j++) {
+            const a = cards[i].getBoundingClientRect(),
+              b = cards[j].getBoundingClientRect();
+            if (
+              Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 &&
+              Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1
+            )
+              issues.push({ grid: grid.className, first: i, second: j });
+          }
+      }
+      return issues;
+    });
+    expect(overlapping, `Overlapping cards at ${width}px`).toEqual([]);
+  }
+});

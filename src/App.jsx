@@ -355,6 +355,8 @@ function Services({ onRegister }) {
   ];
   return (
     <section className="section services" id="services">
+      <Picture name="services-satellite.png" className="services-satellite decor" />
+      <div className="section-glow services-glow" aria-hidden="true" />
       <SectionTitle>
         Услуги для
         <br />
@@ -733,6 +735,7 @@ function Partners() {
   const positions = [1, 3, 4, 5, 6, 8, 9, 10];
   return (
     <section className="section partners" id="information-partners">
+      <div className="section-glow partners-glow" aria-hidden="true" />
       <Picture name="partners-satellite.png" className="partners-satellite decor" />
       <SectionTitle>
         Информационные

@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "forms:telegram": "node server/forms-telegram.mjs",
     "test": "node --test src/lib/corporate-pricing.test.js server/forms-telegram.test.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "audit:visual": "node scripts/visual-audit.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.43.0",

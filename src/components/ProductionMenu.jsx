@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { SpaceNavigation } from './SpaceNavigation.jsx';
-import { content } from '../content.js';
 import { assetUrl } from '../lib/assets.js';
 
 // Same markup, dimensions and visual rules as the live debt-tech.ru left rail.
@@ -23,12 +22,13 @@ export function ProductionMenu({ onVideo, onGallery, onStand }) {
         <div className="desktop-sidebar-video">
           <span className="desktop-sidebar-video__caption">Как это было в 2025</span>
           <div className="desktop-sidebar-video__frame">
-            <iframe
-              src={content.heroVideo.previewUrl}
-              title="DEBT TECH 2025 — превью"
-              allow="autoplay; fullscreen; picture-in-picture"
-              tabIndex={-1}
-              aria-hidden="true"
+            <img
+              className="desktop-sidebar-video__poster"
+              src={assetUrl('assets/figma/video-poster.webp')}
+              width="475"
+              height="268"
+              alt=""
+              decoding="async"
             />
             <button
               className="desktop-sidebar-video__open"

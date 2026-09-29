@@ -356,6 +356,11 @@ export function CorporateForm() {
           <p className="form-feedback" aria-live="polite">
             {message}
           </p>
+          {status === 'error' && (
+            <a href={content.forms.telegramUrl} target="_blank" rel="noreferrer">
+              Связаться с организатором в Telegram ↗
+            </a>
+          )}
         </>
       )}
     </form>

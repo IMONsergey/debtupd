@@ -33,11 +33,11 @@
 }
 
 .audience-art {
-  width: min(131.15%, 1600px);
+  width: 131.15%;
   max-width: none;
-  left: 68%;
+  left: 72.5%;
   right: auto;
-  top: 54%;
+  top: 47%;
   transform: translate(-77%, -49%);
   opacity: 1;
   mask-image: none;
@@ -46,7 +46,7 @@
 .tariffs-heading {
   display: flex;
   align-items: flex-end;
-  min-height: 240px;
+  min-height: clamp(430px, 49.6cqi, 680px);
   padding-bottom: 40px;
 }
 
@@ -56,24 +56,24 @@
 }
 
 .tariff-astronaut {
-  width: min(62.4%, 685px);
+  width: min(62.4%, 860px);
   max-width: none;
   height: auto;
   right: -10px;
   top: auto;
-  bottom: -20px;
+  bottom: clamp(-240px, -16cqi, -120px);
   z-index: -1;
-  animation: float 16s ease-in-out infinite;
+  animation: none;
 }
 
 .tariff-planet {
-  width: min(36.3%, 399px);
+  width: min(36.3%, 500px);
   max-width: none;
   height: auto;
-  left: 24%;
+  left: 28%;
   top: auto;
-  bottom: 100px;
-  filter: blur(5px);
+  bottom: 30px;
+  filter: none;
 }
 
 /* CSS gradients fill the card at any aspect ratio; SVG viewBox fitting did not. */
@@ -265,9 +265,9 @@
   }
   .participant-photo {
     height: auto;
-    min-height: 242px;
+    min-height: 0;
     aspect-ratio: 262 / 242;
-    max-height: 340px;
+    max-height: none;
   }
 }
 
@@ -289,15 +289,15 @@
 
 @media (max-width: 1180px) {
   .tariffs-heading {
-    min-height: 300px;
+    min-height: 460px;
   }
   .tariff-astronaut {
     width: min(58%, 500px);
-    bottom: 0;
+    bottom: -100px;
   }
   .tariff-planet {
     width: 30%;
-    bottom: 130px;
+    bottom: 65px;
     left: 27%;
   }
   .corporate {
@@ -317,18 +317,20 @@
 
 @media (max-width: 599px) {
   .tariffs-heading {
-    min-height: 310px;
+    min-height: 390px;
     padding-bottom: 28px;
   }
   .tariff-astronaut {
-    width: 220px;
+    width: clamp(240px, 68vw, 320px);
     right: -10px;
-    bottom: 86px;
+    top: 0;
+    bottom: auto;
   }
   .tariff-planet {
     width: 140px;
     left: 4%;
-    bottom: 150px;
+    top: 62px;
+    bottom: auto;
   }
   .audience-art {
     width: 185%;
@@ -387,4 +389,539 @@
   .corporate-form .span-two {
     grid-column: auto;
   }
+}
+
+/* 2026-09-29: geometry is tied to each section, never to absolute page Y. */
+.about,
+.participants,
+.services,
+.speakers,
+.audience,
+.organizer,
+.tariffs,
+.partners {
+  container-type: inline-size;
+}
+.desktop-sidebar-video__poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.section-glow {
+  position: absolute;
+  z-index: -2;
+  pointer-events: none;
+  border-radius: 50%;
+}
+.services-glow {
+  width: 95%;
+  aspect-ratio: 1;
+  top: -28%;
+  right: -66%;
+  background: radial-gradient(ellipse, #0661c582, transparent 70%);
+}
+.partners-glow {
+  width: 100%;
+  aspect-ratio: 1;
+  right: -62%;
+  bottom: -38%;
+  background: radial-gradient(ellipse, #0860dc94, transparent 70%);
+}
+.services-satellite {
+  width: 43.26%;
+  max-width: 600px;
+  top: -301px;
+  right: -11.1%;
+  height: auto;
+}
+.service-copy h3,
+.participant-card h3,
+.topic-card h3,
+.audience-card h3 {
+  text-wrap: balance;
+}
+.service-copy > p,
+.sponsor-copy p {
+  text-wrap: pretty;
+}
+.audience-card,
+.partner-card {
+  background: linear-gradient(135deg, #006fc7b8, #0139698c 52%, #006fb4c7);
+  border-color: #9dcfff40;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.audience-card > span {
+  top: 24px;
+  left: 0;
+  width: 100%;
+  font:
+    400 14px/20px 'IBM Plex Sans',
+    sans-serif;
+  color: #65baff;
+}
+.audience-card h3 {
+  hyphens: none;
+  overflow-wrap: normal;
+  word-break: normal;
+  letter-spacing: 0.015em;
+  max-width: 100%;
+}
+.tariffs-heading {
+  isolation: isolate;
+}
+.tariffs-heading h2 {
+  max-width: 53%;
+}
+.tariff-grid {
+  position: relative;
+  z-index: 1;
+}
+.tariff-note b,
+.tariff-note strong {
+  color: #65baff;
+}
+.footer-scene {
+  pointer-events: none;
+}
+.footer-top {
+  pointer-events: auto;
+}
+@media (min-width: 1181px) {
+  .hero .hero-register {
+    display: none;
+  }
+  .hero-lead p {
+    font-weight: 400;
+  }
+  .about-grid {
+    align-items: stretch;
+  }
+  .about-photo {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 539 / 479;
+    position: relative;
+  }
+  .about-photo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .about-copy {
+    min-height: 0;
+    padding: clamp(28px, 3.1cqi, 48px);
+    display: flex;
+    flex-direction: column;
+  }
+  .about-benefits {
+    flex: 1;
+    justify-content: space-between;
+  }
+  .about-lead h3 {
+    font-size: clamp(12px, 1.18cqi, 18px);
+    line-height: 1.5;
+  }
+  .about-benefits li {
+    font-size: clamp(14px, 1.55cqi, 22px);
+    line-height: 1.35;
+  }
+  .stat {
+    height: auto;
+    min-height: clamp(167px, 15.2cqi, 250px);
+    padding: clamp(18px, 2cqi, 30px);
+  }
+  .stat strong {
+    font-size: clamp(85px, 9.56cqi, 140px);
+  }
+  .stat span {
+    font-size: clamp(13px, 1.37cqi, 19px);
+    line-height: 1.4;
+  }
+  .participants-layout {
+    grid-template-columns: minmax(0, 21.3%) minmax(0, 1fr);
+    gap: 4.2%;
+  }
+  .participant-panel {
+    min-height: 0;
+  }
+  .participant-copy {
+    padding: clamp(16px, 1.82cqi, 30px);
+    min-height: clamp(256px, 23.3cqi, 380px);
+  }
+  .participant-card h3 {
+    max-width: none;
+    font-size: clamp(16px, 1.73cqi, 25px);
+    line-height: 1.25;
+  }
+  .participant-card p,
+  .participant-card li {
+    font-size: clamp(12px, 1.09cqi, 16px);
+    line-height: 1.5;
+  }
+  .participant-kicker small {
+    font-size: clamp(9px, 1cqi, 14px);
+  }
+  .service-grid {
+    grid-template-rows: minmax(37.8cqi, auto) minmax(41.26cqi, auto) minmax(33.88cqi, auto);
+  }
+  .service-copy {
+    padding: clamp(28px, 3.46cqi, 54px);
+    gap: clamp(16px, 1.46cqi, 24px);
+  }
+  .service-copy h3 {
+    font-size: clamp(22px, 2.37cqi, 36px);
+    line-height: 1.35;
+  }
+  .service-copy > p,
+  .service-copy h4 {
+    font-size: clamp(14px, 1.46cqi, 21px);
+    line-height: 1.4;
+  }
+  .service-copy .slash-list li,
+  .numbered-list,
+  .numbered-list span {
+    font-size: clamp(13px, 1.18cqi, 17px);
+    line-height: 1.5;
+  }
+  .speaker-info {
+    min-height: clamp(157px, 14.3cqi, 218px);
+  }
+  .speaker p {
+    font-size: clamp(12px, 1.09cqi, 16px);
+    line-height: 1.45;
+  }
+  .audience-card {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 259 / 207;
+  }
+  .audience-card h3 {
+    font-size: clamp(14px, 1.5cqi, 24px);
+    line-height: 1.35;
+  }
+  .audience-card:nth-child(1) h3,
+  .audience-card:nth-child(2) h3,
+  .audience-card:nth-child(4) h3,
+  .audience-card:nth-child(5) h3 {
+    font-size: clamp(20px, 2cqi, 28px);
+    line-height: 1.35;
+  }
+  .organizer-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: 24px;
+  }
+  .organizer-heading .section-title,
+  .organizer-heading > div {
+    max-width: none;
+  }
+  .organizer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    column-gap: 16px;
+    row-gap: 7px;
+    font-size: clamp(12px, 1.18cqi, 16px);
+  }
+  .tariffs-heading h2 {
+    font-size: clamp(40px, 5.83cqi, 78px);
+  }
+  .partners-grid {
+    grid-template-rows: repeat(3, auto);
+  }
+  .partner-card {
+    aspect-ratio: 259 / 207;
+    min-height: 0;
+  }
+  .partners-satellite {
+    width: 104.9%;
+    max-width: none;
+    left: 4.1%;
+    top: -71px;
+    transform: none;
+  }
+}
+@media (min-width: 600px) and (max-width: 1180px) {
+  .organizer {
+    margin-bottom: 60px;
+  }
+  .tariffs-heading h2 {
+    font-size: clamp(36px, 5.4vw, 60px);
+  }
+  .services-satellite {
+    width: 300px;
+    top: -210px;
+    right: -100px;
+    opacity: 0.8;
+  }
+  .audience-card > span {
+    top: 18px;
+    font-size: 12px;
+  }
+}
+@media (max-width: 599px) {
+  .services-satellite {
+    width: 170px;
+    top: -100px;
+    right: -80px;
+    opacity: 0.45;
+  }
+  .services-glow {
+    top: -100px;
+    right: -250px;
+    width: 600px;
+  }
+  .tariffs-heading h2 {
+    max-width: 100%;
+    font-size: clamp(33px, 9.2vw, 48px);
+  }
+  .organizer {
+    margin-bottom: 70px;
+  }
+  .audience-card > span {
+    top: 16px;
+    font-size: 11px;
+  }
+  .audience-card h3 {
+    font-size: clamp(11px, 3.35vw, 17px);
+    line-height: 1.4;
+    letter-spacing: 0;
+  }
+  .partners-satellite {
+    top: 125px;
+    right: -190px;
+    left: auto;
+    width: 520px;
+    max-width: none;
+    transform: none;
+    opacity: 0.6;
+  }
+  .partners-grid {
+    gap: 14px;
+  }
+  .partner-card {
+    min-height: 0;
+    aspect-ratio: 1.1;
+  }
+  .speaker p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}
+
+/* Narrow cards must grow with their content; their old fixed ratios clipped the final lines. */
+.legal p,
+.legal a {
+  color: #c9ddf6;
+  text-shadow: 0 1px 8px #00142f;
+}
+.legal a:hover {
+  color: #fff;
+}
+@media (max-width: 1180px) {
+  .organizer-heading {
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+  .organizer-heading .section-title,
+  .organizer-heading > div {
+    max-width: 100%;
+    min-width: 0;
+  }
+  .organizer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .organizer-card {
+    aspect-ratio: auto;
+    min-height: 280px;
+    height: auto;
+    padding: 24px;
+  }
+  .organizer-card h3,
+  .organizer-rating h3 {
+    font-size: clamp(17px, 2.5vw, 22px);
+    line-height: 1.3;
+    max-width: none;
+  }
+  .organizer-card p,
+  .organizer-features li {
+    font-size: 12px;
+    line-height: 1.5;
+    max-width: none;
+  }
+  .organizer-brand,
+  .organizer-rating,
+  .organizer-navigator {
+    padding-bottom: 66px;
+  }
+  .organizer-brand > img {
+    width: 100%;
+    height: auto;
+    max-height: 60px;
+    margin-bottom: 18px;
+  }
+  .organizer-brand h3 {
+    margin: 0 0 10px;
+  }
+  .organizer-brand p {
+    margin: 0;
+  }
+  .organizer-photo {
+    padding: 0;
+    min-height: 260px;
+  }
+  .organizer-photo > img {
+    position: absolute;
+    inset: 0;
+    object-fit: cover;
+  }
+  .rating-number {
+    bottom: 10px;
+    right: 0;
+    line-height: 1;
+    font-size: clamp(115px, 17vw, 180px);
+  }
+  .organizer-metrics {
+    gap: 16px;
+    justify-content: space-between;
+  }
+  .organizer-metrics > p {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .organizer-metrics strong {
+    font-size: clamp(32px, 5.2vw, 46px);
+    line-height: 1.1;
+  }
+  .organizer-metrics span {
+    font-size: 11px;
+    line-height: 1.6;
+  }
+  .organizer-features ol {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    gap: 14px;
+  }
+  .organizer-features li {
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .organizer-features li > span {
+    font-size: 12px;
+    line-height: 1.5;
+    flex: 0 0 25px;
+  }
+  .organizer-navigator {
+    justify-content: flex-start;
+  }
+  .organizer-navigator p {
+    width: 100%;
+    margin: 20px 0 0;
+    padding: 0;
+  }
+}
+@media (min-width: 900px) and (max-width: 1180px) {
+  .organizer-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 600px) and (max-width: 1180px) {
+  .audience-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .audience .empty-cell {
+    display: none;
+  }
+  .audience-card {
+    height: auto;
+    min-height: 174px;
+    padding: 40px 16px 25px;
+  }
+  .audience-card h3 {
+    font-size: clamp(15px, 1.8vw, 19px);
+    line-height: 1.4;
+    max-width: 100%;
+  }
+}
+@media (min-width: 850px) and (max-width: 1180px) {
+  .audience-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 599px) {
+  .organizer-grid {
+    grid-template-columns: 1fr;
+  }
+  .organizer-card {
+    min-height: 260px;
+  }
+  .organizer-card h3,
+  .organizer-rating h3 {
+    font-size: 21px;
+  }
+  .organizer-metrics strong {
+    font-size: 39px;
+  }
+}
+
+@media (max-width: 599px) {
+  .field input,
+  .field select,
+  .field textarea,
+  .corporate-form .field input,
+  .corporate-form .field select {
+    font-size: 16px;
+  }
+  .channels a,
+  .organizer-heading .channels a {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .channels img {
+    width: 34px;
+  }
+}
+
+@media (min-width: 1181px) {
+  .about-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1181px) and (max-width: 1399px) {
+  .about-copy {
+    padding: 24px;
+  }
+  .about-lead {
+    gap: 14px;
+  }
+  .about-mark {
+    width: 78px;
+    height: auto;
+  }
+  .about-benefits {
+    gap: 10px;
+    margin-top: 22px;
+  }
+  .about-benefits li {
+    padding-bottom: 10px;
+  }
+  .about-benefits li:last-child {
+    padding-bottom: 0;
+  }
+}
+
+/* Intrinsic logo-card ratios must determine the rows, not the old 145px tracks. */
+.partners-grid {
+  grid-template-rows: none;
+  grid-auto-rows: auto;
 }

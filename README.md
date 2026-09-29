@@ -61,3 +61,24 @@ GitHub Pages пригоден для визуального просмотра. 
 Место проведения — **TAU, Москва, Рязанский проспект, 8Ас10**; ссылка карты ведёт на этот адрес. Декоративная карта сохранена из Figma и не заменяет интерактивный маршрут.
 
 Отправку в реальный Bitrix24 / Telegram следует один раз проверить на выбранном тестовом домене с разрешения организаторов перед переключением production. Локальные проверки используют перехваченные ответы, а не настоящие заявки.
+
+## Визуальная приёмка — 29.09.2026
+
+Подробности исправлений, результаты трёх браузерных движков и сравнения до / после: [отчёт аудита](docs/VISUAL_AUDIT_2026-09-29.md).
+
+```bash
+npm test
+npm run test:e2e
+# Dev-сервер должен быть запущен; браузеры устанавливаются через Playwright.
+npm run audit:visual
+```
+
+`audit:visual` проверяет 24 ширины в Chromium, Firefox и WebKit. Настройки: `QA_BASE_URL`, `QA_BROWSERS`, `QA_WIDTHS`, `QA_SCREENSHOTS`, `QA_OUTPUT`. Пример быстрого прогона опубликованной страницы:
+
+```bash
+QA_BASE_URL=https://imonsergey.github.io/debtupd/ \
+QA_BROWSERS=chromium QA_WIDTHS=390,768,1440,1920 \
+QA_SCREENSHOTS=390,1440 npm run audit:visual
+```
+
+JSON и снимки по умолчанию сохраняются в `test-results/visual-audit`. Все запросы к `/api/lead` внутри визуального аудита перехватываются: скрипт не создаёт настоящих заявок. Для уже установленных браузеров поддерживаются `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`, `PLAYWRIGHT_FIREFOX_EXECUTABLE_PATH` и `PLAYWRIGHT_WEBKIT_EXECUTABLE_PATH`.
