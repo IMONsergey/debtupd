@@ -190,3 +190,28 @@ test('Booking banner fits a 320px screen and preserves spaces around emphasized 
   expect(geometry.height).toBeLessThanOrEqual(544);
   expect(await page.locator('#ticket-offer-description').textContent()).toMatch(/скидкой\s+до/);
 });
+
+test('Narrow headings fit with a classic reserved scrollbar, not only overlay scrollbars', async ({
+  page,
+}) => {
+  await page.addInitScript(() => sessionStorage.setItem('debt2026-early-booking-dismissed', '1'));
+  await ready(page);
+  await page.addStyleTag({
+    content: 'html{overflow-y:scroll;scrollbar-gutter:stable}::-webkit-scrollbar{width:15px}',
+  });
+  for (const width of [320, 360, 390, 600, 768]) {
+    await page.setViewportSize({ width, height: 900 });
+    const clipped = await page
+      .locator('main h2')
+      .evaluateAll((nodes) =>
+        nodes
+          .filter((node) => node.clientWidth && node.scrollWidth > node.clientWidth + 2)
+          .map((node) => ({
+            text: node.textContent,
+            available: node.clientWidth,
+            actual: node.scrollWidth,
+          })),
+      );
+    expect(clipped, `Reserved-scrollbar headings at ${width}px`).toEqual([]);
+  }
+});
