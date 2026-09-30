@@ -79,9 +79,22 @@ test('Artwork floats only while visible and stops for page suspension', async ({
   await expect
     .poll(() => art.evaluate((node) => getComputedStyle(node).animationPlayState))
     .toBe('paused');
-  const paused = await art.evaluate((node) => getComputedStyle(node).translate);
+  // A CSS pause is committed asynchronously on the animation timeline. Await that
+  // commit before sampling; computed animation-play-state alone is not a frame barrier.
+  const paused = await art.evaluate(async (node) => {
+    const animation = node.getAnimations().find((item) => item.animationName === 'cosmic-float');
+    if (!animation) throw new Error('Missing cosmic-float animation');
+    await animation.ready;
+    return { time: animation.currentTime, state: animation.playState };
+  });
+  expect(paused.state).toBe('paused');
   await page.waitForTimeout(150);
-  expect(await art.evaluate((node) => getComputedStyle(node).translate)).toBe(paused);
+  expect(
+    await art.evaluate((node) => {
+      const animation = node.getAnimations().find((item) => item.animationName === 'cosmic-float');
+      return { time: animation.currentTime, state: animation.playState };
+    }),
+  ).toEqual(paused);
   await page.evaluate(() =>
     dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })),
   );
