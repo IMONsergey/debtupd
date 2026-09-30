@@ -120,7 +120,8 @@
   min-height: 60px;
 }
 .participant-kicker > span {
-  font-size: clamp(34px, 4.55cqi, 60px);
+  /* Both tabs use the section width, independent of nested title containers. */
+  font-size: clamp(34px, calc((100vw - var(--content-left) - var(--edge)) * 0.0455), 60px);
   line-height: 1.13;
   color: #43abff;
   flex: none;

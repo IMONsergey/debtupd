@@ -10,7 +10,7 @@
   font-family: Bounded, sans-serif;
   font-size: clamp(20px, 2vw, 34px);
   line-height: 1.5;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
 }
 /* Clip the exported SVG's artboard to the actual white logo capsule. */
@@ -234,7 +234,7 @@
     font-family: Bounded, sans-serif;
     font-size: clamp(16px, 4.2vw, 22px);
     line-height: 1.5;
-    letter-spacing: 0.09em;
+    letter-spacing: 0.18em;
   }
   .hero .hero-content {
     flex: none;
