@@ -21,9 +21,17 @@
   max-width: 100%;
 }
 .technology-tags li::before {
-  content: '·';
+  content: '//';
   flex: none;
-  color: #48b5f5;
+  color: #247cbf;
+  font: 600 22px Bounded, sans-serif;
+  letter-spacing: normal;
+}
+@media (min-width: 1181px) {
+  .technology-tags li::before {
+    font-size: 18px;
+    line-height: 16px;
+  }
 }
 .about .forum-ticker {
   margin: 26px 0 30px;
@@ -296,6 +304,9 @@
   }
   .technology-tags li {
     gap: 7px;
+  }
+  .technology-tags li::before {
+    font-size: 18px;
   }
   .about .forum-ticker {
     margin: 20px 0;
