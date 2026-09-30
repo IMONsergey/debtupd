@@ -53,3 +53,7 @@ Pending viewports: 320, 360, 390, 430, 599, 600, 768, 899, 900, 1180, 1181, 1440
 - Source sheets opened and read; public baseline captured before edits.
 - Implementation 1 prepared and statically verified; no post-change screenshot exists.
 - No visual approval or deployment performed.
+
+## Publication request — 30 September, 11:08 UTC+3
+
+The user explicitly requested immediate GitHub Pages publication. CI completed 71/75 browser scenarios. Three failures were stale expectations for the added mobile menu CTA and animated crown; one exposed a real third CTA style on mobile, corrected to the existing 13px/21px button typography. The next verification target is the publicly deployed site; no project payload will be transferred to Firecrawl. Full local visual approval is not claimed.

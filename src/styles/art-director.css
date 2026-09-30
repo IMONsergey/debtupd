@@ -249,6 +249,8 @@
   }
   .button.speaker-view-toggle {
     width: 100%;
+    font-size: 13px;
+    line-height: 21px;
   }
   .speakers-note {
     min-height: 150px;
