@@ -107,7 +107,7 @@ function InfoBlock({ onVideo, onStand, sidebar = false }) {
             height="30"
           />
         </div>
-        {sidebar && <ArrowButton href="#tariffs">Ранняя регистрация</ArrowButton>}
+        {sidebar && <ArrowButton href="#tariff-plans">Ранняя регистрация</ArrowButton>}
         {sidebar && (
           <ArrowButton className="secondary" onClick={onStand}>
             Забронировать стенд
@@ -167,7 +167,7 @@ function Hero({ onStand }) {
             Стратегии, технологии и инновационные сервисы для работы с долговыми обязательствами
           </p>
           <div className="hero-actions">
-            <ArrowButton href="#tariffs" className="hero-register">
+            <ArrowButton href="#tariff-plans" className="hero-register">
               Ранняя регистрация
             </ArrowButton>
             <ArrowButton onClick={onStand} className="hero-stand secondary">
@@ -650,7 +650,7 @@ function Tariffs({ onApply }) {
         <Picture className="tariff-planet decor" name="tariff-planet.png" />
         <Picture className="tariff-astronaut decor" name="tariff-astronaut-masked.png" />
       </div>
-      <div className="tariff-grid">
+      <div className="tariff-grid" id="tariff-plans">
         {content.tariffs.items.map((t) => (
           <article className={'tariff tariff--' + t.id + ' corners'} key={t.id}>
             <h3>{t.title}</h3>
@@ -686,7 +686,7 @@ function Tariffs({ onApply }) {
     </section>
   );
 }
-function Corporate() {
+function Corporate({ onSuccess }) {
   return (
     <section className="section corporate glass corners" id="corporate-packages">
       <div className="corporate-offer">
@@ -715,7 +715,7 @@ function Corporate() {
           ))}
         </div>
       </div>
-      <CorporateForm />
+      <CorporateForm onSuccess={onSuccess} />
     </section>
   );
 }
@@ -915,7 +915,7 @@ export default function App() {
           <Audience />
           <Organizer />
           <Tariffs onApply={(t) => openForm('early-registration', t)} />
-          <Corporate />
+          <Corporate onSuccess={() => setForm({ kind: 'corporate-package', completed: true })} />
           <OtherConferencesSection archive={content.otherConferences} />
           <Sponsor />
           <Partners />

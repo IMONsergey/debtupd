@@ -131,7 +131,7 @@ test('The booking offer appears after its delay, traps focus and leads to tariff
   expect(await dialog.evaluate((node) => node.contains(document.activeElement))).toBe(true);
   await dialog.getByRole('button', { name: 'Купить билет' }).click();
   await expect(dialog).toHaveCount(0);
-  await expect.poll(() => page.evaluate(() => location.hash)).toBe('#tariffs');
+  await expect.poll(() => page.evaluate(() => location.hash)).toBe('#tariff-plans');
   expect(await page.locator('#page-content').evaluate((node) => node.inert)).toBe(false);
   await page.clock.fastForward(20000);
   await expect(dialog).toHaveCount(0);

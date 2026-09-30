@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import { ActionArrow } from './ActionArrow.jsx';
 import { submitLead, formatPhone } from '../lib/forms.js';
 import { useDialog } from '../lib/useDialog.js';
-import { calculateCorporatePrice, MAX_CORPORATE_PARTICIPANTS } from '../lib/corporate-pricing.js';
+import { MAX_CORPORATE_PARTICIPANTS } from '../lib/corporate-pricing.js';
 import { content } from '../content.js';
 const privacy = content.footer.privacyHref;
 const common = [
@@ -75,11 +75,16 @@ function Honeypot() {
     </label>
   );
 }
-export function ApplicationModal({ kind = 'early-registration', tariff, onClose }) {
+export function ApplicationModal({
+  kind = 'early-registration',
+  tariff,
+  completed = false,
+  onClose,
+}) {
   const ref = useRef(null),
     sending = useRef(false),
     abort = useRef(null);
-  const [status, setStatus] = useState('idle'),
+  const [status, setStatus] = useState(completed ? 'success' : 'idle'),
     [message, setMessage] = useState('');
   useDialog(ref, onClose);
   useEffect(() => () => abort.current?.abort(), []);
@@ -160,22 +165,31 @@ export function ApplicationModal({ kind = 'early-registration', tariff, onClose 
         </button>
         <span className="eyebrow">DEBT TECH / 2026</span>
         <h2 id="application-title">
-          {stand
-            ? 'Забронировать стенд'
-            : tariff
-              ? `Тариф «${tariff.title}»`
-              : 'Ранняя регистрация'}
+          {kind === 'corporate-package'
+            ? 'Корпоративное участие'
+            : stand
+              ? 'Забронировать стенд'
+              : tariff
+                ? `Тариф «${tariff.title}»`
+                : 'Ранняя регистрация'}
         </h2>
         {status === 'success' ? (
           <div className="form-success" role="status">
             <h3>Спасибо! Заявка отправлена</h3>
             <p>Мы получили ваши данные и свяжемся с вами в ближайшее время.</p>
-            <a className="button" href={content.forms.telegramUrl} target="_blank" rel="noreferrer">
-              Наш Telegram <ActionArrow />
-            </a>
-            <button className="button secondary" onClick={onClose}>
-              Закрыть
-            </button>
+            <div className="form-success-actions">
+              <a
+                className="button"
+                href={content.forms.telegramUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Наш Telegram <ActionArrow />
+              </a>
+              <button className="button secondary" onClick={onClose}>
+                Закрыть
+              </button>
+            </div>
           </div>
         ) : (
           <>
@@ -246,7 +260,7 @@ export function ApplicationModal({ kind = 'early-registration', tariff, onClose 
     document.body,
   );
 }
-export function CorporateForm() {
+export function CorporateForm({ onSuccess }) {
   const [tariffId, setTariff] = useState('full-plus'),
     [count, setCount] = useState('3'),
     [status, setStatus] = useState('idle'),
@@ -268,7 +282,8 @@ export function CorporateForm() {
         tariff_name: tariff.title,
         tariff_price: tariff.price,
       });
-      setStatus('success');
+      setStatus('idle');
+      onSuccess();
     } catch (error) {
       setStatus('error');
       setMessage(error.message);
@@ -276,7 +291,6 @@ export function CorporateForm() {
       sending.current = false;
     }
   }
-  const calculation = status === 'success' ? calculateCorporatePrice(tariff.price, count) : null;
   return (
     <form id="corporate-package-form" className="corporate-form" onSubmit={send}>
       <h3>
@@ -284,91 +298,75 @@ export function CorporateForm() {
         <br />
         корпоративного участия
       </h3>
-      {status === 'success' ? (
-        <div className="form-success" role="status">
-          <strong>Заявка отправлена</strong>
-          <p>Менеджер свяжется с вами для подтверждения условий.</p>
-          <p>
-            Расчётная стоимость:{' '}
-            <strong>{new Intl.NumberFormat('ru-RU').format(calculation.total)} ₽</strong>
-          </p>
-          <p className="muted">
-            С учётом скидки {new Intl.NumberFormat('ru-RU').format(calculation.discount)} ₽.
-          </p>
+      <Honeypot />
+      <fieldset disabled={status === 'sending'}>
+        <div className="form-grid">
+          <label className="field">
+            <span>Количество участников</span>
+            <input
+              name="participants_count"
+              type="number"
+              min={1}
+              max={MAX_CORPORATE_PARTICIPANTS}
+              step={1}
+              inputMode="numeric"
+              required
+              value={count}
+              onChange={(e) => setCount(e.target.value)}
+            />
+          </label>
+          <label className="field">
+            <span>Выберите тариф</span>
+            <select
+              name="tariff_id"
+              value={tariffId}
+              onChange={(e) => setTariff(e.target.value)}
+              required
+            >
+              {content.tariffs.items.map((t) => (
+                <option value={t.id} key={t.id}>
+                  {t.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field span-two">
+            <span>Ваше ФИО</span>
+            <input
+              name="full_name"
+              autoComplete="name"
+              placeholder="Иванов Иван Иванович"
+              maxLength={150}
+              required
+            />
+          </label>
+          <label className="field span-two">
+            <span>Номер телефона</span>
+            <input
+              name="phone"
+              type="tel"
+              autoComplete="tel"
+              inputMode="tel"
+              placeholder="+7 999 999 99 99"
+              maxLength={24}
+              onInput={phoneInput}
+              required
+            />
+          </label>
         </div>
-      ) : (
-        <>
-          <Honeypot />
-          <fieldset disabled={status === 'sending'}>
-            <div className="form-grid">
-              <label className="field">
-                <span>Количество участников</span>
-                <input
-                  name="participants_count"
-                  type="number"
-                  min={1}
-                  max={MAX_CORPORATE_PARTICIPANTS}
-                  step={1}
-                  inputMode="numeric"
-                  required
-                  value={count}
-                  onChange={(e) => setCount(e.target.value)}
-                />
-              </label>
-              <label className="field">
-                <span>Выберите тариф</span>
-                <select
-                  name="tariff_id"
-                  value={tariffId}
-                  onChange={(e) => setTariff(e.target.value)}
-                  required
-                >
-                  {content.tariffs.items.map((t) => (
-                    <option value={t.id} key={t.id}>
-                      {t.title}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="field span-two">
-                <span>Ваше ФИО</span>
-                <input
-                  name="full_name"
-                  autoComplete="name"
-                  placeholder="Иванов Иван Иванович"
-                  maxLength={150}
-                  required
-                />
-              </label>
-              <label className="field span-two">
-                <span>Номер телефона</span>
-                <input
-                  name="phone"
-                  type="tel"
-                  autoComplete="tel"
-                  inputMode="tel"
-                  placeholder="+7 999 999 99 99"
-                  maxLength={24}
-                  onInput={phoneInput}
-                  required
-                />
-              </label>
-            </div>
-            <Consent id="corporate-consent" />
-            <button className="button" type="submit">
-              {status === 'sending' ? 'Отправляем…' : 'Рассчитать стоимость'}
-              <ActionArrow />
-            </button>
-          </fieldset>
-          <p className="form-feedback" aria-live="polite">
-            {message}
-          </p>
-          {status === 'error' && (
-            <a href={content.forms.telegramUrl} target="_blank" rel="noreferrer">
-              Связаться с организатором в Telegram ↗
-            </a>
-          )}
-        </>
+        <Consent id="corporate-consent" />
+        <button className="button" type="submit">
+          {status === 'sending' ? 'Отправляем…' : 'Рассчитать стоимость'}
+          <ActionArrow />
+        </button>
+      </fieldset>
+      <p className="form-feedback" aria-live="polite">
+        {message}
+      </p>
+      {status === 'error' && (
+        <a href={content.forms.telegramUrl} target="_blank" rel="noreferrer">
+          Связаться с организатором в Telegram ↗
+        </a>
       )}
     </form>
   );

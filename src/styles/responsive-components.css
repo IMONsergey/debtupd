@@ -400,6 +400,9 @@
   }
 }
 @media (min-width: 600px) and (max-width: 1180px) {
+  #tariff-plans {
+    scroll-margin-top: 44px;
+  }
   .organizer {
     margin-bottom: 60px;
   }

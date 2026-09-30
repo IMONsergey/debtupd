@@ -782,9 +782,6 @@ p,
 .corporate-form .form-feedback:not(:empty) {
   padding-top: 16px;
 }
-.corporate-form .form-success {
-  margin: auto 0;
-}
 
 .other-conferences-carousel__viewport {
   -webkit-mask-image: linear-gradient(

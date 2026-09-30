@@ -106,7 +106,7 @@ export function SpaceNavigation({ mobile = false, onNavigate }) {
   }, [mobile, open]);
   const navigate = (event, item) => {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    const section = document.getElementById(item.id);
+    const section = document.getElementById(item.anchor || item.id);
     if (!section) return;
     event.preventDefault();
     destinationRef.current = item.id;
@@ -115,7 +115,7 @@ export function SpaceNavigation({ mobile = false, onNavigate }) {
       destinationRef.current = null;
     }, 2400);
     setActive(item.id);
-    history.replaceState(null, '', `#${item.id}`);
+    history.replaceState(null, '', `#${item.anchor || item.id}`);
     onNavigate?.();
     if (mobile) {
       setOpen(false);
@@ -175,8 +175,8 @@ export function SpaceNavigation({ mobile = false, onNavigate }) {
         {mobile && (
           <a
             className="button space-route__register"
-            href="#tariffs"
-            onClick={(event) => navigate(event, { id: 'tariffs' })}
+            href="#tariff-plans"
+            onClick={(event) => navigate(event, { id: 'tariffs', anchor: 'tariff-plans' })}
           >
             <span className="button-label">Ранняя регистрация</span>
             <ActionArrow />

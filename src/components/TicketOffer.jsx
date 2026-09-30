@@ -120,9 +120,9 @@ export function DelayedTicketOffer({ blocked = false }) {
     close();
     requestAnimationFrame(() =>
       requestAnimationFrame(() => {
-        const target = document.getElementById('tariffs');
+        const target = document.getElementById('tariff-plans');
         if (!target) return;
-        history.replaceState(null, '', '#tariffs');
+        history.replaceState(null, '', '#tariff-plans');
         target.scrollIntoView({
           behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
           block: 'start',

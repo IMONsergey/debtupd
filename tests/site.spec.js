@@ -70,7 +70,7 @@ test('Production mobile menu closes on Escape, outside click and navigation', as
   await expect(menu.getByRole('link')).toHaveCount(9);
   await expect(menu.getByRole('link', { name: 'Ранняя регистрация' })).toHaveAttribute(
     'href',
-    '#tariffs',
+    '#tariff-plans',
   );
   await page.keyboard.press('Escape');
   await expect(menu).toBeHidden();
@@ -125,6 +125,16 @@ test('Consent is required, valid registration preserves tariff and attribution',
     utm_source: 'qa',
     utm_campaign: 'local',
   });
+  for (const width of [320, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    const actions = page.locator('.form-success-actions');
+    const telegram = await actions.getByRole('link', { name: 'Наш Telegram' }).boundingBox();
+    const close = await actions.getByRole('button', { name: 'Закрыть', exact: true }).boundingBox();
+    const dialog = await page.getByRole('dialog').boundingBox();
+    expect(Math.abs(telegram.y - close.y)).toBeLessThan(1);
+    expect(close.x).toBeGreaterThan(telegram.x + telegram.width);
+    expect(close.x + close.width).toBeLessThanOrEqual(dialog.x + dialog.width);
+  }
 });
 for (const response of [
   { name: '500', status: 500, body: '{"success":false}' },
@@ -144,7 +154,7 @@ for (const response of [
     await expect(form.locator('[name="full_name"]')).toHaveValue('Проверка интерфейса');
     await expect(form.getByRole('button', { name: 'Отправить заявку' })).toBeEnabled();
   });
-test('Corporate calculation uses ticket-specific discounts after confirmed delivery', async ({
+test('Corporate success opens the shared dialog and preserves the form without calculations', async ({
   page,
 }) => {
   let sent;
@@ -162,14 +172,61 @@ test('Corporate calculation uses ticket-specific discounts after confirmed deliv
   await form.locator('[name="phone"]').fill('+79991112233');
   await form.locator('[name="consent"]').check();
   await form.getByRole('button', { name: 'Рассчитать стоимость' }).click();
-  await expect(form.getByText('Заявка отправлена', { exact: true })).toBeVisible();
-  await expect(form.getByText(/202\s*400/)).toBeVisible();
+  const dialog = page.getByRole('dialog', { name: 'Корпоративное участие' });
+  await expect(dialog.getByText('Спасибо! Заявка отправлена')).toBeVisible();
+  await expect(form.locator('fieldset')).toBeVisible();
+  await expect(form.locator('.form-success')).toHaveCount(0);
+  await expect(page.getByText(/Расчётная стоимость|С учётом скидки/)).toHaveCount(0);
   expect(sent).toMatchObject({
     form_id: 'corporate-package-form',
     participants_count: '5',
     tariff_id: 'business',
     consent: true,
   });
+  await dialog.getByRole('button', { name: 'Закрыть', exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(form.locator('[name="participants_count"]')).toHaveValue('5');
+  await expect(form.locator('select')).toHaveValue('business');
+  await expect(form.locator('[name="full_name"]')).toHaveValue('Тест без отправки');
+  await expect(form.getByRole('button', { name: 'Рассчитать стоимость' })).toBeEnabled();
+});
+
+test('Early registration links land on tariff cards instead of the astronaut', async ({ page }) => {
+  for (const width of [390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 12000 });
+    const link =
+      width >= 1181
+        ? page.locator('.fixed-menu__cta[href="#tariff-plans"]')
+        : page.locator('.hero-register');
+    await link.click();
+    await expect.poll(() => page.evaluate(() => location.hash)).toBe('#tariff-plans');
+    await expect
+      .poll(() =>
+        page
+          .locator('#tariff-plans')
+          .evaluate((node) =>
+            Math.abs(node.getBoundingClientRect().top - (innerWidth < 1181 ? 80 : 36)),
+          ),
+      )
+      .toBeLessThan(3);
+    if (width < 1181) {
+      await page.getByRole('button', { name: 'Открыть меню' }).click();
+      await page
+        .getByRole('navigation', { name: 'Разделы сайта' })
+        .getByRole('link', { name: 'Ранняя регистрация' })
+        .click();
+      await expect(page.getByRole('navigation', { name: 'Разделы сайта' })).toBeHidden();
+      await expect
+        .poll(() =>
+          page
+            .locator('#tariff-plans')
+            .evaluate((node) => Math.abs(node.getBoundingClientRect().top - 80)),
+        )
+        .toBeLessThan(3);
+    }
+  }
 });
 test('Stand form retains the production payload contract', async ({ page }) => {
   let sent;

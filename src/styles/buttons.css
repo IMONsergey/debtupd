@@ -111,6 +111,11 @@
 .form-dialog .button {
   min-width: 0;
 }
+.form-success-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .ui-icon-button,
 .circle-button,
 .icon-button,
@@ -146,6 +151,14 @@
   filter: none;
 }
 @media (max-width: 599px) {
+  .form-success-actions {
+    gap: 8px;
+  }
+  .form-success-actions .button {
+    gap: 8px;
+    padding-inline: 12px;
+    font-size: 12px;
+  }
   .button,
   .fixed-menu__cta {
     font-size: 13px;
