@@ -413,3 +413,17 @@
     margin: 0;
   }
 }
+
+@media (max-width: 359px) {
+  .speakers-note {
+    padding-right: 134px;
+  }
+  .speakers-note-art {
+    width: 126px;
+  }
+  .speakers-note-art img {
+    width: 142px;
+    right: -10px;
+    bottom: -12px;
+  }
+}
