@@ -2,7 +2,7 @@
 
 final result: passed
 
-The published implementation has no remaining actionable P0/P1/P2 findings within this scope. All final build and browser checks passed.
+The latest published implementation has no remaining actionable P0/P1/P2 visual findings within this scope. The initial delivery passed all checks; the 15:18 ticker correction and its separate verification are recorded below.
 
 ## Scope and source visual truth
 
@@ -59,7 +59,7 @@ The animation request did not provide a new visual arrangement. It is implemente
 
 - Decorative illustration cycles last 9–22 seconds; footer scale is 24 seconds. Phone movement is reduced, including a 2 px travel for the note astronaut.
 - An IntersectionObserver pauses new ambient loops outside the viewport. Page visibility, pagehide/pageshow, preloader and open dialogs also suspend those loops. No additional requestAnimationFrame loop or scroll handler was added.
-- `prefers-reduced-motion` disables added loops and transitions. The facts ticker becomes a wrapping static list with its duplicate hidden, leaving all text available.
+- The initial delivery used a wrapping static facts list under `prefers-reduced-motion`. The client rejected that behavior at 15:18; the update below supersedes it. Decorative loops and transitions still honor reduced motion.
 - Existing two CTA designs, semantics, keyboard controls, focus states, forms and links are retained. Hover effects are restricted to devices with a fine pointer and hover support.
 - Hero WebGL stabilization and GPU fallback logic from the preceding release are unchanged.
 - Published browser checks: new label and collapse behavior at 1440 × 900 and 390 × 844; no overflow; zero page errors during that interaction session. Static tag placement and visible artwork movement were checked on the published page. No real lead was submitted.
@@ -92,3 +92,41 @@ The cross-browser matrix covers Chromium and WebKit desktop/mobile (mobile DPR 3
 - [x] Finish the final CI run and record results.
 
 No additional P3 visual work is required for this delivery.
+
+
+## 15:18 client correction — always use a running facts strip
+
+Runtime release: `fe566d5e5b04bc3571cefe9defed346876c7ffab`.
+
+**[P1, resolved]** The client's screenshot shows the About facts in three static rows. Cause: the reduced-motion rules deliberately wrapped the ticker and disabled its motion. This contradicted the required running-strip presentation. Removed wrapping/duplicate hiding and exempted this informational ticker from the global animation reset and reduced-motion ambient pause. It remains a single seamless line: 64-second cycle normally, a slower 96-second cycle with reduced motion. Other decorative motion still respects that preference. Hidden-page, offscreen and dialog suspension remain intact. Hover on a fine pointer and keyboard focus pause the strip; touch hover does not create a sticky pause.
+
+**Source visual truth:** `/workspace/scratch/c57e1b09c88f/attachments/1c78778e-c77b-4c41-b5d4-eeba8b5b7d81/Снимок экрана — 2026-09-30 в 15.18.17.png`, 736 × 258 px. This is an annotated crop; source CSS viewport/DPR are unknown. The correction asks for motion and one row, not a new visual design.
+
+**Post-fix browser evidence:** `qa/client-motion/ticker-desktop.jpg` (1440 × 900 CSS/image px, DPR 1), `qa/client-motion/ticker-mobile.jpg` (390 × 844 CSS/image px, DPR 1). Both captured on the published site with reduced motion enabled, matching the problematic state. The combined `qa/client-motion/ticker-comparison.jpg` (1550 × 900 px) was opened and reviewed: source at native size, desktop content crop proportionally scaled, mobile content crop at 1:1. The existing About photo, statistics and section position give full regional context; the focused ticker detail is readable in the same comparison. No layout or imagery substitution was introduced.
+
+**Fidelity checks:** fonts, sizes, blue separators, colors, masks and illustration quality are unchanged. The facts now occupy one row (48 px including padding on desktop, 42 px on mobile); the former extra rows are gone. Existing vertical gaps are preserved. Copy and all facts are retained; the duplicate copy is still hidden from assistive technology. No page overflow at either viewport.
+
+**Live verification:** observed transform movement over 600 ms in all four combinations of 1440/390 px and normal/reduced motion. Desktop reduced: x −3.22 → −18.14 px; mobile reduced: −747.40 → −758.46 px. Keyboard focus paused the animation and blur resumed it. No page errors during the published interaction session. Updated the existing cross-browser test to assert a single line, duplicate continuity, actual transform movement, slower reduced-motion speed, and keyboard pause/resume. Production build and diff checks passed. Pages deployment succeeded (`36714167076`). The ticker revision passed all 55 cross-browser checks (`36714167269`: Chromium 22, Firefox 11, WebKit 22) and the full build/site workflow (`36714167200`: 76 browser checks, 10 Node tests).
+
+**Comparison history:** client identified the reduced-motion mismatch after the earlier delivery. One targeted fix was applied, published and recaptured under the affected setting. The combined post-fix comparison found no remaining actionable P0/P1/P2 differences. No further visual changes were needed.
+
+**Checklist:** single moving row restored; desktop/mobile and both motion preferences checked; keyboard pause/resume checked; source and rendered comparison opened; published deployment confirmed.
+
+final result: passed
+
+
+## 15:23 client correction — match the technology separators
+
+Final runtime release: `18e6f6e5f779aba391c9da347d3941673ca8bb60`. Pages deployment succeeded, run `36714878404`.
+
+**[P2, resolved]** Replace the static technology list's dot separators with the existing facts ticker's blue `//`. Matched Bounded 600, color `#247cbf`, normal letter spacing, and the same responsive font size and line height. The reference is the real `.ticker-copy i` already visible in the supplied screenshot and in `qa/client-motion/ticker-desktop.jpg`; no replacement artwork was created.
+
+The first desktop capture after the wider slashes showed the final tag alone on a third row. Reduced the desktop column gap from 22 to 18 px; the published post-fix capture restores two balanced rows at 1440 px. The existing 14 px mobile gap stays in use.
+
+**Evidence and comparison:** `qa/client-motion/dividers-desktop.jpg`, 1440 × 900 CSS/image px, DPR 1; `qa/client-motion/dividers-mobile.jpg`, 390 × 844 CSS/image px, DPR 1. The mobile rules are identical across the separator and spacing commits. Opened `qa/client-motion/dividers-comparison.jpg` (1550 × 930): existing ticker and final tag regions at 1:1, desktop context scaled proportionally, mobile crop at 1:1. The exact glyph, color, weight and baseline treatment match. Copy, background colors, photos, masks and other typography are unchanged. No actionable P0/P1/P2 difference remains after the spacing correction.
+
+**Published viewport checks:** 1440 / 768 / 390 / 320 px. All 13 tags contained; no horizontal page overflow; computed separator font family, size, weight, line height and color match the ticker at each width. Tag row counts: 2 / 3 / 6 / 8 respectively. The facts ticker remains animated while the technology tags remain static. CSS-only spacing revision builds through the successful Pages workflow. Additional full-suite reruns were triggered automatically and are not represented as completed in this report.
+
+**Checklist:** matching slashes applied; desktop wrap corrected; four viewport widths checked; source/rendered comparison opened; Pages release verified.
+
+final result: passed
