@@ -75,7 +75,7 @@ export function MediaModal({ kind, onClose }) {
           </>
         ) : (
           <iframe
-            src="https://kinescope.io/embed/dd7dQ3BMbTCeSfteZFXCiS?autoplay=true&controls=true"
+            src={content.heroVideo.widgetUrl}
             title="DEBT TECH 2025 — видеозапись"
             allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
             allowFullScreen
