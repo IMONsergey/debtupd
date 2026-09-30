@@ -126,7 +126,7 @@ test('The booking offer appears after its delay, traps focus and leads to tariff
   await page.clock.fastForward(15000);
   const dialog = page.getByRole('dialog', { name: '«Вселенная технологий»' });
   await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText('до 01 октября');
+  await expect(dialog).toContainText('до 1 октября включительно');
   await page.keyboard.press('Shift+Tab');
   expect(await dialog.evaluate((node) => node.contains(document.activeElement))).toBe(true);
   await dialog.getByRole('button', { name: 'Купить билет' }).click();
@@ -152,8 +152,24 @@ test('The timed offer waits for an active application dialog and closes on Escap
     await page.evaluate(() => sessionStorage.getItem('debt2026-early-booking-dismissed')),
   ).toBe('1');
 });
+test('Early booking includes October 1 and expires at Moscow midnight on October 2', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-10-01T12:00:00+03:00') });
+  await ready(page);
+  await page.clock.fastForward(15000);
+  const dialog = page.locator('.ticket-offer-modal');
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toContainText('до 1 октября включительно');
+  await expect(page.locator('.tariff-note')).toContainText('до 1 октября включительно.');
+  await expect(page.locator('.tariff-bottom > strong')).toHaveText(['44 000 ₽', '49 000 ₽', '66 000 ₽']);
+  await page.clock.setFixedTime(new Date('2026-10-01T23:59:59+03:00'));
+  await page.clock.fastForward(1000);
+  await expect(dialog.locator('.ticket-offer-modal__countdown-item strong')).toHaveText(['00', '00', '00', '01']);
+  await page.clock.setFixedTime(new Date('2026-10-02T00:00:00+03:00'));
+  await page.clock.fastForward(1000);
+  await expect(dialog).toHaveCount(0);
+});
 test('Expired early-booking offer is not shown', async ({ page }) => {
-  await page.clock.install({ time: new Date('2026-10-02T09:00:00+03:00') });
+  await page.clock.install({ time: new Date('2026-10-02T00:00:00+03:00') });
   await ready(page);
   await page.clock.fastForward(18000);
   await expect(page.locator('.ticket-offer-modal')).toHaveCount(0);

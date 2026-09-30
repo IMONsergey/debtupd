@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useDialog } from '../lib/useDialog.js';
 import { assetUrl } from '../lib/assets.js';
 import { ActionArrow } from './ActionArrow.jsx';
-const DEADLINE = Date.parse('2026-10-01T00:00:00+03:00');
+const DEADLINE = Date.parse('2026-10-02T00:00:00+03:00');
 const SEEN = 'debt2026-early-booking-dismissed';
 function alreadyDismissed() {
   try {
@@ -78,7 +78,7 @@ function TicketOfferDialog({ onClose, onBuy }) {
         </h2>
         <span className="ticket-offer-modal__booking-title">Раннее бронирование</span>
         <p id="ticket-offer-description">
-          Успейте приобрести билеты со скидкой <strong>до 01 октября</strong>
+          Успейте приобрести билеты со скидкой <strong>до 1 октября включительно</strong>
         </p>
         <div className="ticket-offer-modal__countdown" aria-label="До окончания скидки">
           {values.map((value, index) => (
