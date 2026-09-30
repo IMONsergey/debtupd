@@ -13,6 +13,7 @@ import './styles/ticket-offer.css';
 import './styles/buttons.css';
 import './styles/fluid-experience.css';
 import './styles/partner-review.css';
+import './styles/art-director.css';
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />

@@ -1,5 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { Menu, X } from 'lucide-react';
+import { ActionArrow } from './ActionArrow.jsx';
 import { destinations } from '../navigation.js';
 import '../styles/space-navigation.css';
 const shipImageSrc = `${import.meta.env.BASE_URL}assets/menu-spaceship.png`;
@@ -171,6 +172,16 @@ export function SpaceNavigation({ mobile = false, onNavigate }) {
             <span className="space-route__label">{item.label}</span>
           </a>
         ))}
+        {mobile && (
+          <a
+            className="button space-route__register"
+            href="#tariffs"
+            onClick={(event) => navigate(event, { id: 'tariffs' })}
+          >
+            <span className="button-label">Ранняя регистрация</span>
+            <ActionArrow />
+          </a>
+        )}
         <span ref={shipRef} className="space-route__ship" aria-hidden="true">
           <img
             className="space-route__ship-image"

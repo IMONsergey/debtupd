@@ -22,7 +22,7 @@ for (const width of widths)
     await page.evaluate(() => document.fonts.ready);
     await expect(page.locator('.speaker')).toHaveCount(15);
     await expect(page.locator('.tariff')).toHaveCount(3);
-    await expect(page.getByRole('heading', { name: 'MULTIPASS' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Тарифы\s*участия/ })).toBeVisible();
     const issues = await page.evaluate(() => ({
       overflow: document.documentElement.scrollWidth > innerWidth,
       clipped: [

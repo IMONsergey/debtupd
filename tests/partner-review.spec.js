@@ -13,13 +13,18 @@ async function ready(page, width = 390) {
   await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 12000 });
   await page.evaluate(() => document.fonts.ready);
 }
-test('The mobile first screen includes a compact support row and consecutive registration actions', async ({
+test('The mobile header includes full supporters beside the brand and consecutive registration actions', async ({
   page,
 }) => {
   await ready(page);
   const row = await page.locator('.hero-supporters').boundingBox();
   expect(row.y + row.height).toBeLessThan(844);
-  expect(row.height).toBeLessThan(110);
+  const brand = await page.locator('.mobile-brand').boundingBox();
+  const wordmark = await page.locator('.hero-wordmark').boundingBox();
+  expect(row.x).toBeGreaterThan(brand.x + brand.width);
+  expect(row.y + row.height).toBeLessThan(wordmark.y);
+  await expect(page.locator('.supporter-full')).toHaveCount(3);
+  for (const name of await page.locator('.supporter-full').all()) await expect(name).toBeVisible();
   const first = await page.locator('.hero-register').boundingBox(),
     second = await page.locator('.hero-stand').boundingBox();
   expect(second.y - first.y - first.height).toBeGreaterThanOrEqual(10);
@@ -164,7 +169,7 @@ test('Mobile accreditation, contact panels, privacy and footer share a compact g
     section = await page.locator('#contacts').boundingBox();
   expect(Math.abs(a.width - section.width)).toBeLessThan(2);
   expect(Math.abs(a.x - section.x)).toBeLessThan(2);
-  await expect(page.locator('.legal>a br')).toHaveCount(0);
+  await expect(page.locator('.legal>a .privacy-break')).toHaveCount(1);
   const legal = await page.locator('.legal').boundingBox(),
     footer = await page.locator('.footer-scene').boundingBox();
   expect(footer.height).toBeLessThanOrEqual(430);
@@ -190,16 +195,11 @@ test('Tablet speaker carousel reaches the last profile and long program words fi
     const track = page.locator('.speakers-grid');
     await track.focus();
     await page.keyboard.press('End');
-    await expect(page.locator('.speakers-controls>span')).toContainText('15');
+    await expect(page.locator('.speakers-controls>span')).toContainText('14');
     await expect(page.getByRole('button', { name: 'Следующий спикер' })).toBeDisabled();
     await expect
       .poll(() =>
-        track.evaluate((node) =>
-          Math.abs(
-            node.scrollLeft -
-              (node.lastElementChild.offsetLeft - node.firstElementChild.offsetLeft),
-          ),
-        ),
+        track.evaluate((node) => Math.abs(node.scrollLeft - (node.scrollWidth - node.clientWidth))),
       )
       .toBeLessThan(2);
     await page.keyboard.press('Home');

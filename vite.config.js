@@ -6,6 +6,7 @@ export default defineConfig({
   base: process.env.VITE_BASE_PATH || '/',
   server: {
     host: '0.0.0.0',
+    allowedHosts: ['terminal.local'],
     proxy: { '/api/lead': { target: 'https://www.debt-tech.ru', changeOrigin: true } },
   },
   build: { target: 'es2022' },

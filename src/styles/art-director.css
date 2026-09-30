@@ -1,0 +1,332 @@
+/* Art director's annotated desktop and responsive review, 30 September 2026. */
+.hero > .hero-supporters {
+  position: absolute;
+  z-index: 10;
+  right: 32px;
+}
+
+/* Animate the supplied artwork without moving the typography or orbit geometry. */
+.hero-planet-rotation {
+  animation-duration: 180s;
+}
+.hero-brand-haze {
+  animation: hero-haze-drift 14s ease-in-out infinite alternate;
+}
+.hero-planet-crown {
+  animation: hero-crown-breathe 8s ease-in-out infinite alternate;
+}
+.hero-stars .cosmos__stars {
+  animation-duration: 36s;
+  animation-timing-function: linear;
+}
+.hero-stars .star-field__depth--1 .cosmos__stars {
+  animation-duration: 27s;
+}
+.hero-stars .star-field__depth--2 .cosmos__stars {
+  animation-duration: 20s;
+}
+@keyframes hero-haze-drift {
+  from {
+    translate: -12px -5px;
+    opacity: 0.6;
+  }
+  to {
+    translate: 12px 6px;
+    opacity: 0.85;
+  }
+}
+@keyframes hero-crown-breathe {
+  from {
+    opacity: 0.65;
+  }
+  to {
+    opacity: 0.95;
+  }
+}
+.hero-layer-scene.is-offscreen .hero-brand-haze,
+.hero-layer-scene.is-offscreen .hero-planet-crown,
+.motion-sleeping .hero-brand-haze,
+.motion-sleeping .hero-planet-crown,
+.motion-paused .hero-brand-haze,
+.motion-paused .hero-planet-crown {
+  animation-play-state: paused;
+}
+
+.speaker-collection {
+  overflow-anchor: none;
+}
+.speakers-grid {
+  --speaker-card-width: calc((100% - 40px) / 3);
+  display: flex;
+  position: relative;
+  gap: 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0;
+  overscroll-behavior-x: contain;
+  align-items: stretch;
+  padding: 0 0 4px;
+}
+.speakers-grid::-webkit-scrollbar {
+  display: none;
+}
+.speakers-grid > .speaker {
+  flex: 0 0 var(--speaker-card-width);
+  width: var(--speaker-card-width);
+  min-width: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  opacity: 1;
+  translate: none;
+}
+.speaker-collection:not(.is-expanded) .speakers-grid::after {
+  content: none;
+}
+.speakers-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin: 0 0 20px;
+}
+.speakers-controls > span {
+  font:
+    500 16px/1.5 'IBM Plex Sans',
+    sans-serif;
+  color: #fff;
+}
+.speakers-controls i {
+  font: inherit;
+  color: #86a9c9;
+}
+.speakers-controls > div {
+  display: flex;
+  gap: 10px;
+}
+.speakers-controls button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.button.speaker-view-toggle {
+  display: flex;
+  width: fit-content;
+  margin: 24px auto 0;
+  padding: 15px 18px;
+  min-height: var(--button-height);
+  border: 1px solid transparent;
+  border-radius: var(--button-radius);
+  background: var(--button-primary);
+  color: #fff;
+  font:
+    500 14px/22px 'IBM Plex Sans',
+    sans-serif;
+  letter-spacing: 0.025em;
+}
+.is-expanded .speakers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  overflow: visible;
+}
+.is-expanded .speakers-grid > .speaker {
+  width: auto;
+}
+.is-expanded .speakers-controls {
+  display: none;
+}
+
+.tariffs-heading .tariffs-title {
+  max-width: 70%;
+  font-size: clamp(32px, 5.2cqi, 72px);
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+.privacy-break {
+  display: none;
+}
+
+@media (max-width: 1180px) {
+  .space-navigation--mobile .space-route {
+    max-height: calc(100dvh - 82px);
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+  .space-navigation--mobile .space-route__rail {
+    bottom: auto;
+    height: calc(var(--stop-height) * 7);
+  }
+  .space-route__register.button {
+    display: flex;
+    width: 100%;
+    margin-top: 14px;
+    position: relative;
+    z-index: 3;
+  }
+}
+@media (min-width: 600px) and (max-width: 899px) {
+  .speakers-grid {
+    --speaker-card-width: calc((100% - 20px) / 2);
+  }
+  .is-expanded .speakers-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 899px) {
+  .participant-panel {
+    grid-auto-rows: auto;
+  }
+  .participant-card {
+    align-self: start;
+  }
+}
+@media (max-width: 599px) {
+  .hero .mobile-brand {
+    width: clamp(80px, 26vw, 110px);
+  }
+  .hero .hero-date {
+    font-size: clamp(14px, 3.8vw, 20px);
+  }
+  .hero > .hero-supporters {
+    top: 18px;
+    right: 68px;
+    bottom: auto;
+    left: auto;
+    width: calc(100% - clamp(128px, 35vw, 190px) - 68px);
+    max-width: 265px;
+    margin: 0;
+  }
+  .hero-supporters .supporters-label,
+  .hero-supporters .supporter-short {
+    display: none;
+  }
+  .hero-supporters .supporters-list {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .hero-supporters .supporter {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 0;
+    padding: 5px 0;
+    border-bottom: 1px solid #b9d9ff36;
+  }
+  .hero-supporters .supporter:last-child {
+    border: 0;
+    padding-bottom: 0;
+  }
+  .hero-supporters .supporter img {
+    width: clamp(22px, 6.3vw, 32px);
+    height: clamp(22px, 6.3vw, 32px);
+    object-fit: contain;
+  }
+  .hero-supporters .supporter-full {
+    position: static;
+    display: block;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+    font-size: clamp(6.6px, 1.85vw, 9px);
+    line-height: 1.35;
+  }
+  .participant-card {
+    padding-bottom: 0;
+  }
+  .participant-photo {
+    margin-bottom: 0;
+  }
+  .speakers-grid {
+    --speaker-card-width: 100%;
+  }
+  .speakers-grid > .speaker {
+    flex-basis: var(--speaker-card-width);
+    width: var(--speaker-card-width);
+  }
+  .is-expanded .speakers-grid {
+    grid-template-columns: 1fr;
+  }
+  .button.speaker-view-toggle {
+    width: 100%;
+  }
+  .speakers-note {
+    min-height: 150px;
+    padding: 18px 128px 18px 16px;
+  }
+  .speakers-note-art {
+    top: 8px;
+    right: 6px;
+    bottom: 8px;
+    width: 118px;
+    height: auto;
+  }
+  .speakers-note-art img {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+  }
+  .audience-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .audience-grid .empty-cell {
+    display: none;
+  }
+  .audience-grid .audience-card {
+    min-height: 148px;
+    height: auto;
+    padding: 18px 9px;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .audience-grid .audience-card h3 {
+    width: 100%;
+    max-width: 100%;
+    font-size: clamp(10px, 2.8vw, 16px);
+    line-height: 1.5;
+    letter-spacing: 0;
+    overflow-wrap: anywhere;
+  }
+  .audience-grid .audience-card > span {
+    font-size: 10px;
+  }
+  .audience-art {
+    width: 135%;
+    max-width: none;
+    left: -15%;
+    right: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.8;
+  }
+  .tariffs-heading .tariffs-title {
+    max-width: 100%;
+    font-size: clamp(32px, 8.5vw, 48px);
+  }
+  .legal a {
+    width: fit-content;
+    max-width: 100%;
+  }
+  .privacy-break {
+    display: block;
+  }
+  .footer-scene {
+    height: clamp(320px, 98vw, 460px);
+  }
+  .footer-scene > img {
+    width: 78%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-planet-rotation,
+  .hero-brand-haze,
+  .hero-planet-crown,
+  .hero-stars .cosmos__stars {
+    animation: none;
+  }
+}

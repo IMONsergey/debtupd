@@ -1,24 +1,33 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { assetUrl } from '../lib/assets.js';
+import { ActionArrow } from './ActionArrow.jsx';
 
-// One accessible roster, a grid on desktop and a native scroll-snap carousel on smaller screens.
+// One roster: three-up desktop carousel, two-up tablet, one-up phone, or the full grid.
 export function SpeakerCollection({ speakers }) {
   const track = useRef(null),
     position = useRef(0),
     frame = useRef(0),
     target = useRef(null),
     settle = useRef(0),
-    metrics = useRef([]);
+    metrics = useRef([]),
+    pageSize = useRef(1),
+    restoreScroll = useRef(null);
   const [index, setIndex] = useState(0),
+    [lastIndex, setLastIndex] = useState(speakers.length - 1),
     [expanded, setExpanded] = useState(false);
-  const clamp = (value) => Math.max(0, Math.min(speakers.length - 1, value));
+  const clamp = (value) => Math.max(0, Math.min(speakers.length - pageSize.current, value));
   const measure = () => {
     const node = track.current;
-    if (node)
+    if (node) {
       metrics.current = [...node.children].map(
         (card) => card.offsetLeft - node.firstElementChild.offsetLeft,
       );
+      const gap = parseFloat(getComputedStyle(node).columnGap) || 0;
+      const width = node.firstElementChild?.getBoundingClientRect().width || node.clientWidth;
+      pageSize.current = Math.max(1, Math.floor((node.clientWidth + gap + 1) / (width + gap)));
+      setLastIndex(speakers.length - pageSize.current);
+    }
   };
   const select = (next) => {
     position.current = next;
@@ -34,14 +43,14 @@ export function SpeakerCollection({ speakers }) {
       0,
     );
   const update = () => {
-    if (frame.current || expanded || innerWidth >= 900) return;
+    if (frame.current || expanded) return;
     frame.current = requestAnimationFrame(() => {
       frame.current = 0;
-      if (target.current === null) select(nearest());
+      if (target.current === null) select(clamp(nearest()));
       clearTimeout(settle.current);
       settle.current = setTimeout(() => {
         target.current = null;
-        select(nearest());
+        select(clamp(nearest()));
       }, 160);
     });
   };
@@ -51,11 +60,13 @@ export function SpeakerCollection({ speakers }) {
       measure();
       clearTimeout(settle.current);
       target.current = null;
-      if (innerWidth >= 900 || expanded) {
+      if (expanded) {
         node.scrollTo({ left: 0, behavior: 'instant' });
         select(0);
       } else {
-        node.scrollTo({ left: metrics.current[clamp(position.current)] || 0, behavior: 'instant' });
+        const next = clamp(position.current);
+        select(next);
+        node.scrollTo({ left: metrics.current[next] || 0, behavior: 'instant' });
       }
     });
     observer.observe(node);
@@ -67,6 +78,14 @@ export function SpeakerCollection({ speakers }) {
       frame.current = 0;
     };
   }, [expanded, speakers.length]);
+  useLayoutEffect(() => {
+    if (restoreScroll.current === null) return;
+    const top = track.current.getBoundingClientRect().top + scrollY - 80;
+    const y = expanded ? restoreScroll.current : Math.min(restoreScroll.current, top);
+    track.current.focus({ preventScroll: true });
+    window.scrollTo({ top: Math.max(0, y), behavior: 'instant' });
+    restoreScroll.current = null;
+  }, [expanded]);
   const moveTo = (value) => {
     const next = clamp(value);
     target.current = next;
@@ -91,7 +110,7 @@ export function SpeakerCollection({ speakers }) {
             type="button"
             className="ui-icon-button"
             aria-label="Предыдущий спикер"
-            onClick={() => moveTo(position.current - 1)}
+            onClick={() => moveTo(position.current - pageSize.current)}
             disabled={index === 0}
           >
             <ArrowLeft size={18} />
@@ -100,8 +119,8 @@ export function SpeakerCollection({ speakers }) {
             type="button"
             className="ui-icon-button"
             aria-label="Следующий спикер"
-            onClick={() => moveTo(position.current + 1)}
-            disabled={index === speakers.length - 1}
+            onClick={() => moveTo(position.current + pageSize.current)}
+            disabled={index === lastIndex}
           >
             <ArrowRight size={18} />
           </button>
@@ -116,7 +135,7 @@ export function SpeakerCollection({ speakers }) {
         aria-label="Спикеры форума"
         tabIndex={0}
         onKeyDown={(event) => {
-          if (innerWidth >= 900 || expanded) return;
+          if (expanded) return;
           if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
             event.preventDefault();
             moveTo(
@@ -158,15 +177,19 @@ export function SpeakerCollection({ speakers }) {
       </div>
       <button
         type="button"
-        className="speaker-view-toggle"
+        className="button speaker-view-toggle"
         aria-expanded={expanded}
         onClick={() => {
           interrupt();
+          restoreScroll.current = scrollY;
           select(0);
           setExpanded(!expanded);
         }}
       >
-        {expanded ? 'Вернуть слайдер' : 'Показать всех спикеров'}
+        <span className="button-label">
+          {expanded ? 'Вернуть слайдер' : 'Показать всех спикеров'}
+        </span>
+        <ActionArrow />
       </button>
     </div>
   );

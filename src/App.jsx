@@ -159,6 +159,7 @@ function Hero({ onStand }) {
         <time dateTime="2026-11-13">13.11.2026</time>
         <span>Москва</span>
       </div>
+      <Supporters />
       <div className="hero-content main-grid">
         <div className="hero-lead">
           <p>
@@ -173,7 +174,6 @@ function Hero({ onStand }) {
             </ArrowButton>
           </div>
         </div>
-        <Supporters />
         <Countdown />
       </div>
     </header>
@@ -325,7 +325,7 @@ function Participants() {
                           <small>
                             Аудитория
                             <br />
-                            (участников)
+                            участников
                           </small>
                           <strong>
                             {index === 0 ? (
@@ -629,9 +629,12 @@ function Tariffs({ onApply }) {
   return (
     <section className="section tariffs" id="tariffs">
       <div className="tariffs-heading">
-        <h2>
-          <span>MULTIPASS</span>
-          <Picture name="welcome-outline.svg" alt="WELCOME" />
+        <h2 className="tariffs-title">
+          <span>
+            Тарифы
+            <br />
+            участия
+          </span>
         </h2>
         <Picture className="tariff-planet decor" name="tariff-planet.png" />
         <Picture className="tariff-astronaut decor" name="tariff-astronaut.png" />
@@ -836,7 +839,8 @@ function Contacts() {
           <Picture name="legal-logo.svg" alt="DEBTPRICE / Рынок взыскания" />
           <p>© 2026. Все права защищены.</p>
           <a href={content.footer.privacyHref} target="_blank" rel="noreferrer">
-            Политика конфиденциальности и персональных данных
+            Политика конфиденциальности
+            <br className="privacy-break" /> и персональных данных
           </a>
         </div>
         <a
