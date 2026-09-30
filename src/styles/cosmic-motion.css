@@ -37,14 +37,20 @@
   text-transform: uppercase;
 }
 .forum-ticker .ticker-track {
-  animation-play-state: paused;
+  /* Intentional exception to the global reduced-motion reset: client-requested ticker. */
+  animation: partner-ticker var(--forum-ticker-duration, 64s) linear infinite !important;
+  animation-play-state: paused !important;
 }
 .forum-ticker[data-ambient='active'] .ticker-track {
-  animation-play-state: running;
+  animation-play-state: running !important;
 }
-.forum-ticker:hover .ticker-track,
 .forum-ticker:focus-within .ticker-track {
-  animation-play-state: paused;
+  animation-play-state: paused !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  .forum-ticker:hover .ticker-track {
+    animation-play-state: paused !important;
+  }
 }
 
 /* Independent translate/rotate leaves each approved illustration's base transform intact. */
@@ -325,25 +331,7 @@
     transition: none;
   }
   .forum-ticker {
-    mask-image: none;
-    -webkit-mask-image: none;
-    white-space: normal;
-  }
-  .forum-ticker .ticker-track {
-    width: 100%;
-    animation: none;
-    transform: none;
-  }
-  .forum-ticker .ticker-copy {
-    flex: 1 1 100%;
-    flex-wrap: wrap;
-    gap: 10px 20px;
-  }
-  .forum-ticker .ticker-copy span {
-    margin: 0;
-  }
-  .forum-ticker .ticker-copy[aria-hidden='true'] {
-    display: none;
+    --forum-ticker-duration: 96s;
   }
   [data-reveal='shown'],
   .button,

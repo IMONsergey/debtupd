@@ -18,11 +18,14 @@ export function useAmbientMotion() {
       const stopped =
         pageHidden ||
         document.hidden ||
-        reduced.matches ||
         !!document.getElementById('page-content')?.inert ||
         !!document.getElementById('site-preloader');
       nodes.forEach((node) => {
-        node.dataset.ambient = !stopped && visible.has(node) ? 'active' : 'paused';
+        // The client requires the informational facts strip to keep scrolling.
+        // Reduced motion still disables every decorative loop; the strip runs more slowly.
+        const reducedDecoration = reduced.matches && !node.classList.contains('forum-ticker');
+        node.dataset.ambient =
+          !stopped && !reducedDecoration && visible.has(node) ? 'active' : 'paused';
       });
     };
     nodes.forEach((node) => {

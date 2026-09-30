@@ -103,7 +103,7 @@ test('Artwork floats only while visible and stops for page suspension', async ({
   await expect(art).toHaveAttribute('data-ambient', 'paused');
 });
 
-test('Dialogs suspend ambient motion and reduced motion reveals every ticker item without clipping', async ({
+test('Dialogs suspend motion; forum facts remain a single running line in reduced motion', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -121,15 +121,24 @@ test('Dialogs suspend ambient motion and reduced motion reveals every ticker ite
     await page.locator('.about-satellite').evaluate((node) => getComputedStyle(node).animationName),
   ).toBe('none');
   await position(page, '.forum-ticker');
+  await page.mouse.move(0, 0);
+  await expect(page.locator('.forum-ticker')).toHaveAttribute('data-ambient', 'active');
   const facts = await page.locator('.forum-ticker').evaluate((node) => {
-    const box = node.getBoundingClientRect();
     const copy = node.querySelector('.ticker-copy');
+    const top = copy.firstElementChild.getBoundingClientRect().top;
     return {
-      wrapped: [...copy.children].every((n) => n.getBoundingClientRect().right <= box.right + 1),
-      duplicateHidden:
-        getComputedStyle(node.querySelector('[aria-hidden="true"]')).display === 'none',
-      moving: getComputedStyle(node.querySelector('.ticker-track')).animationName !== 'none',
+      singleLine: [...copy.children].every((n) => Math.abs(n.getBoundingClientRect().top - top) < 1),
+      seamlessCopy: getComputedStyle(node.querySelector('[aria-hidden="true"]')).display !== 'none',
+      state: getComputedStyle(node.querySelector('.ticker-track')).animationPlayState,
+      duration: getComputedStyle(node.querySelector('.ticker-track')).animationDuration,
     };
   });
-  expect(facts).toEqual({ wrapped: true, duplicateHidden: true, moving: false });
+  expect(facts).toEqual({ singleLine: true, seamlessCopy: true, state: 'running', duration: '96s' });
+  const track = page.locator('.forum-ticker .ticker-track');
+  const before = await track.evaluate((node) => getComputedStyle(node).transform);
+  await expect.poll(() => track.evaluate((node) => getComputedStyle(node).transform)).not.toBe(before);
+  await page.locator('.forum-ticker').focus();
+  expect(await track.evaluate((node) => getComputedStyle(node).animationPlayState)).toBe('paused');
+  await page.locator('.forum-ticker').evaluate((node) => node.blur());
+  expect(await track.evaluate((node) => getComputedStyle(node).animationPlayState)).toBe('running');
 });

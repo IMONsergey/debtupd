@@ -183,7 +183,7 @@ function Hero({ onStand }) {
 }
 function Ticker({ items, className = '' }) {
   return (
-    <div className={'ticker ' + className}>
+    <div className={'ticker ' + className} tabIndex={0} aria-label="Факты о форуме">
       <div className="ticker-track">
         {[0, 1].map((copy) => (
           <div className="ticker-copy" key={copy} aria-hidden={copy === 1}>
