@@ -1,0 +1,30 @@
+# DEBT_2026_LITE_BEGIN
+debt-2026-lite.176.98.177.253.sslip.io, debt-tech.ru, www.debt-tech.ru {
+    root * /srv/imon/projects/debt-2026-lite/current
+    encode zstd gzip
+    header {
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+    route {
+        handle /api/lead {
+            reverse_proxy 127.0.0.1:32026
+        }
+        handle /api/* {
+            respond "Not found" 404
+        }
+        handle /debt-2026-lite/assets/* {
+            uri strip_prefix /debt-2026-lite
+            file_server
+        }
+        handle /assets/* {
+            file_server
+        }
+        handle {
+            try_files {path} /index.html
+            header Cache-Control "no-cache"
+            file_server
+        }
+    }
+}
+# DEBT_2026_LITE_END
