@@ -160,7 +160,6 @@ function Hero({ onStand }) {
         <time dateTime="2026-11-13">13.11.2026</time>
         <span>Москва</span>
       </div>
-      <Supporters />
       <div className="hero-content main-grid">
         <div className="hero-lead">
           <p>
@@ -177,6 +176,7 @@ function Hero({ onStand }) {
         </div>
         <Countdown />
       </div>
+      <Supporters />
     </header>
   );
 }
@@ -494,7 +494,7 @@ function Speakers() {
         <div className="speakers-note">
           <span>Финальный состав спикеров согласовывается</span>
           <div className="speakers-note-art" aria-hidden="true">
-            <Picture name="note-astronaut.png" />
+            <Picture name="note-astronaut-folded.png" />
           </div>
         </div>
       </div>

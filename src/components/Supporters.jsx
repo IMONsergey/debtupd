@@ -22,8 +22,10 @@ export function Supporters() {
               alt={s.short}
             />
             <span className="supporter-full">
-              При поддержке
-              <br />
+              <span className="supporter-prefix">
+                При поддержке
+                <br />
+              </span>
               {s.name}
             </span>
             <span className="supporter-short" aria-hidden="true">

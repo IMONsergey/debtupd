@@ -13,16 +13,21 @@ async function ready(page, width = 390) {
   await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 12000 });
   await page.evaluate(() => document.fonts.ready);
 }
-test('The mobile header includes full supporters beside the brand and consecutive registration actions', async ({
+test('The mobile hero keeps a clear header, consecutive actions and full supporter names below the countdown', async ({
   page,
 }) => {
   await ready(page);
   const row = await page.locator('.hero-supporters').boundingBox();
-  expect(row.y + row.height).toBeLessThan(844);
   const brand = await page.locator('.mobile-brand').boundingBox();
+  const date = await page.locator('.hero-date').boundingBox();
   const wordmark = await page.locator('.hero-wordmark').boundingBox();
-  expect(row.x).toBeGreaterThan(brand.x + brand.width);
-  expect(row.y + row.height).toBeLessThan(wordmark.y);
+  const countdown = await page.locator('.countdown').boundingBox();
+  expect(brand.x + brand.width).toBeLessThan(date.x);
+  expect(Math.max(brand.y + brand.height, date.y + date.height)).toBeLessThan(wordmark.y);
+  expect(row.y).toBeGreaterThan(countdown.y + countdown.height);
+  expect(
+    await page.locator('.hero-universe').evaluate((node) => getComputedStyle(node).fontFamily),
+  ).toContain('Bounded');
   await expect(page.locator('.supporter-full')).toHaveCount(3);
   for (const name of await page.locator('.supporter-full').all()) await expect(name).toBeVisible();
   const first = await page.locator('.hero-register').boundingBox(),
@@ -282,6 +287,8 @@ test('Narrow-screen cards stay inside their grid and the status illustration lea
         .locator('.speakers-note>span')
         .evaluate((node) => node.scrollWidth > node.clientWidth + 1),
     ).toBe(false);
+    if (width < 600)
+      expect((await page.locator('.speakers-note').boundingBox()).height).toBeLessThanOrEqual(112);
   }
 });
 

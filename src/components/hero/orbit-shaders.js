@@ -44,6 +44,8 @@ void main(){
   col+=cyan*thin*(.1+focus*2.25*energy);
   col+=white*thin*focus*energy*.48;
   col+=cyan*plume*(.2+.46*wisps)*energy;
+  // Fade out before the sampling boundary so a bright plume never forms a hard arc.
+  col*=1.-smoothstep(.24,.37,height);
   col=vec3(1.)-exp(-col);
   float alpha=clamp(max(max(col.r,col.g),col.b),0.,.98);
   gl_FragColor=vec4(col/max(alpha,.001),alpha);

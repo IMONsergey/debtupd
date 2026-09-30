@@ -5,6 +5,34 @@
   right: 32px;
 }
 
+/* Keep the approved typography explicit after the earlier review overrides. */
+.hero-universe {
+  font-family: Bounded, sans-serif;
+  font-size: clamp(20px, 2vw, 34px);
+  line-height: 1.5;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+/* Clip the exported SVG's artboard to the actual white logo capsule. */
+.legal > img {
+  border-radius: 3.89% / 21.23%;
+}
+.speakers-note {
+  min-height: 100px;
+}
+.speakers-note-art {
+  inset: 0 0 0 auto;
+  width: 140px;
+  height: auto;
+  overflow: visible;
+}
+.speakers-note-art img {
+  inset: -5px 12px auto auto;
+  width: 116px;
+  height: auto;
+  object-fit: contain;
+}
+
 /* Animate the supplied artwork without moving the typography or orbit geometry. */
 .hero-planet-rotation {
   animation-duration: 180s;
@@ -183,44 +211,79 @@
   }
 }
 @media (max-width: 599px) {
+  .hero {
+    --hero-logo-width: min(calc(100vw - 48px), 480px);
+    --hero-horizon: calc(var(--hero-logo-width) * 0.53918 + 116px);
+    display: flex;
+    flex-direction: column;
+  }
   .hero .mobile-brand {
-    width: clamp(80px, 26vw, 110px);
+    top: 24px;
+    width: clamp(80px, 24vw, 104px);
   }
   .hero .hero-date {
-    font-size: clamp(14px, 3.8vw, 20px);
+    top: 27px;
+    right: 76px;
+    left: auto;
+    text-align: right;
+    font-size: clamp(12px, 3.5vw, 18px);
+    letter-spacing: 0.02em;
+  }
+  .hero-universe {
+    top: calc(var(--hero-horizon) + 26px);
+    font-family: Bounded, sans-serif;
+    font-size: clamp(16px, 4.2vw, 22px);
+    line-height: 1.5;
+    letter-spacing: 0.09em;
+  }
+  .hero .hero-content {
+    flex: none;
+    min-height: 0;
+    padding-top: calc(var(--hero-horizon) + 112px);
+    padding-bottom: 0;
+    gap: 24px;
+  }
+  .hero-lead p {
+    font-size: clamp(16px, 4.1vw, 21px);
+    line-height: 1.5;
+    letter-spacing: 0;
+  }
+  .hero-actions {
+    margin-top: 20px;
   }
   .hero > .hero-supporters {
-    top: 18px;
-    right: 68px;
-    bottom: auto;
-    left: auto;
-    width: calc(100% - clamp(128px, 35vw, 190px) - 68px);
-    max-width: 265px;
-    margin: 0;
+    position: relative;
+    order: 3;
+    inset: auto;
+    width: auto;
+    max-width: none;
+    margin: 28px 16px 32px;
+    padding-top: 18px;
+    border-top: 1px solid #b9d9ff36;
   }
-  .hero-supporters .supporters-label,
-  .hero-supporters .supporter-short {
+  .hero-supporters .supporters-label {
+    display: block;
+    margin-bottom: 14px;
+  }
+  .hero-supporters .supporter-short,
+  .hero-supporters .supporter-prefix {
     display: none;
   }
   .hero-supporters .supporters-list {
     grid-template-columns: 1fr;
-    gap: 0;
+    gap: 12px;
   }
   .hero-supporters .supporter {
     display: flex;
     align-items: center;
-    gap: 7px;
-    min-height: 0;
-    padding: 5px 0;
-    border-bottom: 1px solid #b9d9ff36;
-  }
-  .hero-supporters .supporter:last-child {
+    gap: 12px;
+    min-height: 30px;
+    padding: 0;
     border: 0;
-    padding-bottom: 0;
   }
   .hero-supporters .supporter img {
-    width: clamp(22px, 6.3vw, 32px);
-    height: clamp(22px, 6.3vw, 32px);
+    width: 28px;
+    height: 28px;
     object-fit: contain;
   }
   .hero-supporters .supporter-full {
@@ -231,8 +294,8 @@
     overflow: visible;
     clip-path: none;
     white-space: normal;
-    font-size: clamp(6.6px, 1.85vw, 9px);
-    line-height: 1.35;
+    font-size: clamp(10px, 2.7vw, 12px);
+    line-height: 1.4;
   }
   .participant-card {
     padding-bottom: 0;
@@ -256,23 +319,20 @@
     line-height: 21px;
   }
   .speakers-note {
-    min-height: 150px;
-    padding: 18px 148px 18px 16px;
+    min-height: 112px;
+    padding: 14px 116px 14px 16px;
   }
   .speakers-note-art {
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 140px;
+    inset: 0 0 0 auto;
+    width: 104px;
     height: auto;
     overflow: visible;
   }
   .speakers-note-art img {
-    inset: auto -2px -22px auto;
-    width: 152px;
+    inset: -2px 0 auto auto;
+    width: 104px;
     height: auto;
     object-fit: contain;
-    object-position: center bottom;
   }
   .audience-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -411,19 +471,5 @@
   }
   .venue-map-caption strong {
     margin: 0;
-  }
-}
-
-@media (max-width: 379px) {
-  .speakers-note {
-    padding-right: 134px;
-  }
-  .speakers-note-art {
-    width: 126px;
-  }
-  .speakers-note-art img {
-    width: 142px;
-    right: -10px;
-    bottom: -12px;
   }
 }

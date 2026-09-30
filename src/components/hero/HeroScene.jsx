@@ -112,8 +112,8 @@ export function HeroScene() {
       </div>
       <div className="hero-bottom-shade" aria-hidden="true" />
       <p className="hero-universe">
-        <span>Вселенная</span>
-        <span>технологий</span>
+        <span>ВСЕЛЕННАЯ</span>
+        <span>ТЕХНОЛОГИЙ</span>
       </p>
     </div>
   );
