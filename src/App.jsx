@@ -3,6 +3,7 @@ import { ArrowUpRight, ArrowRight, Play, Info } from 'lucide-react';
 import { content } from './content.js';
 import { Supporters } from './components/Supporters.jsx';
 import { SpeakerCollection } from './components/SpeakerCollection.jsx';
+import { VenueMap } from './components/VenueMap.jsx';
 import { topics, stages, spaces, audience, partnerNames } from './data.js';
 import speakers from './speakers.json';
 import artDimensions from './art-dimensions.json';
@@ -637,7 +638,7 @@ function Tariffs({ onApply }) {
           </span>
         </h2>
         <Picture className="tariff-planet decor" name="tariff-planet.png" />
-        <Picture className="tariff-astronaut decor" name="tariff-astronaut.png" />
+        <Picture className="tariff-astronaut decor" name="tariff-astronaut-masked.png" />
       </div>
       <div className="tariff-grid">
         {content.tariffs.items.map((t) => (
@@ -843,20 +844,19 @@ function Contacts() {
             <br className="privacy-break" /> и персональных данных
           </a>
         </div>
-        <a
-          className="venue-map"
-          id="venue"
-          href={content.venue.routeHref}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <Picture name="venue-map.png" alt="Место проведения DEBT TECH 2026 на карте" />
-          <span>
+        <div className="venue-map" id="venue">
+          <VenueMap />
+          <a
+            className="venue-map-caption"
+            href={content.venue.routeHref}
+            target="_blank"
+            rel="noreferrer"
+          >
             <strong>{content.venue.name}</strong>
             {content.venue.address}
             <ArrowUpRight size={20} />
-          </span>
-        </a>
+          </a>
+        </div>
       </div>
     </section>
   );

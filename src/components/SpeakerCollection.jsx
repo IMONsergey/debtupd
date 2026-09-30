@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { assetUrl } from '../lib/assets.js';
 import { ActionArrow } from './ActionArrow.jsx';
+import { speakerPageStarts } from '../lib/speaker-pages.js';
 
 // One roster: three-up desktop carousel, two-up tablet, one-up phone, or the full grid.
 export function SpeakerCollection({ speakers }) {
@@ -11,22 +12,24 @@ export function SpeakerCollection({ speakers }) {
     target = useRef(null),
     settle = useRef(0),
     metrics = useRef([]),
-    pageSize = useRef(1),
+    pages = useRef(speakerPageStarts(speakers.length, 1)),
     restoreScroll = useRef(null);
   const [index, setIndex] = useState(0),
-    [lastIndex, setLastIndex] = useState(speakers.length - 1),
+    [pageStarts, setPageStarts] = useState(pages.current),
     [expanded, setExpanded] = useState(false);
-  const clamp = (value) => Math.max(0, Math.min(speakers.length - pageSize.current, value));
+  const clamp = (value) => Math.max(0, Math.min(pages.current.length - 1, value));
   const measure = () => {
     const node = track.current;
     if (node) {
-      metrics.current = [...node.children].map(
+      const offsets = [...node.children].map(
         (card) => card.offsetLeft - node.firstElementChild.offsetLeft,
       );
       const gap = parseFloat(getComputedStyle(node).columnGap) || 0;
       const width = node.firstElementChild?.getBoundingClientRect().width || node.clientWidth;
-      pageSize.current = Math.max(1, Math.floor((node.clientWidth + gap + 1) / (width + gap)));
-      setLastIndex(speakers.length - pageSize.current);
+      const size = Math.max(1, Math.floor((node.clientWidth + gap + 1) / (width + gap)));
+      pages.current = speakerPageStarts(speakers.length, size);
+      metrics.current = pages.current.map((start) => offsets[start]);
+      setPageStarts(pages.current);
     }
   };
   const select = (next) => {
@@ -57,6 +60,7 @@ export function SpeakerCollection({ speakers }) {
   useEffect(() => {
     const node = track.current;
     const observer = new ResizeObserver(() => {
+      const speaker = pages.current[position.current] || 0;
       measure();
       clearTimeout(settle.current);
       target.current = null;
@@ -64,7 +68,10 @@ export function SpeakerCollection({ speakers }) {
         node.scrollTo({ left: 0, behavior: 'instant' });
         select(0);
       } else {
-        const next = clamp(position.current);
+        const next = Math.max(
+          0,
+          pages.current.findLastIndex((start) => start <= speaker),
+        );
         select(next);
         node.scrollTo({ left: metrics.current[next] || 0, behavior: 'instant' });
       }
@@ -103,14 +110,14 @@ export function SpeakerCollection({ speakers }) {
     <div className={`speaker-collection${expanded ? ' is-expanded' : ''}`}>
       <div className="speakers-controls">
         <span aria-live="polite">
-          {String(index + 1).padStart(2, '0')} <i>/ {String(speakers.length).padStart(2, '0')}</i>
+          {String(index + 1).padStart(2, '0')} <i>/ {String(pageStarts.length).padStart(2, '0')}</i>
         </span>
         <div>
           <button
             type="button"
             className="ui-icon-button"
-            aria-label="Предыдущий спикер"
-            onClick={() => moveTo(position.current - pageSize.current)}
+            aria-label="Предыдущий слайд"
+            onClick={() => moveTo(position.current - 1)}
             disabled={index === 0}
           >
             <ArrowLeft size={18} />
@@ -118,9 +125,9 @@ export function SpeakerCollection({ speakers }) {
           <button
             type="button"
             className="ui-icon-button"
-            aria-label="Следующий спикер"
-            onClick={() => moveTo(position.current + pageSize.current)}
-            disabled={index === lastIndex}
+            aria-label="Следующий слайд"
+            onClick={() => moveTo(position.current + 1)}
+            disabled={index === pageStarts.length - 1}
           >
             <ArrowRight size={18} />
           </button>
@@ -142,7 +149,7 @@ export function SpeakerCollection({ speakers }) {
               event.key === 'Home'
                 ? 0
                 : event.key === 'End'
-                  ? speakers.length - 1
+                  ? pages.current.length - 1
                   : position.current + (event.key === 'ArrowRight' ? 1 : -1),
             );
           }
@@ -152,6 +159,7 @@ export function SpeakerCollection({ speakers }) {
           <article
             className="speaker"
             key={speaker.name}
+            data-slide-start={pageStarts.includes(i) ? '' : undefined}
             aria-label={`${i + 1} из ${speakers.length}: ${speaker.name}`}
           >
             <div className="speaker-portrait">
@@ -165,6 +173,15 @@ export function SpeakerCollection({ speakers }) {
               />
             </div>
             <div className="speaker-info">
+              <img
+                className="speaker-card-lines"
+                src={assetUrl('assets/figma/card-lines.svg')}
+                width="198"
+                height="193"
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+              />
               <h3>
                 {speaker.name.split(' ').map((part, j) => (
                   <span key={j}>{part}</span>

@@ -75,10 +75,13 @@
   flex: 0 0 var(--speaker-card-width);
   width: var(--speaker-card-width);
   min-width: 0;
-  scroll-snap-align: start;
+  scroll-snap-align: none;
   scroll-snap-stop: always;
   opacity: 1;
   translate: none;
+}
+.speakers-grid > .speaker[data-slide-start] {
+  scroll-snap-align: start;
 }
 .speaker-collection:not(.is-expanded) .speakers-grid::after {
   content: none;
@@ -254,19 +257,19 @@
   }
   .speakers-note {
     min-height: 150px;
-    padding: 18px 128px 18px 16px;
+    padding: 18px 148px 18px 16px;
   }
   .speakers-note-art {
-    top: 8px;
-    right: 6px;
-    bottom: 8px;
-    width: 118px;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 140px;
     height: auto;
   }
   .speakers-note-art img {
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    inset: auto -2px -22px auto;
+    width: 158px;
+    height: auto;
     object-fit: contain;
     object-position: center bottom;
   }
@@ -321,7 +324,7 @@
     height: clamp(320px, 98vw, 460px);
   }
   .footer-scene > img {
-    width: 78%;
+    width: 100%;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -330,5 +333,82 @@
   .hero-planet-crown,
   .hero-stars .cosmos__stars {
     animation: none;
+  }
+}
+
+/* Supplied card-lines artwork replaces both the CSS stripe and hairline. */
+.speaker-collection .speaker-info {
+  isolation: isolate;
+  overflow: hidden;
+  background: linear-gradient(145deg, #052d57, #031126 66%, #082f66);
+}
+.speaker-card-lines {
+  position: absolute;
+  z-index: -1;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: 100%;
+  max-width: 64%;
+  object-fit: contain;
+  object-position: right bottom;
+  pointer-events: none;
+}
+.speaker p::before {
+  content: none;
+}
+.speaker p {
+  padding-top: 0;
+}
+
+.venue-map {
+  display: flex;
+  flex-direction: column;
+  height: 303px;
+  min-height: 0;
+  aspect-ratio: auto;
+  background: #09172e;
+}
+.venue-map-canvas {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+.venue-map-caption {
+  position: relative;
+  display: grid;
+  flex: none;
+  gap: 4px;
+  padding: 14px 44px 14px 16px;
+  color: #b2c8e2;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.venue-map-caption:hover {
+  color: #fff;
+}
+.venue-map-caption svg {
+  top: 18px;
+}
+@media (max-width: 599px) {
+  .tariff-astronaut {
+    top: 34px;
+    width: clamp(285px, 79vw, 372px);
+    right: -28px;
+  }
+  .venue-map {
+    height: auto;
+  }
+  .venue-map-canvas {
+    flex: none;
+    height: 190px;
+  }
+  .venue-map-caption {
+    font-size: 13px;
+    padding: 16px 44px 16px 20px;
+  }
+  .venue-map-caption strong {
+    margin: 0;
   }
 }

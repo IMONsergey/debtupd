@@ -100,7 +100,7 @@ test('Speaker carousel moves by controls and keyboard, reaches the final profile
 }) => {
   await ready(page);
   await page.locator('#speakers').scrollIntoViewIfNeeded();
-  const next = page.getByRole('button', { name: 'Следующий спикер' });
+  const next = page.getByRole('button', { name: 'Следующий слайд' });
   await next.click();
   await expect(page.locator('.speakers-controls>span')).toContainText('02');
   await page.locator('.speakers-grid').focus();
@@ -195,8 +195,8 @@ test('Tablet speaker carousel reaches the last profile and long program words fi
     const track = page.locator('.speakers-grid');
     await track.focus();
     await page.keyboard.press('End');
-    await expect(page.locator('.speakers-controls>span')).toContainText('14');
-    await expect(page.getByRole('button', { name: 'Следующий спикер' })).toBeDisabled();
+    await expect(page.locator('.speakers-controls>span')).toHaveText(/08\s*\/\s*08/);
+    await expect(page.getByRole('button', { name: 'Следующий слайд' })).toBeDisabled();
     await expect
       .poll(() =>
         track.evaluate((node) => Math.abs(node.scrollLeft - (node.scrollWidth - node.clientWidth))),
@@ -212,7 +212,7 @@ test('Rapid speaker controls with motion enabled preserve the intended target', 
 }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await ready(page, 390);
-  const next = page.getByRole('button', { name: 'Следующий спикер' });
+  const next = page.getByRole('button', { name: 'Следующий слайд' });
   await next.scrollIntoViewIfNeeded();
   for (let n = 0; n < 4; n++) await next.click();
   await expect(page.locator('.speakers-controls>span')).toContainText('05');
@@ -227,6 +227,30 @@ test('Rapid speaker controls with motion enabled preserve the intended target', 
         ),
       ),
   ).toBeLessThan(2);
+});
+
+test('Speaker page numbers follow the visible group at each breakpoint and on the last tablet page', async ({
+  page,
+}) => {
+  await ready(page, 1440);
+  const counter = page.locator('.speakers-controls>span');
+  const track = page.locator('.speakers-grid');
+  for (const [width, count] of [
+    [1440, '05'],
+    [768, '08'],
+    [390, '15'],
+  ]) {
+    await page.setViewportSize({ width, height: 900 });
+    await track.focus();
+    await page.keyboard.press('Home');
+    await expect(counter).toHaveText(new RegExp(`01\\s*/\\s*${count}`));
+    await page.keyboard.press('End');
+    await expect(counter).toHaveText(new RegExp(`${count}\\s*/\\s*${count}`));
+    await expect(page.getByRole('button', { name: 'Следующий слайд' })).toBeDisabled();
+    await page.keyboard.press('ArrowLeft');
+    const previous = String(Number(count) - 1).padStart(2, '0');
+    await expect(counter).toHaveText(new RegExp(`${previous}\\s*/\\s*${count}`));
+  }
 });
 
 test('Narrow-screen cards stay inside their grid and the status illustration leaves the text clear', async ({
