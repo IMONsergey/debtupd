@@ -333,7 +333,7 @@ test('The complete astronaut enters with the tariff section, not above its ancho
       geometry.top,
       `Astronaut cropped above tariff anchor at ${width}px`,
     ).toBeGreaterThanOrEqual(-2);
-    expect(geometry.width / geometry.height).toBeCloseTo(685 / 721, 2);
+    expect(geometry.width / geometry.height).toBeCloseTo(1046 / 1082, 2);
   }
 });
 
