@@ -117,7 +117,7 @@ test('Speaker carousel moves by controls and keyboard, reaches the final profile
   await expect(page.locator('.speakers-controls>span')).toContainText('15');
   await page.getByRole('button', { name: 'Показать всех спикеров' }).click();
   await expect(page.locator('.speaker-collection')).toHaveClass(/is-expanded/);
-  await expect(page.getByRole('button', { name: 'Вернуть слайдер' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Скрыть всех спикеров' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
 });
 test('Forum facts run inside About while the hero technology tags remain static', async ({

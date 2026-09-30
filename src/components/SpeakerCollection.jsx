@@ -204,7 +204,7 @@ export function SpeakerCollection({ speakers }) {
         }}
       >
         <span className="button-label">
-          {expanded ? 'Вернуть слайдер' : 'Показать всех спикеров'}
+          {expanded ? 'Скрыть всех спикеров' : 'Показать всех спикеров'}
         </span>
         <ActionArrow />
       </button>
