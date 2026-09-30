@@ -76,7 +76,9 @@ test('Production mobile menu closes on Escape, outside click and navigation', as
   await expect(menu).toBeHidden();
   await expect(trigger).toBeFocused();
   await trigger.click();
-  await page.locator('.hero-lead p').click();
+  // The compact hero copy is now behind the expanded menu; click the actual outer gutter.
+  const menuBox = await menu.boundingBox();
+  await page.mouse.click(menuBox.x / 2, menuBox.y + 20);
   await expect(menu).toBeHidden();
   await trigger.click();
   await menu.getByRole('link', { name: 'Тарифы', exact: true }).click();

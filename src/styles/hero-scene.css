@@ -30,6 +30,12 @@
 .hero-horizon[data-gl='ready'] canvas {
   opacity: 1;
 }
+.hero-horizon[data-gl='fallback'] canvas {
+  /* Hide a lost/corrupt framebuffer immediately, including during its initial fade. */
+  visibility: hidden;
+  opacity: 0;
+  transition: none;
+}
 .hero-horizon::before {
   content: '';
   position: absolute;

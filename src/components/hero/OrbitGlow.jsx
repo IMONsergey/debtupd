@@ -1,16 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { VERT, FRAG } from './orbit-shaders.js';
-function compile(gl, type, source) {
-  const shader = gl.createShader(type);
-  if (!shader) return null;
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    gl.deleteShader(shader);
-    return null;
-  }
-  return shader;
-}
+import { createOrbitRenderer } from './orbit-renderer.js';
 export function OrbitGlow({ orbitRef }) {
   const canvasRef = useRef(null),
     [revision, setRevision] = useState(0);
@@ -18,55 +7,18 @@ export function OrbitGlow({ orbitRef }) {
     const canvas = canvasRef.current,
       host = canvas?.parentElement;
     if (!canvas || !host) return;
-    const gl = canvas.getContext('webgl', {
-      alpha: true,
-      premultipliedAlpha: false,
-      antialias: false,
-      depth: false,
-      stencil: false,
-      powerPreference: 'low-power',
-    });
-    if (!gl) {
-      host.dataset.gl = 'fallback';
-      return;
-    }
-    const vs = compile(gl, gl.VERTEX_SHADER, VERT),
-      fs = compile(gl, gl.FRAGMENT_SHADER, FRAG);
-    if (!vs || !fs) {
-      if (vs) gl.deleteShader(vs);
-      if (fs) gl.deleteShader(fs);
-      host.dataset.gl = 'fallback';
-      return;
-    }
-    const program = gl.createProgram();
-    gl.attachShader(program, vs);
-    gl.attachShader(program, fs);
-    gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      gl.deleteProgram(program);
-      gl.deleteShader(vs);
-      gl.deleteShader(fs);
-      host.dataset.gl = 'fallback';
-      return;
-    }
-    gl.useProgram(program);
-    const buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    const position = gl.getAttribLocation(program, 'aPos');
-    gl.enableVertexAttribArray(position);
-    gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-    const u = Object.fromEntries(
-      ['uRes', 'uTime', 'uMouse', 'uHover', 'uHorizonY', 'uHorizonX', 'uHorizonR'].map((name) => [
-        name,
-        gl.getUniformLocation(program, name),
-      ]),
-    );
+    host.dataset.gl = 'fallback';
+    delete canvas._orbitState;
+    const renderer = createOrbitRenderer(canvas);
+    if (!renderer) return;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    const coarse = matchMedia('(pointer: coarse)');
     const modalBlocked = () => !!document.getElementById('page-content')?.inert;
     let frame = 0,
       visible = true,
       lost = false,
+      failed = false,
+      pageHidden = false,
       disposed = false,
       loading = !!document.getElementById('site-preloader'),
       w = 0,
@@ -84,18 +36,25 @@ export function OrbitGlow({ orbitRef }) {
       bounds = { left: 0, top: 0, width: 1, height: 1 };
     const state = { draws: 0, time: 0, hover: 0, x, y, running: false };
     canvas._orbitState = state;
+    const fallback = () => {
+      failed = true;
+      host.dataset.gl = 'fallback';
+      cancelAnimationFrame(frame);
+      frame = 0;
+      state.running = false;
+    };
     const draw = () => {
-      if (disposed || lost || !w) return;
-      gl.uniform2f(u.uRes, w, h);
-      gl.uniform1f(u.uTime, time);
-      gl.uniform2f(u.uMouse, x, y);
-      gl.uniform1f(u.uHover, hover);
-      gl.uniform1f(u.uHorizonY, geometry.top);
-      gl.uniform1f(u.uHorizonX, geometry.cx);
-      gl.uniform1f(u.uHorizonR, geometry.radius);
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
-      if (host.dataset.gl !== 'ready') host.dataset.gl = 'ready';
-      Object.assign(state, { draws: state.draws + 1, time, hover, x, y });
+      if (disposed || lost || failed || !w) return;
+      try {
+        if (!renderer.draw({ w, h, time, x, y, hover, geometry }, !state.draws)) {
+          fallback();
+          return;
+        }
+        host.dataset.gl = 'ready';
+        Object.assign(state, { draws: state.draws + 1, time, hover, x, y });
+      } catch {
+        fallback();
+      }
     };
     const resize = () => {
       const box = host.getBoundingClientRect(),
@@ -108,15 +67,10 @@ export function OrbitGlow({ orbitRef }) {
           top: (planet.top - box.top) / box.height,
           radius: planet.width / 2 / box.width,
         };
-      const budget = box.width < 700 ? 90000 : 150000;
+      const budget = coarse.matches || box.width < 700 ? 90000 : 150000;
       const scale = Math.min(1, Math.sqrt(budget / (box.width * box.height)));
       w = Math.max(2, Math.round(box.width * scale));
       h = Math.max(2, Math.round(box.height * scale));
-      if (canvas.width !== w || canvas.height !== h) {
-        canvas.width = w;
-        canvas.height = h;
-        gl.viewport(0, 0, w, h);
-      }
       canvas.dataset.centerX = String(geometry.cx);
       canvas.dataset.horizonY = String(geometry.top);
       canvas.dataset.radius = String(geometry.radius);
@@ -127,6 +81,8 @@ export function OrbitGlow({ orbitRef }) {
       if (
         disposed ||
         lost ||
+        failed ||
+        pageHidden ||
         document.hidden ||
         !visible ||
         reduced.matches ||
@@ -143,29 +99,30 @@ export function OrbitGlow({ orbitRef }) {
       x += (tx - x) * ease;
       y += (ty - y) * ease;
       hover += (targetHover - hover) * ease;
-      // Active pointer = up to display refresh; ambient drift = 30 fps. No expensive 3D sampling.
-      if (now - lastDraw >= (hover > 0.05 ? 15 : 32)) {
+      // Bound GPU work even on 120/144 Hz screens; touch devices need no 60 fps hover.
+      if (now - lastDraw >= (coarse.matches ? 1000 / 24 : 1000 / 30)) {
         draw();
         lastDraw = now;
       }
+      if (failed) return;
       state.running = true;
       frame = requestAnimationFrame(tick);
     };
     const sync = () => {
       cancelAnimationFrame(frame);
       frame = 0;
-      last = 0;
+      last = lastDraw = 0;
       state.running = false;
+      if (disposed || failed || lost || pageHidden || document.hidden) return;
       if (reduced.matches) draw();
-      else if (visible && !document.hidden && !lost && !loading && !modalBlocked())
-        frame = requestAnimationFrame(tick);
+      else if (visible && !loading && !modalBlocked()) frame = requestAnimationFrame(tick);
     };
     const ready = () => {
       loading = false;
       sync();
     };
     const move = (event) => {
-      if (event.pointerType === 'touch' || !visible) return;
+      if (event.pointerType === 'touch' || coarse.matches || reduced.matches || !visible) return;
       if (
         event.clientY + scrollY < bounds.top ||
         event.clientY + scrollY > bounds.top + bounds.height
@@ -173,8 +130,8 @@ export function OrbitGlow({ orbitRef }) {
         targetHover = 0;
         return;
       }
-      tx = (event.clientX - bounds.left) / bounds.width;
-      ty = (event.clientY + scrollY - bounds.top) / bounds.height;
+      tx = Math.min(1, Math.max(0, (event.clientX - bounds.left) / bounds.width));
+      ty = Math.min(1, Math.max(0, (event.clientY + scrollY - bounds.top) / bounds.height));
       targetHover = 1;
     };
     const leave = () => {
@@ -185,11 +142,19 @@ export function OrbitGlow({ orbitRef }) {
     const contextLost = (event) => {
       event.preventDefault();
       lost = true;
-      host.dataset.gl = 'fallback';
-      cancelAnimationFrame(frame);
-      state.running = false;
+      fallback();
     };
     const restored = () => setRevision((value) => value + 1);
+    const hide = () => {
+      pageHidden = true;
+      leave();
+      sync();
+    };
+    const show = () => {
+      pageHidden = false;
+      resize();
+      sync();
+    };
     const ro = new ResizeObserver(resize);
     ro.observe(host);
     if (orbitRef.current) ro.observe(orbitRef.current);
@@ -203,13 +168,18 @@ export function OrbitGlow({ orbitRef }) {
     io.observe(host);
     const pointerHost = window;
     pointerHost?.addEventListener('pointermove', move, { passive: true });
-    pointerHost?.addEventListener('pointerleave', leave);
+    document.addEventListener('pointerleave', leave);
+    window.addEventListener('blur', leave);
+    window.addEventListener('pagehide', hide);
+    window.addEventListener('pageshow', show);
+    window.addEventListener('resize', resize, { passive: true });
     canvas.addEventListener('webglcontextlost', contextLost);
     canvas.addEventListener('webglcontextrestored', restored);
     document.addEventListener('visibilitychange', sync);
     document.addEventListener('debt:dialog-change', sync);
     document.addEventListener('debt:preloader-closed', ready);
     reduced.addEventListener('change', sync);
+    coarse.addEventListener('change', resize);
     resize();
     sync();
     return () => {
@@ -218,19 +188,19 @@ export function OrbitGlow({ orbitRef }) {
       ro.disconnect();
       io.disconnect();
       pointerHost?.removeEventListener('pointermove', move);
-      pointerHost?.removeEventListener('pointerleave', leave);
+      document.removeEventListener('pointerleave', leave);
+      window.removeEventListener('blur', leave);
+      window.removeEventListener('pagehide', hide);
+      window.removeEventListener('pageshow', show);
+      window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', sync);
       document.removeEventListener('debt:dialog-change', sync);
       document.removeEventListener('debt:preloader-closed', ready);
       reduced.removeEventListener('change', sync);
+      coarse.removeEventListener('change', resize);
       canvas.removeEventListener('webglcontextlost', contextLost);
       canvas.removeEventListener('webglcontextrestored', restored);
-      if (!lost) {
-        gl.deleteBuffer(buffer);
-        gl.deleteProgram(program);
-        gl.deleteShader(vs);
-        gl.deleteShader(fs);
-      }
+      renderer.dispose();
     };
   }, [orbitRef, revision]);
   return (
