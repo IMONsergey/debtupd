@@ -27,11 +27,11 @@ test('Hero contains the initial viewport at portrait, landscape and desktop heig
     await page.goto('/');
     await page.evaluate(() => document.fonts.ready);
     const hero = await page.locator('.hero').boundingBox(),
-      ticker = await page.locator('main>.ticker').boundingBox();
+      tags = await page.locator('main>.technology-tags').boundingBox();
     expect(hero.height, `${width}x${height}`).toBeGreaterThanOrEqual(height - 1);
     expect(
-      ticker.y,
-      `${width}x${height}: ticker leaked into first viewport`,
+      tags.y,
+      `${width}x${height}: technology tags leaked into the hero`,
     ).toBeGreaterThanOrEqual(height);
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(
       false,

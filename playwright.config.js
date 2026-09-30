@@ -1,7 +1,7 @@
 import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
-  testIgnore: 'hero-stability.spec.js',
+  testIgnore: ['hero-stability.spec.js', 'cosmic-motion.spec.js'],
   fullyParallel: false,
   workers: 1,
   timeout: 60000,

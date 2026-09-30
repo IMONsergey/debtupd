@@ -1,0 +1,364 @@
+/* Client review, 30 September: readable technology tags and a living, quiet space. */
+.technology-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px 22px;
+  margin: 0 0 clamp(100px, 10vw, 190px);
+  padding: 30px 0 0;
+  list-style: none;
+  color: #d9edff;
+  font:
+    500 clamp(13px, 1.05vw, 17px)/1.65 'IBM Plex Sans',
+    sans-serif;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+.technology-tags li {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  max-width: 100%;
+}
+.technology-tags li::before {
+  content: '·';
+  flex: none;
+  color: #48b5f5;
+}
+.about .forum-ticker {
+  margin: 26px 0 30px;
+  padding: 12px 0;
+}
+.forum-ticker .ticker-copy span {
+  font-size: clamp(12px, 1.05vw, 16px);
+  line-height: 1.6;
+  gap: 28px;
+  margin-right: 28px;
+  text-transform: uppercase;
+}
+.forum-ticker .ticker-track {
+  animation-play-state: paused;
+}
+.forum-ticker[data-ambient='active'] .ticker-track {
+  animation-play-state: running;
+}
+.forum-ticker:hover .ticker-track,
+.forum-ticker:focus-within .ticker-track {
+  animation-play-state: paused;
+}
+
+/* Independent translate/rotate leaves each approved illustration's base transform intact. */
+.about-satellite,
+.services-satellite,
+.speakers-rocket,
+.audience-art,
+.tariff-astronaut,
+.tariff-planet,
+.sponsor-planet,
+.partners-satellite,
+.speakers-note-art img,
+.flight-banner img:first-of-type {
+  --float-x: 3px;
+  --float-y: -10px;
+  --float-turn: 1.1deg;
+  animation: cosmic-float var(--float-period, 12s) ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+.services-satellite {
+  --float-period: 15s;
+  --float-x: -5px;
+  --float-turn: -1.2deg;
+}
+.speakers-rocket {
+  --float-period: 11s;
+  --float-x: 7px;
+  --float-y: -13px;
+  --float-turn: -0.7deg;
+}
+.audience-art {
+  --float-period: 18s;
+  --float-y: -8px;
+  --float-turn: -0.5deg;
+}
+.tariff-astronaut {
+  --float-period: 13s;
+  --float-x: -4px;
+  --float-y: -9px;
+  --float-turn: -0.8deg;
+}
+.tariff-planet,
+.sponsor-planet {
+  --float-period: 22s;
+  --float-x: 0px;
+  --float-y: -7px;
+  --float-turn: 0.6deg;
+}
+.partners-satellite {
+  --float-period: 16s;
+  --float-x: -6px;
+  --float-turn: -1.3deg;
+}
+.speakers-note-art img {
+  --float-period: 9s;
+  --float-x: 0px;
+  --float-y: -4px;
+  --float-turn: 0.5deg;
+}
+.flight-banner img:first-of-type {
+  --float-period: 10s;
+  --float-x: 4px;
+  --float-y: -3px;
+  --float-turn: -0.6deg;
+}
+@keyframes cosmic-float {
+  from {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  to {
+    translate: var(--float-x) var(--float-y);
+    rotate: var(--float-turn);
+  }
+}
+.section-glow {
+  animation: cosmic-light 13s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+.countdown-caption i {
+  animation: cosmic-signal 4.8s ease-in-out infinite;
+  animation-play-state: paused;
+}
+@keyframes cosmic-light {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 0.9;
+  }
+}
+@keyframes cosmic-signal {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+#page-content [data-ambient='active'] {
+  animation-play-state: running;
+}
+#page-content [data-ambient='paused'] {
+  animation-play-state: paused;
+}
+
+/* The artwork fills the footer at every point in the cycle. */
+.footer-scene {
+  overflow: hidden;
+}
+.footer-scene > img {
+  animation: cosmic-footer 24s ease-in-out infinite alternate;
+  animation-play-state: paused;
+  transform-origin: 50% 100%;
+}
+.footer-scene[data-ambient='active'] > img {
+  animation-play-state: running;
+}
+@keyframes cosmic-footer {
+  from {
+    scale: 1;
+  }
+  to {
+    scale: 1.025;
+  }
+}
+
+[data-reveal='shown'] {
+  transition-delay: var(--reveal-delay, 0ms);
+}
+/* Extra shimmer uses the existing star field, without another canvas or particle engine. */
+.star-field__depth--1 .cosmos__stars {
+  animation-name: stellar-drift, cosmic-stars;
+  animation-duration: 38s, 9s;
+  animation-timing-function: ease-in-out;
+  animation-direction: alternate;
+}
+@keyframes cosmic-stars {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 0.8;
+  }
+}
+
+.about-photo img,
+.conference-link-card > img,
+.partner-card > img {
+  transition: scale 1.1s var(--ease-soft);
+}
+:is(
+  .about-copy,
+  .stat,
+  .participant-card,
+  .service-copy,
+  .topic-card,
+  .audience-card,
+  .partner-card,
+  .sponsor-panel
+) {
+  transition:
+    border-color 0.5s ease,
+    box-shadow 0.6s ease;
+}
+:is(
+  .about-copy,
+  .stat,
+  .participant-card,
+  .service-copy,
+  .topic-card,
+  .audience-card,
+  .partner-card,
+  .sponsor-panel
+)[data-reveal='shown'] {
+  transition:
+    opacity 0.86s var(--ease-soft),
+    translate 1s var(--ease-soft),
+    border-color 0.5s ease,
+    box-shadow 0.6s ease;
+  transition-delay: var(--reveal-delay, 0ms), var(--reveal-delay, 0ms), 0ms, 0ms;
+}
+.channels a,
+.circle-button svg,
+.ui-icon-button svg {
+  transition:
+    translate 0.4s var(--ease-soft),
+    opacity 0.3s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  :is(
+    .about-copy,
+    .stat,
+    .participant-card,
+    .service-copy,
+    .topic-card,
+    .audience-card,
+    .partner-card,
+    .sponsor-panel
+  ):hover {
+    border-color: #63bcf76b;
+    box-shadow: 0 8px 32px #137ab81c;
+  }
+  .about-photo:hover img,
+  .conference-link-card:hover > img {
+    scale: 1.025;
+  }
+  .partner-card:hover > img {
+    scale: 1.035;
+  }
+  .channels a:hover {
+    translate: 0 -3px;
+  }
+  .circle-button:hover svg,
+  .ui-icon-button:hover svg {
+    translate: 2px 0;
+  }
+}
+.channels a:focus-visible {
+  translate: 0 -3px;
+}
+.button,
+.fixed-menu__cta {
+  transition:
+    box-shadow 0.45s ease,
+    border-color 0.45s ease,
+    filter 0.45s ease,
+    scale 0.2s ease;
+}
+.button:active,
+.fixed-menu__cta:active {
+  scale: 0.985;
+}
+
+@media (max-width: 599px) {
+  .technology-tags {
+    padding-top: 24px;
+    margin-bottom: 82px;
+    gap: 8px 14px;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  .technology-tags li {
+    gap: 7px;
+  }
+  .about .forum-ticker {
+    margin: 20px 0;
+    padding: 10px 0;
+  }
+  .forum-ticker .ticker-copy span {
+    gap: 20px;
+    margin-right: 20px;
+  }
+  /* Small movements leave the narrow text and illustration margins intact. */
+  [data-ambient] {
+    --float-x: 0px;
+    --float-y: -4px;
+    --float-turn: 0.4deg;
+  }
+  .speakers-note-art img {
+    --float-y: -2px;
+  }
+  .footer-scene > img {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #page-content [data-ambient],
+  .footer-scene > img,
+  .star-field__depth--1 .cosmos__stars {
+    animation: none;
+  }
+  .technology-tags,
+  .technology-tags * {
+    animation: none;
+    transition: none;
+  }
+  .forum-ticker {
+    mask-image: none;
+    -webkit-mask-image: none;
+    white-space: normal;
+  }
+  .forum-ticker .ticker-track {
+    width: 100%;
+    animation: none;
+    transform: none;
+  }
+  .forum-ticker .ticker-copy {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+  }
+  .forum-ticker .ticker-copy span {
+    margin: 0;
+  }
+  .forum-ticker .ticker-copy[aria-hidden='true'] {
+    display: none;
+  }
+  [data-reveal='shown'],
+  .button,
+  .fixed-menu__cta,
+  .channels a,
+  .about-photo img,
+  .conference-link-card > img,
+  .partner-card > img,
+  .circle-button svg,
+  .ui-icon-button svg {
+    transition: none;
+    transition-delay: 0ms;
+  }
+  .button:active,
+  .fixed-menu__cta:active {
+    scale: none;
+  }
+}

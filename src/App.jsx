@@ -18,6 +18,7 @@ import { Cosmos } from './components/Cosmos.jsx';
 import { HeroScene } from './components/hero/HeroScene.jsx';
 import { DelayedTicketOffer } from './components/TicketOffer.jsx';
 import { useExperienceMotion } from './lib/useExperienceMotion.js';
+import { useAmbientMotion } from './lib/useAmbientMotion.js';
 const art = (n) => assetUrl('assets/figma/' + n.replace(/\.png$/, '.webp'));
 function Picture({ name, alt = '', className = '', eager = false, ...props }) {
   return (
@@ -198,6 +199,15 @@ function Ticker({ items, className = '' }) {
     </div>
   );
 }
+function TechnologyTags() {
+  return (
+    <ul className="technology-tags" aria-label="Технологии и направления форума">
+      {content.aboutForum.tags.map(({ id, label }) => (
+        <li key={id}>{label}</li>
+      ))}
+    </ul>
+  );
+}
 function About() {
   return (
     <section className="section about" id="about-forum">
@@ -224,7 +234,7 @@ function About() {
           <Picture name="about-photo.png" alt="Обсуждение технологий взыскания на форуме" />
         </div>
       </div>
-      <Ticker className="technology-ticker" items={content.aboutForum.tags.map((t) => t.label)} />
+      <Ticker className="forum-ticker" items={content.ticker.items} />
       <div className="stats-grid">
         {content.aboutForum.stats.map((stat) => (
           <div className="stat glass corners" key={stat.value}>
@@ -875,6 +885,7 @@ export default function App() {
     goal(kind === 'video' ? 'video_open' : 'gallery_open');
   };
   useExperienceMotion();
+  useAmbientMotion();
   return (
     <>
       <div id="page-content" className="hero-only-view">
@@ -895,7 +906,7 @@ export default function App() {
               onStand={() => openForm('stand-booking')}
             />
           </div>
-          <Ticker items={content.ticker.items} />
+          <TechnologyTags />
           <About />
           <Participants />
           <Services onRegister={() => openForm()} />

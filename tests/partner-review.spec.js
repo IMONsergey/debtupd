@@ -120,18 +120,24 @@ test('Speaker carousel moves by controls and keyboard, reaches the final profile
   await expect(page.getByRole('button', { name: 'Вернуть слайдер' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
 });
-test('Both running strips move when motion is allowed', async ({ page }) => {
+test('Forum facts run inside About while the hero technology tags remain static', async ({
+  page,
+}) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await ready(page, 1440);
+  await expect(page.locator('main>.ticker')).toHaveCount(0);
+  await expect(page.locator('.technology-tags li')).toHaveCount(13);
+  await page.locator('.about .ticker').scrollIntoViewIfNeeded();
+  await page.mouse.move(0, 0);
+  await expect(page.locator('.about .ticker')).toHaveAttribute('data-ambient', 'active');
   const first = await page
-    .locator('main>.ticker .ticker-track')
+    .locator('.about .ticker-track')
     .evaluate((node) => getComputedStyle(node).transform);
   await page.waitForTimeout(400);
   const next = await page
-    .locator('main>.ticker .ticker-track')
+    .locator('.about .ticker-track')
     .evaluate((node) => getComputedStyle(node).transform);
   expect(first).not.toBe(next);
-  await page.locator('.about .ticker').scrollIntoViewIfNeeded();
   expect(
     await page
       .locator('.about .ticker-track')

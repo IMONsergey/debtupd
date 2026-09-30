@@ -14,7 +14,7 @@ const chromium = {
 };
 export default defineConfig({
   ...base,
-  testMatch: 'hero-stability.spec.js',
+  testMatch: ['hero-stability.spec.js', 'cosmic-motion.spec.js'],
   testIgnore: [],
   projects: [
     { name: 'chromium', use: chromium },

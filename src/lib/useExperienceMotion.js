@@ -69,10 +69,17 @@ export function useExperienceMotion() {
       if (!targets.length)
         targets.push(
           ...document.querySelectorAll(
-            '.section-title,.about-copy,.about-photo,.stat,.participant-card,.service-photo,.service-copy,.topic-card,.speaker,.audience-card,.organizer-card,.tariff,.corporate,.sponsor-panel,.partner-card,.contact-grid',
+            '.section-title,.tariffs-title,.about-copy,.about-photo,.stat,.participant-card,.service-photo,.service-copy,.topic-card,.speaker,.audience-card,.organizer-card,.tariff,.corporate,.sponsor-panel,.partner-card,.contact-grid,.discount,.speakers-note-wrap,.other-conferences-carousel,.venue-map',
           ),
         );
       targets.forEach((node) => {
+        // Short, bounded group rhythm: no long queues before copy becomes readable.
+        const group = node.parentElement;
+        const staggered = group?.matches(
+          '.stats-grid,.topics-grid,.audience-grid,.partners-grid,.tariff-grid,.discounts',
+        );
+        const index = staggered ? [...group.children].indexOf(node) % 4 : 0;
+        node.style.setProperty('--reveal-delay', `${index * 65}ms`);
         // Initial hidden state is set only while a node is still offscreen. Never reset a visible card.
         if (node.dataset.reveal === 'shown') return;
         if (node.getBoundingClientRect().top < innerHeight) {
@@ -100,7 +107,10 @@ export function useExperienceMotion() {
       queue.length = 0;
       warmObserver.disconnect();
       revealObserver?.disconnect();
-      targets.forEach((node) => node.removeAttribute('data-reveal'));
+      targets.forEach((node) => {
+        node.removeAttribute('data-reveal');
+        node.style.removeProperty('--reveal-delay');
+      });
       document.removeEventListener('debt:preloader-closed', start);
       reduced.removeEventListener('change', start);
       document.removeEventListener('keyup', revealTarget);
