@@ -22,7 +22,7 @@ for (const width of widths)
     await page.evaluate(() => document.fonts.ready);
     await expect(page.locator('.speaker')).toHaveCount(15);
     await expect(page.locator('.tariff')).toHaveCount(3);
-    await expect(page.getByRole('heading', { name: 'MULTIPASS' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Тарифы\s*участия/ })).toBeVisible();
     const issues = await page.evaluate(() => ({
       overflow: document.documentElement.scrollWidth > innerWidth,
       clipped: [
@@ -67,7 +67,11 @@ test('Production mobile menu closes on Escape, outside click and navigation', as
   const menu = page.getByRole('navigation', { name: 'Разделы сайта' });
   await trigger.click();
   await expect(menu).toBeVisible();
-  await expect(menu.getByRole('link')).toHaveCount(8);
+  await expect(menu.getByRole('link')).toHaveCount(9);
+  await expect(menu.getByRole('link', { name: 'Ранняя регистрация' })).toHaveAttribute(
+    'href',
+    '#tariffs',
+  );
   await page.keyboard.press('Escape');
   await expect(menu).toBeHidden();
   await expect(trigger).toBeFocused();

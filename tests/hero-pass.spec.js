@@ -85,7 +85,7 @@ test('Shader, rotating disk and static crown use the same circle on every viewpo
     expect(hero.height).toBeGreaterThanOrEqual(height - 1);
   }
 });
-test('Planet rotates continuously while the crown is fixed and scroll entrances never lower opacity', async ({
+test('Planet rotates continuously while the crown breathes and scroll entrances never lower opacity', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -104,7 +104,7 @@ test('Planet rotates continuously while the crown is fixed and scroll entrances 
     await page
       .locator('.hero-planet-crown')
       .evaluate((node) => getComputedStyle(node).animationName),
-  ).toBe('none');
+  ).toBe('hero-crown-breathe');
   await page.locator('.service-grid').scrollIntoViewIfNeeded();
   const samples = await page.locator('.service-grid').evaluate(async (node) => {
     const values = [];
@@ -201,17 +201,15 @@ test('Narrow headings fit with a classic reserved scrollbar, not only overlay sc
   });
   for (const width of [320, 360, 390, 600, 768]) {
     await page.setViewportSize({ width, height: 900 });
-    const clipped = await page
-      .locator('main h2')
-      .evaluateAll((nodes) =>
-        nodes
-          .filter((node) => node.clientWidth && node.scrollWidth > node.clientWidth + 2)
-          .map((node) => ({
-            text: node.textContent,
-            available: node.clientWidth,
-            actual: node.scrollWidth,
-          })),
-      );
+    const clipped = await page.locator('main h2').evaluateAll((nodes) =>
+      nodes
+        .filter((node) => node.clientWidth && node.scrollWidth > node.clientWidth + 2)
+        .map((node) => ({
+          text: node.textContent,
+          available: node.clientWidth,
+          actual: node.scrollWidth,
+        })),
+    );
     expect(clipped, `Reserved-scrollbar headings at ${width}px`).toEqual([]);
   }
 });

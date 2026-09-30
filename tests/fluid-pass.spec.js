@@ -217,7 +217,7 @@ test('Organizer and other conferences stay on the page but are omitted from both
     await ready(page);
     if (width < 1181) await page.getByRole('button', { name: 'Открыть меню' }).click();
     const menu = page.getByRole('navigation', { name: 'Разделы сайта' });
-    await expect(menu.getByRole('link')).toHaveCount(8);
+    await expect(menu.getByRole('link')).toHaveCount(width < 1181 ? 9 : 8);
     await expect(menu.getByRole('link', { name: 'Организатор', exact: true })).toHaveCount(0);
     await expect(menu.getByRole('link', { name: 'Другие конференции', exact: true })).toHaveCount(
       0,
