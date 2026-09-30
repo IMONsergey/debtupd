@@ -7,7 +7,10 @@ debtupd-sandbox.176.98.177.253.sslip.io {
         X-Robots-Tag "noindex, nofollow, noarchive"
     }
     route {
-        respond /robots.txt "User-agent: *\nDisallow: /" 200
+        handle /robots.txt {
+            root * /srv/imon/projects/debtupd-sandbox/source/deploy
+            file_server
+        }
         handle /api/lead {
             reverse_proxy 127.0.0.1:32027
         }
