@@ -3,7 +3,9 @@ export function goal(name, params = {}) {
   window.ym?.(METRIKA_ID, 'reachGoal', name, params);
 }
 export function initAnalytics() {
-  if (!['debt-tech.ru', 'www.debt-tech.ru'].includes(location.hostname) || window.ym) return;
+  const hosts = ['debt-tech.ru', 'www.debt-tech.ru'];
+  hosts.push(...(import.meta.env.VITE_METRIKA_HOSTS || '').split(',').map((host) => host.trim()));
+  if (!hosts.includes(location.hostname) || window.ym) return;
   const ym = (window.ym = function () {
     (ym.a = ym.a || []).push(arguments);
   });

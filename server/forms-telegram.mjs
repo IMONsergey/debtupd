@@ -366,14 +366,24 @@ async function sendTelegram(payload) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
+        signal: AbortSignal.timeout(8_000),
       });
 
-      if (response.ok) return;
+      const result = await response.json().catch(() => null);
+      if (response.ok && result?.ok === true) {
+        console.log(
+          JSON.stringify({
+            event: 'telegram_delivered',
+            form_id: payload.form_id,
+            message_id: result.result?.message_id,
+          }),
+        );
+        return;
+      }
 
-      const errorBody = await response.text().catch(() => '');
       const shouldRetry = response.status === 429 || response.status >= 500;
       if (!shouldRetry || attempt === TELEGRAM_RETRY_DELAYS_MS.length) {
-        throw new Error(`telegram_error_${response.status}:${errorBody.slice(0, 200)}`);
+        throw new Error(`telegram_error_${response.status}`);
       }
     } catch (error) {
       if (attempt === TELEGRAM_RETRY_DELAYS_MS.length) throw error;
@@ -474,6 +484,14 @@ const server = http.createServer(async (request, response) => {
       return;
     }
     const bitrixDealId = BITRIX_WEBHOOK_URL ? await createBitrixDeal(payload) : null;
+    if (bitrixDealId)
+      console.log(
+        JSON.stringify({
+          event: 'bitrix_delivered',
+          form_id: payload.form_id,
+          deal_id: bitrixDealId,
+        }),
+      );
     // A real, durable destination must confirm receipt before the UI reports success.
     if (!BITRIX_WEBHOOK_URL) await sendTelegram(payload);
     jsonResponse(response, 200, { success: true, deal_id: bitrixDealId || undefined }, corsHeaders);

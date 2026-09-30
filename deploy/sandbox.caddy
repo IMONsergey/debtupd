@@ -1,0 +1,26 @@
+debtupd-sandbox.176.98.177.253.sslip.io {
+    root * /srv/imon/projects/debtupd-sandbox/current
+    encode zstd gzip
+    header {
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        X-Robots-Tag "noindex, nofollow, noarchive"
+    }
+    route {
+        respond /robots.txt "User-agent: *\nDisallow: /" 200
+        handle /api/lead {
+            reverse_proxy 127.0.0.1:32027
+        }
+        handle /api/* {
+            respond "Not found" 404
+        }
+        handle /assets/* {
+            file_server
+        }
+        handle {
+            try_files {path} /index.html
+            header Cache-Control "no-cache"
+            file_server
+        }
+    }
+}

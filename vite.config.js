@@ -7,7 +7,12 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     allowedHosts: ['terminal.local'],
-    proxy: { '/api/lead': { target: 'https://www.debt-tech.ru', changeOrigin: true } },
+    proxy: {
+      '/api/lead': {
+        target: process.env.FORMS_PROXY_TARGET || 'http://127.0.0.1:32027',
+        changeOrigin: true,
+      },
+    },
   },
   build: { target: 'es2022' },
 });
