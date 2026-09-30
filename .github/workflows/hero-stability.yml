@@ -23,7 +23,7 @@ jobs:
       - run: npx playwright install --with-deps ${{ matrix.browser }}
       - run: npx playwright test --config=playwright.hero.config.js --project="${{ matrix.browser }}*"
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
           name: hero-${{ matrix.browser }}
           path: test-results

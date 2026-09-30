@@ -200,7 +200,9 @@ export function OrbitGlow({ orbitRef }) {
       coarse.removeEventListener('change', resize);
       canvas.removeEventListener('webglcontextlost', contextLost);
       canvas.removeEventListener('webglcontextrestored', restored);
-      renderer.dispose();
+      // A lost context already released these objects. Deleting them after restoration
+      // contaminates the new context with INVALID_OPERATION on WebKit.
+      if (!lost) renderer.dispose();
     };
   }, [orbitRef, revision]);
   return (

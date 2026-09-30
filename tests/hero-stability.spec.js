@@ -27,7 +27,7 @@ async function graphicsAvailable(page, browserName) {
 test('Atmosphere stays transparent away from the rim through phone rotation and desktop resize', async ({
   page,
   browserName,
-}) => {
+}, testInfo) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.addInitScript(() => {
     const original = HTMLCanvasElement.prototype.getContext;
@@ -53,6 +53,8 @@ test('Atmosphere stays transparent away from the rim through phone rotation and 
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
+    if (width === 390 || width === 1440)
+      await page.screenshot({ path: testInfo.outputPath(`hero-${width}.png`) });
     if (!available) continue;
     const pixels = await page.locator('.hero-horizon canvas').evaluate((canvas) => {
       const gl = canvas.getContext('webgl');
@@ -141,7 +143,14 @@ test('Losing and restoring WebGL replaces the framebuffer and resumes cleanly', 
     expect(await canvas.evaluate((node) => node._orbitState.running)).toBe(false);
     await page.waitForTimeout(150);
     await page.evaluate(() => window.__loseOrbit.restoreContext());
-    await expect(page.locator('.hero-horizon')).toHaveAttribute('data-gl', 'ready');
+    await expect
+      .poll(() =>
+        canvas.evaluate((node) => ({
+          mode: node.parentElement.dataset.gl,
+          contextLost: node.getContext('webgl').isContextLost(),
+        })),
+      )
+      .toEqual({ mode: 'ready', contextLost: false });
     await expect.poll(() => canvas.evaluate((node) => node._orbitState.running)).toBe(true);
   }
 });
