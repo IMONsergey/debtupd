@@ -265,10 +265,11 @@
     bottom: 0;
     width: 140px;
     height: auto;
+    overflow: visible;
   }
   .speakers-note-art img {
     inset: auto -2px -22px auto;
-    width: 158px;
+    width: 152px;
     height: auto;
     object-fit: contain;
     object-position: center bottom;
