@@ -130,8 +130,8 @@ export function Exhibition({ onApply }) {
           <img
             src={assetUrl('assets/exhibition/exhibition.webp')}
             alt="Участники форума знакомятся с решениями на выставочном стенде"
-            width="1920"
-            height="1280"
+            width="2048"
+            height="1365"
             loading="lazy"
             decoding="async"
           />

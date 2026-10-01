@@ -2,7 +2,7 @@ name: Visual preview
 on:
   workflow_dispatch:
   push:
-    branches: [main, test/exhibition-floorplan]
+    branches: [main]
 permissions:
   contents: read
   pages: write
@@ -11,9 +11,12 @@ concurrency:
   group: pages
   cancel-in-progress: true
 jobs:
-  build:
+  preview:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,15 +25,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-      - run: npx playwright install --with-deps chromium firefox webkit
-        if: github.ref == 'refs/heads/test/exhibition-floorplan'
-      - run: npx playwright test --config=playwright.exhibition.config.js
-        if: github.ref == 'refs/heads/test/exhibition-floorplan'
-      - uses: actions/upload-artifact@v4
-        if: always() && github.ref == 'refs/heads/test/exhibition-floorplan'
-        with:
-          name: exhibition-browser-checks
-          path: test-results
       - run: npm run build
         env:
           VITE_BASE_PATH: /debtupd/
@@ -39,17 +33,9 @@ jobs:
       - name: Keep preview out of search results
         run: |
           node -e "const fs=require('fs');const p='dist/index.html';fs.writeFileSync(p,fs.readFileSync(p,'utf8').replace('<head>','<head><meta name=\"robots\" content=\"noindex,nofollow\">'));fs.writeFileSync('dist/robots.txt','User-agent: *\\nDisallow: /\\n');"
+      - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/configure-pages@v5
       - id: deployment
         uses: actions/deploy-pages@v4

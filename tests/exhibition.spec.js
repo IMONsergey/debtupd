@@ -23,7 +23,7 @@ for (const width of [390, 1440]) {
     const section = page.locator('#exhibition');
     await section.scrollIntoViewIfNeeded();
     await expect(section.locator('.exhibition-map-stand')).toHaveCount(24);
-    await expect(section.locator('.exhibition-photo img')).toHaveJSProperty('naturalWidth', 1920);
+    await expect(section.locator('.exhibition-photo img')).toHaveJSProperty('naturalWidth', 2048);
     const geometry = await section
       .locator('.exhibition-map-canvas')
       .evaluate((canvas) => ({ width: canvas.clientWidth, height: canvas.clientHeight }));

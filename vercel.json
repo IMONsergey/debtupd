@@ -1,16 +1,16 @@
 {
-  "rewrites": [
-    {
-      "source": "/api/lead",
-      "destination": "https://debt-2026-lite.176.98.177.253.sslip.io/api/lead"
-    }
-  ],
+  "framework": "vite",
+  "buildCommand": "VITE_BASE_PATH=/ VITE_FORMS_ENDPOINT=/api/lead npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm ci",
+  "rewrites": [{ "source": "/api/lead", "destination": "https://www.debt-tech.ru/api/lead" }],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
       ]
     }
   ]

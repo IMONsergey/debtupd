@@ -2,7 +2,7 @@
 
 Branch: `test/exhibition-floorplan`. Based on production-matched main `19d8fbc`.
 
-The branch deploys to the existing GitHub Pages preview, without merging to main or deploying debt-tech.ru. Pages runs the exhibition flow in Chromium, Firefox and WebKit before deployment.
+Target: a separate Vercel project, `debt-tech-exhibition-test`, in the connected team. The user switched hosting to Vercel after GitHub Pages rejected this test branch through its environment protection rules. The original Pages workflow is restored; neither main nor debt-tech.ru is changed. The exhibition workflow runs the flow in Chromium, Firefox and WebKit.
 
 ## Content and assets
 
@@ -10,4 +10,4 @@ The section follows Speakers and uses the supplied 2026 brief, photograph and bo
 
 Company assignments are deliberately empty: the supplied company screenshot describes a previous conference. Add confirmed current exhibitors to `exhibitors` in `src/data/exhibition.js` using the documented shape. Their cards then appear below the matching floor and connect to the map. No individual stand is represented as free or occupied before that data arrives. The aggregate 15 remaining places is approved brief copy and must be kept current by the organizer.
 
-The existing stand form is reused; selecting a stand prefills its number and floor in the editable comment. GitHub Pages remains a preview: production lead API CORS currently disallows the Pages origin. No live forms are submitted by automated tests.
+The existing stand form is reused; selecting a stand prefills its number and floor in the editable comment. Vercel builds with root-relative paths and uses the existing same-origin `/api/lead` rewrite, updated to the current production API domain. Test pages carry a noindex header. No live forms are submitted by automated tests; actual CRM delivery from Vercel is not verified.
