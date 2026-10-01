@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useExhibitionMap } from '../hooks/useExhibitionMap.js';
-import { Minus, Plus, RotateCcw, MapPin } from 'lucide-react';
+import { Minus, Plus, RotateCcw } from 'lucide-react';
 import { ExhibitionLegend } from './ExhibitionLegend.jsx';
 import { ActionArrow } from './ActionArrow.jsx';
 import { assetUrl } from '../lib/assets.js';
@@ -117,9 +117,9 @@ export function Exhibition({ onApply }) {
           />
         </figure>
       </div>
-      <div className="exhibition-benefits">
+      <div className="exhibition-benefits glass corners">
         {benefits.map(([index, title, text]) => (
-          <article key={title} className="exhibition-benefit glass corners">
+          <article key={title} className="exhibition-benefit">
             <span className="exhibition-benefit__index" aria-hidden="true">
               {index}
             </span>
@@ -351,10 +351,7 @@ export function Exhibition({ onApply }) {
                 {selected && status === 'occupied' ? (
                   <>
                     {company && (
-                      <strong className="exhibition-stand-company">
-                        {company.name}
-                        {company.demo && <small>Демо-компания</small>}
-                      </strong>
+                      <strong className="exhibition-stand-company">{company.name}</strong>
                     )}
                     <p className="exhibition-stand-description">
                       {company?.description ||
@@ -384,13 +381,12 @@ export function Exhibition({ onApply }) {
           <div className="exhibition-exhibitors__heading">
             <h3>Экспоненты форума</h3>
             {displayedExhibitors.some((item) => item.demo) && (
-              <p>Демо-карточки · участие компаний не подтверждено</p>
+              <p>Участие компаний не подтверждено</p>
             )}
           </div>
           <div className="exhibition-company-grid">
             {displayedExhibitors.map((item) => (
               <article key={item.id} className="exhibition-company glass corners">
-                {item.demo && <span className="exhibition-company__demo">Демо</span>}
                 {item.logo && <img src={assetUrl(item.logo)} alt={item.name} loading="lazy" />}
                 <h4>{item.name}</h4>
                 <p>{item.description}</p>
@@ -419,7 +415,6 @@ export function Exhibition({ onApply }) {
                       key={number}
                     >
                       Стенд №{number}
-                      <MapPin aria-hidden="true" />
                     </button>
                   ))}
                 </div>

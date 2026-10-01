@@ -119,7 +119,9 @@ test('Small-screen cards and controls fit; sample companies are labelled', async
     });
     expect(metricsFit).toBe(true);
     await expect(section.locator('.exhibition-company')).toHaveCount(2);
-    await expect(section.locator('.exhibition-company__demo')).toHaveText(['Демо', 'Демо']);
+    await expect(
+      section.locator('.exhibition-company__demo, .exhibition-company__stand svg'),
+    ).toHaveCount(0);
     await expect(section.locator('.exhibition-map-point, .exhibition-stand-list i')).toHaveCount(0);
     await expect(section.locator('[data-occupied-stand]')).toHaveCount(11);
     await expect(section.locator('[data-occupied-stand="8"] .exhibition-occupied-shape')).toHaveCSS(
@@ -256,7 +258,9 @@ test('Occupied stands are explicit, muted and non-actionable', async ({ page }) 
     'Стенд забронирован',
   );
   await expect(section.locator('.exhibition-company')).toHaveCount(2);
-  await expect(section.locator('.exhibition-company__demo')).toHaveText(['Демо', 'Демо']);
+  await expect(
+    section.locator('.exhibition-company__demo, .exhibition-company__stand svg'),
+  ).toHaveCount(0);
 });
 
 test('Restored company cards open reserved stand details without a booking CTA', async ({
