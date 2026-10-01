@@ -266,8 +266,25 @@ export const occupiedStandArtwork = {
   },
 };
 
-// Retained layout examples, explicitly separate from confirmed company assignments.
+// Test-site sample content requested for all reserved stands; not confirmed assignments.
 export const demoExhibitors = [
+  ...[
+    [3, 'ИМПУЛЬС AI', 'Автоматизация общения с клиентами'],
+    [4, 'СПЕКТР DATA', 'Данные для точных бизнес-решений'],
+    [5, 'КОНТУР LAB', 'Цифровые инструменты взыскания'],
+    [6, 'ПУЛЬС TECH', 'Мониторинг и управление процессами'],
+    [7, 'ПОТОК CRM', 'Единая система работы с клиентами'],
+    [10, 'СФЕРА CLOUD', 'Облачные сервисы для бизнеса'],
+    [15, 'ФОКУС BI', 'Наглядная аналитика показателей'],
+    [16, 'АТЛАС API', 'Интеграция сервисов и данных'],
+    [20, 'МАЯК SOFT', 'Программные решения для команд'],
+  ].map(([number, name, description]) => ({
+    id: `demo-stand-${number}`,
+    name,
+    description,
+    standNumbers: [number],
+    demo: true,
+  })),
   {
     id: 'demo-orbita',
     name: 'ОРБИТА AI',
