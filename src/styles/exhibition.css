@@ -667,14 +667,14 @@
   background: #1b2637;
   border-color: #465568;
   color: #7f8ca0;
-  cursor: default;
+  cursor: pointer;
 }
 
 .exhibition-map-stand[data-status='occupied'] {
-  cursor: default;
+  cursor: pointer;
 }
 .exhibition-map-stand[data-status='occupied']:hover {
-  border-color: transparent;
+  border-color: #a9b5c4;
   background: transparent;
 }
 .exhibition-map-stand[data-status='occupied']::after,

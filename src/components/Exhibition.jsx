@@ -64,7 +64,6 @@ export function Exhibition({ onApply }) {
     reset();
   }
   function chooseStand(number) {
-    if (getStandStatus(number) === 'occupied') return;
     setSelected((current) => (current === number ? null : number));
   }
   function apply(number = null) {
@@ -294,7 +293,6 @@ export function Exhibition({ onApply }) {
                     data-status={standStatus}
                     data-tooltip={tooltip}
                     aria-label={`Стенд ${stand.number}, ${floorId}-й этаж, ${occupied ? 'забронирован' : 'свободен'}`}
-                    aria-disabled={occupied || undefined}
                     aria-pressed={selected === stand.number}
                     title={tooltip}
                     onClick={() => chooseStand(stand.number)}
@@ -328,8 +326,7 @@ export function Exhibition({ onApply }) {
                           ? `Стенд ${stand.number} забронирован`
                           : `Выбрать стенд ${stand.number}`
                       }
-                      aria-disabled={occupied || undefined}
-                      title={occupied ? 'Стенд забронирован' : `Стенд №${stand.number} свободен`}
+                        title={occupied ? 'Стенд забронирован' : `Стенд №${stand.number} свободен`}
                       aria-pressed={selected === stand.number}
                       onClick={() => chooseStand(stand.number)}
                     >

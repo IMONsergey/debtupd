@@ -156,13 +156,22 @@ test('Map zoom uses only buttons; scrolling, panning and occupied statuses', asy
     }),
   ).toBe(true);
   await expect(section.locator('.exhibition-map-stand[data-status="occupied"]')).toHaveCount(11);
-  await expect(section.locator('[data-stand="8"]')).toHaveAttribute('aria-disabled', 'true');
+  await expect(section.locator('[data-stand="8"]')).toBeEnabled();
   await expect(section.getByRole('button', { name: 'Стенд 8 забронирован' })).toHaveAttribute(
     'title',
     'Стенд забронирован',
   );
-  await section.getByRole('button', { name: 'Стенд 8 забронирован' }).click({ force: true });
-  await expect(section.getByRole('heading', { name: 'Найдите свою орбиту' })).toBeVisible();
+  const detail = section.locator('.exhibition-stand-detail');
+  await section.getByRole('button', { name: 'Стенд 8 забронирован' }).click();
+  await expect(detail.getByRole('heading', { name: 'Стенд №8' })).toBeVisible();
+  await expect(detail.locator('.exhibition-stand-company')).toHaveText('ОРБИТА AI');
+  await expect(detail.locator('.exhibition-stand-description')).toHaveText('Интеллектуальные решения для бизнеса');
+  await expect(detail.getByRole('button')).toHaveCount(0);
+  await section.locator('[data-stand="9"]').click();
+  await expect(detail.getByRole('heading', { name: 'Стенд №9' })).toBeVisible();
+  await expect(detail.locator('.exhibition-stand-company')).toHaveText('ВЕКТОР DATA');
+  await expect(detail.locator('.exhibition-stand-description')).toHaveText('Аналитика и автоматизация процессов');
+  await expect(detail.getByRole('button')).toHaveCount(0);
   await section.getByRole('button', { name: 'Выбрать стенд 11', exact: true }).click();
   await expect(section.locator('.exhibition-status')).toHaveText('Стенд свободен');
   await view.hover();
