@@ -677,3 +677,123 @@
 .exhibition-map-stand[data-status='occupied'] {
   background: transparent;
 }
+
+/* Compact status key beside floor tabs; venue symbols remain below the plan. */
+.exhibition-toolbar {
+  flex-wrap: wrap;
+}
+.exhibition-status-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-right: auto;
+  color: #c2cfdf;
+  font-size: 13px;
+}
+.exhibition-status-key > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.exhibition-status-key .exhibition-legend__icon {
+  border-radius: 0;
+  font-size: 17px;
+}
+.exhibition-company-grid {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.exhibition-company {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  padding: 36px 0 0;
+  background: linear-gradient(145deg, #071d3b, #050c1e);
+  border: 1px solid #3c69946b;
+  overflow: hidden;
+}
+.exhibition-company h4 {
+  font:
+    500 clamp(20px, 2vw, 28px)/1.4 Bounded,
+    sans-serif;
+  padding: 24px 20px 10px;
+  letter-spacing: 0.02em;
+}
+.exhibition-company p {
+  padding: 0 20px;
+  margin: 8px 0 28px;
+  min-height: 44px;
+  line-height: 1.5;
+}
+.exhibition-company__demo {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  color: #89a5c3;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.exhibition-company > div {
+  margin-top: auto;
+}
+.exhibition-company__stand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 14px;
+  background: var(--button-primary);
+  color: #fff;
+  font:
+    500 14px/1.5 Bounded,
+    sans-serif;
+  text-transform: uppercase;
+}
+.exhibition-company__stand svg {
+  width: 18px;
+  height: 18px;
+}
+.exhibition-company__stand:hover {
+  filter: brightness(1.15);
+}
+@media (max-width: 1100px) {
+  .exhibition-status-key {
+    order: 3;
+    width: 100%;
+  }
+  .exhibition-zoom {
+    margin-left: auto;
+  }
+}
+@media (max-width: 767px) {
+  .exhibition-company-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .exhibition-company h4 {
+    font-size: 16px;
+    padding: 18px 10px 8px;
+  }
+  .exhibition-company p {
+    font-size: 12px;
+    padding: 0 10px;
+  }
+  .exhibition-company__stand {
+    font-size: 11px;
+    gap: 6px;
+  }
+  .exhibition-status-key {
+    font-size: 12px;
+    gap: 12px;
+  }
+}
+@media (max-width: 359px) {
+  .exhibition-company-grid {
+    grid-template-columns: 1fr;
+  }
+}

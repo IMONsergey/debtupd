@@ -4,7 +4,15 @@ import { BadgeCheck, Handshake, MonitorPlay, Minus, Plus, RotateCcw, MapPin } fr
 import { ExhibitionLegend } from './ExhibitionLegend.jsx';
 import { ActionArrow } from './ActionArrow.jsx';
 import { assetUrl } from '../lib/assets.js';
-import { floors, exhibitors, demoStandStatus, occupiedStandArtwork } from '../data/exhibition.js';
+import {
+  floors,
+  exhibitors,
+  demoExhibitors,
+  demoStandStatus,
+  occupiedStandArtwork,
+} from '../data/exhibition.js';
+
+const displayedExhibitors = [...exhibitors, ...demoExhibitors];
 
 const benefits = [
   [BadgeCheck, 'Чек-бейджи', 'Механика приводит участников на ваш стенд'],
@@ -18,8 +26,8 @@ export function Exhibition({ onApply }) {
   const floor = floors.find((item) => item.id === floorId);
   const { viewport, canvas, zoom, changeZoom, locate, reset, handlers } = useExhibitionMap(floor);
   const status = demoStandStatus[selected];
-  const company = exhibitors.find((item) => item.standNumbers.includes(selected));
-  const floorCompanies = exhibitors.filter((item) =>
+  const company = displayedExhibitors.find((item) => item.standNumbers.includes(selected));
+  const floorCompanies = displayedExhibitors.filter((item) =>
     item.standNumbers.some((n) => floor.stands.some((s) => s.number === n)),
   );
 
@@ -130,6 +138,23 @@ export function Exhibition({ onApply }) {
                 {item.id}-й этаж
               </button>
             ))}
+          </div>
+          <div className="exhibition-status-key" aria-label="Статусы стендов">
+            <span>
+              <span className="exhibition-legend__icon" aria-hidden="true">
+                №
+              </span>
+              Стенд свободен
+            </span>
+            <span>
+              <span
+                className="exhibition-legend__icon exhibition-legend__icon--occupied"
+                aria-hidden="true"
+              >
+                №
+              </span>
+              Стенд занят
+            </span>
           </div>
           <div className="exhibition-zoom" role="group" aria-label="Масштаб схемы">
             <button
@@ -270,14 +295,14 @@ export function Exhibition({ onApply }) {
                 <h4>{selected ? `Стенд №${selected}` : 'Найдите свою орбиту'}</h4>
                 {status && (
                   <span className="exhibition-status" data-status={status}>
-                    Демо: {status === 'occupied' ? 'занят' : 'свободен'}
+                    Стенд {status === 'occupied' ? 'занят' : 'свободен'}
                   </span>
                 )}
                 <p>
-                  {status
-                    ? 'Пример отображения статуса. Доступность уточняется у организатора.'
-                    : company
-                      ? company.name
+                  {company
+                    ? `${company.name}${company.demo ? ' · Демо' : ''}`
+                    : status
+                      ? 'Демонстрационный статус'
                       : selected
                         ? 'Уточним доступность и условия размещения у организатора.'
                         : 'Доступность и условия — у организатора.'}
@@ -297,13 +322,22 @@ export function Exhibition({ onApply }) {
         <div className="exhibition-exhibitors__heading">
           <h3>Экспоненты форума</h3>
           <p>
-            {floorCompanies.length ? `${floorId}-й этаж` : 'Состав участников выставки пополняется'}
+            {floorCompanies.some((item) => item.demo)
+              ? 'Демо-карточки · участие компаний не подтверждено'
+              : floorCompanies.length
+                ? `${floorId}-й этаж`
+                : 'Состав участников выставки пополняется'}
           </p>
         </div>
         {floorCompanies.length ? (
           <div className="exhibition-company-grid">
             {floorCompanies.map((item) => (
-              <article key={item.id} className="glass exhibition-company">
+              <article
+                key={item.id}
+                className="exhibition-company"
+                data-demo={item.demo || undefined}
+              >
+                {item.demo && <span className="exhibition-company__demo">Демо</span>}
                 {item.logo && <img src={assetUrl(item.logo)} alt={item.name} loading="lazy" />}
                 <h4>{item.name}</h4>
                 <p>{item.description}</p>
@@ -313,8 +347,16 @@ export function Exhibition({ onApply }) {
                     .map((number) => (
                       <button
                         type="button"
-                        className="button secondary"
-                        onClick={() => chooseStand(number, true)}
+                        className="exhibition-company__stand"
+                        onClick={() => {
+                          chooseStand(number, true);
+                          viewport.current?.scrollIntoView({
+                            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                              ? 'instant'
+                              : 'smooth',
+                            block: 'center',
+                          });
+                        }}
                         key={number}
                       >
                         Стенд №{number}

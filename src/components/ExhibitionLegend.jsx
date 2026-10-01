@@ -30,16 +30,13 @@ function Symbol({ type }) {
 
 const firstFloor = [
   ['registration', 'Регистрация'],
-  ['stand', '№ выставочного стенда'],
   ['vip', '№ VIP-переговорной'],
   ['cafe', 'DOLG TALK CAFE'],
   ['coffee', 'COFFEE BREAK'],
   ['wardrobe', 'Гардероб'],
   ['stairs', 'Лестница на 2-й этаж'],
-  ['occupied', 'Занят · демо'],
 ];
 const secondFloor = [
-  ['stand', '№ выставочного стенда'],
   ['coffee', 'COFFEE BREAK'],
   ['stairs', 'Лестница на 1-й и 3-й этажи'],
 ];

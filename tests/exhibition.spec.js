@@ -26,6 +26,7 @@ for (const width of [390, 1440]) {
     const section = page.locator('#exhibition');
     await section.scrollIntoViewIfNeeded();
     await expect(section.locator('.exhibition-map-stand')).toHaveCount(24);
+    await section.locator('.exhibition-photo img').scrollIntoViewIfNeeded();
     await expect(section.locator('.exhibition-photo img')).toHaveJSProperty('naturalWidth', 2048);
     const geometry = await section
       .locator('.exhibition-map-canvas')
@@ -112,7 +113,7 @@ test('Small-screen controls fit and no fabricated company allocation is shown', 
         els.filter((el) => el.scrollWidth > el.clientWidth + 2).map((el) => el.className),
       );
     expect(clipped).toEqual([]);
-    await expect(section.locator('.exhibition-company')).toHaveCount(0);
+    await expect(section.locator('.exhibition-company[data-demo]')).toHaveCount(2);
     await expect(section.locator('.exhibition-map-point, .exhibition-stand-list i')).toHaveCount(0);
     await expect(section.locator('[data-occupied-stand="8"] path').first()).toHaveAttribute(
       'fill',
@@ -122,9 +123,7 @@ test('Small-screen controls fit and no fabricated company allocation is shown', 
     await expect(section.locator('.exhibition-legend')).toContainText('DOLG TALK CAFE');
 
     await expect(
-      section.getByText(
-        'Информация о компаниях и их стендах появится здесь после подтверждения участия.',
-      ),
+      section.getByText('Демо-карточки · участие компаний не подтверждено'),
     ).toBeVisible();
   }
 });
@@ -151,10 +150,10 @@ test('Map gestures, keyboard, bounded fit and demo statuses', async ({ page }) =
     }),
   ).toBe(true);
   await expect(section.locator('[data-stand="8"]')).toHaveAttribute('data-status', 'occupied');
-  await expect(section.locator('[data-stand="9"]')).toHaveAttribute('data-status', 'free');
+  await expect(section.locator('[data-stand="9"]')).toHaveAttribute('data-status', 'occupied');
   await section.getByRole('button', { name: 'Показать стенд 8', exact: true }).click();
-  await expect(section.locator('.exhibition-status')).toHaveText('Демо: занят');
-  await expect(section.locator('.exhibition-company')).toHaveCount(0);
+  await expect(section.locator('.exhibition-status')).toHaveText('Стенд занят');
+  await expect(section.locator('.exhibition-company[data-demo]')).toHaveCount(2);
   await view.hover();
   await page.mouse.wheel(0, -160);
   await expect
@@ -229,4 +228,17 @@ test('Camera animates smoothly and respects reduced motion', async ({ page }) =>
   await page.locator('#site-preloader').waitFor({ state: 'detached' });
   await page.getByRole('button', { name: 'Увеличить схему', exact: true }).click();
   expect(await scale()).toBeCloseTo(1.5, 2);
+});
+
+test('Demo company cards locate their occupied stands', async ({ page }) => {
+  await page.goto('/#exhibition');
+  await page.locator('#site-preloader').waitFor({ state: 'detached' });
+  const section = page.locator('#exhibition');
+  await expect(section.locator('.exhibition-toolbar')).toContainText('Стенд свободен');
+  await expect(section.locator('.exhibition-toolbar')).toContainText('Стенд занят');
+  await expect(section.locator('[data-occupied-stand]')).toHaveCount(2);
+  await section.locator('.exhibition-company').getByRole('button', { name: 'Стенд №9' }).click();
+  await expect(section.getByRole('heading', { name: 'Стенд №9' })).toBeVisible();
+  await expect(section.locator('[data-stand="9"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(section.locator('.exhibition-stand-detail')).toContainText('ВЕКТОР DATA');
 });
