@@ -93,7 +93,7 @@ for (const width of [390, 1440]) {
   });
 }
 
-test('Small-screen cards and controls fit; sample companies are labelled', async ({ page }) => {
+test('Small-screen cards and controls fit; all occupied stands have cards', async ({ page }) => {
   for (const width of [320, 768, 1024]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/#exhibition');
@@ -118,7 +118,7 @@ test('Small-screen cards and controls fit; sample companies are labelled', async
       );
     });
     expect(metricsFit).toBe(true);
-    await expect(section.locator('.exhibition-company')).toHaveCount(2);
+    await expect(section.locator('.exhibition-company')).toHaveCount(11);
     await expect(
       section.locator('.exhibition-company__demo, .exhibition-company__stand svg'),
     ).toHaveCount(0);
@@ -257,7 +257,7 @@ test('Occupied stands are explicit, muted and non-actionable', async ({ page }) 
     'data-tooltip',
     'Стенд забронирован',
   );
-  await expect(section.locator('.exhibition-company')).toHaveCount(2);
+  await expect(section.locator('.exhibition-company')).toHaveCount(11);
   await expect(
     section.locator('.exhibition-company__demo, .exhibition-company__stand svg'),
   ).toHaveCount(0);
@@ -288,13 +288,17 @@ test('Restored company cards open reserved stand details without a booking CTA',
   );
   await page.keyboard.press('Escape');
   await section.getByRole('tab', { name: '2-й этаж' }).click();
-  await expect(section.locator('.exhibition-company')).toHaveCount(2);
+  await expect(section.locator('.exhibition-company')).toHaveCount(11);
   await section.getByRole('button', { name: 'Стенд №9', exact: true }).click();
   await expect(section.getByRole('tab', { name: '1-й этаж' })).toHaveAttribute(
     'aria-selected',
     'true',
   );
   await expect(detail.locator('.exhibition-stand-company')).toContainText('ВЕКТОР DATA');
+  await section.getByRole('button', { name: 'Стенд №20', exact: true }).click();
+  await expect(detail.getByRole('heading', { name: 'Стенд №20' })).toBeVisible();
+  await expect(detail.locator('.exhibition-status')).toHaveText('Стенд забронирован');
+  await expect(section.locator('.exhibition-exhibitors')).not.toContainText('Участие компаний не подтверждено');
   await expect(detail.getByRole('button')).toHaveCount(0);
   await page.keyboard.press('Escape');
   await expect(detail.getByRole('heading', { name: 'Найдите свою орбиту' })).toBeVisible();

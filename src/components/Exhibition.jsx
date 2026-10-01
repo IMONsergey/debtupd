@@ -9,6 +9,7 @@ import {
   exhibitors,
   demoExhibitors,
   getStandStatus,
+  occupiedStandNumbers,
   occupiedStandArtwork,
 } from '../data/exhibition.js';
 
@@ -19,7 +20,7 @@ const benefits = [
 ];
 
 // Confirmed company data takes precedence over a sample for the same stand.
-const displayedExhibitors = [
+const namedExhibitors = [
   ...exhibitors,
   ...demoExhibitors.filter(
     (sample) =>
@@ -28,6 +29,17 @@ const displayedExhibitors = [
       ),
   ),
 ];
+const displayedExhibitors = [
+  ...namedExhibitors,
+  ...occupiedStandNumbers
+    .filter((number) => !namedExhibitors.some((item) => item.standNumbers.includes(number)))
+    .map((number) => ({
+      id: `reserved-${number}`,
+      name: 'Экспонент',
+      description: 'Стенд забронирован',
+      standNumbers: [number],
+    })),
+].sort((a, b) => Math.min(...a.standNumbers) - Math.min(...b.standNumbers));
 
 export function Exhibition({ onApply }) {
   const detail = useRef(null);
@@ -380,9 +392,6 @@ export function Exhibition({ onApply }) {
         <div className="exhibition-exhibitors">
           <div className="exhibition-exhibitors__heading">
             <h3>Экспоненты форума</h3>
-            {displayedExhibitors.some((item) => item.demo) && (
-              <p>Участие компаний не подтверждено</p>
-            )}
           </div>
           <div className="exhibition-company-grid">
             {displayedExhibitors.map((item) => (
