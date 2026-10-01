@@ -34,7 +34,7 @@ for (const width of [390, 1440]) {
     await section.getByRole('button', { name: 'Показать стенд 8', exact: true }).click();
     await expect(section.locator('[data-stand="8"]')).toHaveAttribute('aria-pressed', 'true');
     await expect(section.getByRole('heading', { name: 'Стенд №8' })).toBeVisible();
-    // A list selection recenters the correct stand inside the independently scrolling map.
+    // A list selection recenters the correct stand inside the independently transformed map.
     expect(
       await section.locator('[data-stand="8"]').evaluate((el) => {
         const box = el.getBoundingClientRect();
@@ -110,4 +110,102 @@ test('Small-screen controls fit and no fabricated company allocation is shown', 
       ),
     ).toBeVisible();
   }
+});
+
+test('Map gestures, keyboard, bounded fit and demo statuses', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/#exhibition');
+  await page.locator('#site-preloader').waitFor({ state: 'detached' });
+  const section = page.locator('#exhibition');
+  const view = section.locator('.exhibition-map-viewport');
+  const canvas = section.locator('.exhibition-map-canvas');
+  await view.scrollIntoViewIfNeeded();
+  expect(await view.evaluate((el) => el.clientHeight)).toBeLessThanOrEqual(520);
+  expect(
+    await canvas.evaluate((el) => {
+      const a = el.getBoundingClientRect(),
+        b = el.parentElement.getBoundingClientRect();
+      return (
+        a.left >= b.left - 1 &&
+        a.right <= b.right + 1 &&
+        a.top >= b.top - 1 &&
+        a.bottom <= b.bottom + 1
+      );
+    }),
+  ).toBe(true);
+  await expect(section.locator('[data-stand="8"]')).toHaveAttribute('data-status', 'occupied');
+  await expect(section.locator('[data-stand="9"]')).toHaveAttribute('data-status', 'free');
+  await section.getByRole('button', { name: 'Показать стенд 8', exact: true }).click();
+  await expect(section.locator('.exhibition-status')).toHaveText('Демо: занят');
+  await expect(section.locator('.exhibition-company')).toHaveCount(0);
+  await view.hover();
+  await page.mouse.wheel(0, -160);
+  await expect
+    .poll(async () => parseInt(await section.locator('output').textContent()))
+    .toBeGreaterThan(250);
+  const box = await view.boundingBox();
+  const before = await canvas.getAttribute('style');
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 - 90, box.y + box.height / 2 + 45, { steps: 12 });
+  await page.mouse.up();
+  await expect(canvas).not.toHaveAttribute('style', before);
+  // Dragging must not change the chosen stand.
+  await expect(section.getByRole('heading', { name: 'Стенд №8' })).toBeVisible();
+  await view.focus();
+  await page.keyboard.press('Home');
+  await expect(section.locator('output')).toHaveText('100%');
+  await page.keyboard.press('+');
+  await expect(section.locator('output')).toHaveText('150%');
+  await section.getByRole('tab', { name: '2-й этаж' }).click();
+  await expect(section.locator('output')).toHaveText('100%');
+  await expect(section.locator('.exhibition-map-stand[data-status="occupied"]')).toHaveCount(0);
+});
+
+test('Two-finger pinch and touch pan keep the map usable', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/#exhibition');
+  await page.locator('#site-preloader').waitFor({ state: 'detached' });
+  const view = page.locator('.exhibition-map-viewport');
+  await view.scrollIntoViewIfNeeded();
+  const box = await view.boundingBox();
+  const send = (type, id, x, y) =>
+    view.dispatchEvent(type, {
+      pointerId: id,
+      pointerType: 'touch',
+      button: 0,
+      clientX: box.x + x,
+      clientY: box.y + y,
+    });
+  // Synthetic pointers cannot obtain native capture; the map itself still receives each event.
+  await send('pointerdown', 11, 100, 130);
+  await send('pointerdown', 12, 200, 130);
+  await send('pointermove', 11, 50, 130);
+  await send('pointermove', 12, 250, 130);
+  await expect(page.locator('.exhibition-zoom output')).toHaveText('200%');
+  await send('pointerup', 12, 250, 130);
+  const before = await page.locator('.exhibition-map-canvas').getAttribute('style');
+  await send('pointermove', 11, 15, 180);
+  await send('pointerup', 11, 15, 180);
+  await expect(page.locator('.exhibition-map-canvas')).not.toHaveAttribute('style', before);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('Camera animates smoothly and respects reduced motion', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/#exhibition');
+  await page.locator('#site-preloader').waitFor({ state: 'detached' });
+  const canvas = page.locator('.exhibition-map-canvas');
+  const scale = () =>
+    canvas.evaluate((el) => new DOMMatrixReadOnly(getComputedStyle(el).transform).a);
+  await page.getByRole('button', { name: 'Увеличить схему', exact: true }).click();
+  await expect.poll(scale).toBeGreaterThan(1);
+  await expect.poll(scale).toBe(1.5);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  // A fresh mount reads the accessibility preference.
+  await page.reload();
+  await page.locator('#site-preloader').waitFor({ state: 'detached' });
+  await page.getByRole('button', { name: 'Увеличить схему', exact: true }).click();
+  expect(await scale()).toBe(1.5);
 });

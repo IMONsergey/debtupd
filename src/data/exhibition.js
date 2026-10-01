@@ -210,3 +210,6 @@ export const floors = [
 // Add only confirmed DEBT TECH 2026 assignments. The brief screenshot is a past event.
 // { id, name, logo: "assets/...", description, standNumbers: [1, 2] }
 export const exhibitors = [];
+
+// Visual samples only, never confirmed bookings or part of exhibitors.
+export const demoStandStatus = { 8: 'occupied', 9: 'free' };

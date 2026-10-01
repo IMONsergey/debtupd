@@ -1,18 +1,9 @@
-import { useLayoutEffect, useRef, useState } from 'react';
-import {
-  BadgeCheck,
-  Coffee,
-  Handshake,
-  MonitorPlay,
-  Move,
-  Minus,
-  Plus,
-  RotateCcw,
-  MapPin,
-} from 'lucide-react';
+import { useState } from 'react';
+import { useExhibitionMap } from '../hooks/useExhibitionMap.js';
+import { BadgeCheck, Handshake, MonitorPlay, Minus, Plus, RotateCcw, MapPin } from 'lucide-react';
 import { ActionArrow } from './ActionArrow.jsx';
 import { assetUrl } from '../lib/assets.js';
-import { floors, exhibitors } from '../data/exhibition.js';
+import { floors, exhibitors, demoStandStatus } from '../data/exhibition.js';
 
 const benefits = [
   [BadgeCheck, 'Чек-бейджи', 'Механика приводит участников на ваш стенд'],
@@ -23,59 +14,22 @@ const benefits = [
 export function Exhibition({ onApply }) {
   const [floorId, setFloorId] = useState(1);
   const [selected, setSelected] = useState(null);
-  const [zoom, setZoom] = useState(1);
-  const viewport = useRef(null);
-  const pendingCenter = useRef(null);
   const floor = floors.find((item) => item.id === floorId);
+  const { viewport, canvas, zoom, changeZoom, locate, reset, handlers } = useExhibitionMap(floor);
+  const status = demoStandStatus[selected];
   const company = exhibitors.find((item) => item.standNumbers.includes(selected));
   const floorCompanies = exhibitors.filter((item) =>
     item.standNumbers.some((n) => floor.stands.some((s) => s.number === n)),
   );
 
-  // Scroll only the map, never the page. Native scrolling keeps touch/pinch gestures reliable.
-  useLayoutEffect(() => {
-    const node = viewport.current;
-    const center = pendingCenter.current;
-    if (!node || !center) return;
-    node.scrollTo({
-      left: center.x * node.scrollWidth - node.clientWidth / 2,
-      top: center.y * node.scrollHeight - node.clientHeight / 2,
-      behavior: 'instant',
-    });
-    pendingCenter.current = null;
-  }, [zoom, selected, floorId]);
-
   function switchFloor(id) {
     setFloorId(id);
     setSelected(null);
-    setZoom(1);
-    pendingCenter.current = { x: 0, y: 0 };
+    reset();
   }
-  function changeZoom(next) {
-    const node = viewport.current;
-    pendingCenter.current = {
-      x: (node.scrollLeft + node.clientWidth / 2) / node.scrollWidth,
-      y: (node.scrollTop + node.clientHeight / 2) / node.scrollHeight,
-    };
-    setZoom(Math.max(1, Math.min(3, next)));
-  }
-  function chooseStand(number, locate = false) {
+  function chooseStand(number, center = false) {
     setSelected(number);
-    if (locate) {
-      const stand = floor.stands.find((item) => item.number === number);
-      pendingCenter.current = {
-        x: (stand.x + stand.width / 2) / floor.width,
-        y: (stand.y + stand.height / 2) / floor.height,
-      };
-      setZoom(viewport.current.clientWidth < 600 ? 3 : 2);
-      // Selecting the same stand twice must also recenter the viewport.
-      const node = viewport.current;
-      const width = node.clientWidth * (node.clientWidth < 600 ? 3 : 2);
-      node.scrollTo({
-        left: pendingCenter.current.x * width - node.clientWidth / 2,
-        top: (pendingCenter.current.y * width * floor.height) / floor.width - node.clientHeight / 2,
-      });
-    }
+    if (center) locate(floor.stands.find((item) => item.number === number));
   }
   function apply() {
     onApply(
@@ -135,7 +89,6 @@ export function Exhibition({ onApply }) {
             loading="lazy"
             decoding="async"
           />
-          <figcaption>Технологии. Встречи. Новые возможности.</figcaption>
         </figure>
       </div>
       <div className="exhibition-benefits">
@@ -151,12 +104,7 @@ export function Exhibition({ onApply }) {
       </div>
       <div className="exhibition-map-heading">
         <div>
-          <p className="eyebrow">Ваша орбита в Планетарии</p>
-          <h3>
-            Выберите место
-            <br />
-            для новых встреч
-          </h3>
+          <h3>Схема площадки</h3>
         </div>
         <p className="exhibition-availability">
           В Планетарии осталось <strong>15 мест под стенды</strong> — выберите свою орбиту на схеме
@@ -187,17 +135,17 @@ export function Exhibition({ onApply }) {
               type="button"
               className="button secondary"
               aria-label="Уменьшить схему"
-              disabled={zoom === 1}
+              disabled={zoom <= 1}
               onClick={() => changeZoom(zoom - 0.5)}
             >
               <Minus aria-hidden="true" />
             </button>
-            <output aria-label="Текущий масштаб">{zoom * 100}%</output>
+            <output aria-label="Текущий масштаб">{Math.round(zoom * 100)}%</output>
             <button
               type="button"
               className="button secondary"
               aria-label="Увеличить схему"
-              disabled={zoom === 3}
+              disabled={zoom >= 4}
               onClick={() => changeZoom(zoom + 0.5)}
             >
               <Plus aria-hidden="true" />
@@ -206,11 +154,7 @@ export function Exhibition({ onApply }) {
               type="button"
               className="button secondary"
               aria-label="Показать схему целиком"
-              onClick={() => {
-                pendingCenter.current = { x: 0, y: 0 };
-                setZoom(1);
-                viewport.current.scrollTo(0, 0);
-              }}
+              onClick={reset}
             >
               <RotateCcw aria-hidden="true" />
             </button>
@@ -225,11 +169,16 @@ export function Exhibition({ onApply }) {
             className="exhibition-map-viewport"
             ref={viewport}
             tabIndex={0}
-            aria-label={`Схема ${floorId}-го этажа. Увеличенную схему можно прокручивать.`}
+            {...handlers}
+            onDoubleClick={(event) => {
+              if (!event.target.closest('button')) changeZoom(zoom < 2 ? 2.5 : 1);
+            }}
+            aria-label={`Схема ${floorId}-го этажа. Интерактивная схема площадки.`}
           >
             <div
               className="exhibition-map-canvas"
-              style={{ width: `${zoom * 100}%`, aspectRatio: `${floor.width} / ${floor.height}` }}
+              ref={canvas}
+              style={{ aspectRatio: `${floor.width} / ${floor.height}` }}
             >
               <img
                 src={assetUrl(floor.image)}
@@ -246,9 +195,15 @@ export function Exhibition({ onApply }) {
                   type="button"
                   className="exhibition-map-stand"
                   data-stand={stand.number}
+                  data-status={demoStandStatus[stand.number] || 'unknown'}
                   aria-label={`Стенд ${stand.number}, ${floorId}-й этаж`}
+                  aria-description={
+                    demoStandStatus[stand.number]
+                      ? `Демо: ${demoStandStatus[stand.number] === 'occupied' ? 'занят' : 'свободен'}. Доступность уточняется у организатора.`
+                      : 'Доступность уточняется у организатора.'
+                  }
                   aria-pressed={selected === stand.number}
-                  title={`Стенд №${stand.number}`}
+                  title={`Стенд №${stand.number}${demoStandStatus[stand.number] ? ' · Демо: ' + (demoStandStatus[stand.number] === 'occupied' ? 'занят' : 'свободен') : ' · Доступность уточняется'}`}
                   onClick={() => chooseStand(stand.number)}
                   style={{
                     left: `${((stand.x - 6) / floor.width) * 100}%`,
@@ -256,23 +211,24 @@ export function Exhibition({ onApply }) {
                     width: `${((stand.width + 12) / floor.width) * 100}%`,
                     height: `${((stand.height + 12) / floor.height) * 100}%`,
                   }}
-                />
+                >
+                  <span className="exhibition-map-point" aria-hidden="true" />
+                </button>
               ))}
             </div>
           </div>
-          <div className="exhibition-map-caption">
-            <span>
-              <Move size={16} aria-hidden="true" /> Увеличивайте и перемещайте схему
-            </span>
-            <span>
-              <MapPin size={16} aria-hidden="true" /> Нажмите на номер стенда
-            </span>
-          </div>
           <div className="exhibition-legend" aria-label="Обозначения схемы">
-            <span>Прямоугольники с номером — стенды</span>
-            <span>Круги — VIP-переговорные</span>
             <span>
-              <Coffee size={16} aria-hidden="true" /> Кофе-брейк
+              <i data-status="unknown" />
+              Доступность уточняется
+            </span>
+            <span>
+              <i data-status="free" />
+              Демо: свободен
+            </span>
+            <span>
+              <i data-status="occupied" />
+              Демо: занят
             </span>
           </div>
           <div className="exhibition-selection">
@@ -283,10 +239,17 @@ export function Exhibition({ onApply }) {
                   <button
                     type="button"
                     key={stand.number}
+                    data-status={demoStandStatus[stand.number] || 'unknown'}
                     aria-label={`Показать стенд ${stand.number}`}
+                    title={
+                      demoStandStatus[stand.number]
+                        ? `Демо: ${demoStandStatus[stand.number] === 'occupied' ? 'занят' : 'свободен'}`
+                        : 'Доступность уточняется'
+                    }
                     aria-pressed={selected === stand.number}
                     onClick={() => chooseStand(stand.number, true)}
                   >
+                    <i aria-hidden="true" />
                     {String(stand.number).padStart(2, '0')}
                   </button>
                 ))}
@@ -298,12 +261,19 @@ export function Exhibition({ onApply }) {
                   {selected ? `${floorId}-й этаж · Планетарий` : 'Ваше место на форуме'}
                 </p>
                 <h4>{selected ? `Стенд №${selected}` : 'Найдите свою орбиту'}</h4>
+                {status && (
+                  <span className="exhibition-status" data-status={status}>
+                    Демо: {status === 'occupied' ? 'занят' : 'свободен'}
+                  </span>
+                )}
                 <p>
-                  {company
-                    ? company.name
-                    : selected
-                      ? 'Уточним доступность и условия размещения у организатора.'
-                      : 'Выберите номер на схеме или в списке и узнайте условия участия.'}
+                  {status
+                    ? 'Пример отображения статуса. Доступность уточняется у организатора.'
+                    : company
+                      ? company.name
+                      : selected
+                        ? 'Уточним доступность и условия размещения у организатора.'
+                        : 'Доступность и условия — у организатора.'}
                 </p>
               </div>
               <button type="button" className="button" onClick={apply}>
