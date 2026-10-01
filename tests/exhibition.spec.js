@@ -93,9 +93,7 @@ for (const width of [390, 1440]) {
   });
 }
 
-test('Small-screen controls fit and no fabricated company allocation is shown', async ({
-  page,
-}) => {
+test('Small-screen cards and controls fit; sample companies are labelled', async ({ page }) => {
   for (const width of [320, 768, 1024]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/#exhibition');
@@ -120,7 +118,8 @@ test('Small-screen controls fit and no fabricated company allocation is shown', 
       );
     });
     expect(metricsFit).toBe(true);
-    await expect(section.locator('.exhibition-exhibitors')).toHaveCount(0);
+    await expect(section.locator('.exhibition-company')).toHaveCount(2);
+    await expect(section.locator('.exhibition-company__demo')).toHaveText(['Демо', 'Демо']);
     await expect(section.locator('.exhibition-map-point, .exhibition-stand-list i')).toHaveCount(0);
     await expect(section.locator('[data-occupied-stand]')).toHaveCount(11);
     await expect(section.locator('[data-occupied-stand="8"] .exhibition-occupied-shape')).toHaveCSS(
@@ -256,5 +255,43 @@ test('Occupied stands are explicit, muted and non-actionable', async ({ page }) 
     'data-tooltip',
     'Стенд забронирован',
   );
-  await expect(section.locator('.exhibition-exhibitors')).toHaveCount(0);
+  await expect(section.locator('.exhibition-company')).toHaveCount(2);
+  await expect(section.locator('.exhibition-company__demo')).toHaveText(['Демо', 'Демо']);
+});
+
+test('Restored company cards open reserved stand details without a booking CTA', async ({
+  page,
+}) => {
+  await page.goto('/#exhibition');
+  await page.locator('#site-preloader').waitFor({ state: 'detached' });
+  const section = page.locator('#exhibition');
+  const detail = section.locator('.exhibition-stand-detail');
+  await section.getByRole('button', { name: 'Стенд №8', exact: true }).click();
+  await expect(detail.getByRole('heading', { name: 'Стенд №8' })).toBeVisible();
+  await expect(detail.locator('.exhibition-status')).toHaveText('Стенд забронирован');
+  await expect(detail.locator('.exhibition-stand-company')).toContainText('ОРБИТА AI');
+  await expect(detail).toContainText('Интеллектуальные решения для бизнеса');
+  await expect(detail.getByRole('button')).toHaveCount(0);
+  await expect(section.locator('[data-stand="8"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(section.locator('output')).toHaveText('100%');
+  // The general partnership CTA never requests a previously selected reserved stand.
+  await section
+    .locator('.exhibition-intro')
+    .getByRole('button', { name: 'Стать партнером' })
+    .click();
+  await expect(page.getByRole('dialog').locator('textarea[name=comment]')).toHaveValue(
+    /Интересует участие в\sвыставке решений DEBT TECH 2026\./,
+  );
+  await page.keyboard.press('Escape');
+  await section.getByRole('tab', { name: '2-й этаж' }).click();
+  await expect(section.locator('.exhibition-company')).toHaveCount(2);
+  await section.getByRole('button', { name: 'Стенд №9', exact: true }).click();
+  await expect(section.getByRole('tab', { name: '1-й этаж' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  await expect(detail.locator('.exhibition-stand-company')).toContainText('ВЕКТОР DATA');
+  await expect(detail.getByRole('button')).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await expect(detail.getByRole('heading', { name: 'Найдите свою орбиту' })).toBeVisible();
 });

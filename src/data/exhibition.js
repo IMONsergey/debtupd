@@ -265,3 +265,21 @@ export const occupiedStandArtwork = {
       'M1778.52 625.859L1778.52 577.837C1778.52 570.381 1784.56 564.336 1792.02 564.336L1816.41 564.336C1823.87 564.336 1829.91 570.38 1829.91 577.836L1829.91 625.859C1829.91 633.315 1823.87 639.359 1816.41 639.359L1792.02 639.359C1784.56 639.359 1778.52 633.315 1778.52 625.859Z',
   },
 };
+
+// Retained layout examples, explicitly separate from confirmed company assignments.
+export const demoExhibitors = [
+  {
+    id: 'demo-orbita',
+    name: 'ОРБИТА AI',
+    description: 'Интеллектуальные решения для бизнеса',
+    standNumbers: [8],
+    demo: true,
+  },
+  {
+    id: 'demo-vector',
+    name: 'ВЕКТОР DATA',
+    description: 'Аналитика и автоматизация процессов',
+    standNumbers: [9],
+    demo: true,
+  },
+];
