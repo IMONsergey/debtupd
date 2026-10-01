@@ -1,44 +1,44 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useExhibitionMap } from '../hooks/useExhibitionMap.js';
-import { BadgeCheck, Handshake, MonitorPlay, Minus, Plus, RotateCcw, MapPin } from 'lucide-react';
+import { Minus, Plus, RotateCcw, MapPin } from 'lucide-react';
 import { ExhibitionLegend } from './ExhibitionLegend.jsx';
 import { ActionArrow } from './ActionArrow.jsx';
 import { assetUrl } from '../lib/assets.js';
-import {
-  floors,
-  exhibitors,
-  demoExhibitors,
-  demoStandStatus,
-  occupiedStandArtwork,
-} from '../data/exhibition.js';
-
-const displayedExhibitors = [...exhibitors, ...demoExhibitors];
+import { floors, exhibitors, getStandStatus, occupiedStandArtwork } from '../data/exhibition.js';
 
 const benefits = [
-  [BadgeCheck, 'Чек-бейджи', 'Механика приводит участников на ваш стенд'],
-  [MonitorPlay, 'Демо вживую', 'Возможность показать продукт вживую и отработать возражения'],
-  [Handshake, 'Сервис знакомств', 'Организация переговоров между участниками'],
+  ['01', 'Чек-бейджи', 'Механика приводит участников на ваш стенд'],
+  ['02', 'Демо вживую', 'Возможность показать продукт вживую и отработать возражения'],
+  ['03', 'Сервис знакомств', 'Организация переговоров между участниками'],
 ];
 
 export function Exhibition({ onApply }) {
   const [floorId, setFloorId] = useState(1);
   const [selected, setSelected] = useState(null);
   const floor = floors.find((item) => item.id === floorId);
-  const { viewport, canvas, zoom, changeZoom, locate, reset, handlers } = useExhibitionMap(floor);
-  const status = demoStandStatus[selected];
-  const company = displayedExhibitors.find((item) => item.standNumbers.includes(selected));
-  const floorCompanies = displayedExhibitors.filter((item) =>
+  const { viewport, canvas, zoom, changeZoom, reset, handlers } = useExhibitionMap(floor);
+  const status = selected ? getStandStatus(selected) : null;
+  const company = exhibitors.find((item) => item.standNumbers.includes(selected));
+  const floorCompanies = exhibitors.filter((item) =>
     item.standNumbers.some((n) => floor.stands.some((s) => s.number === n)),
   );
+
+  useEffect(() => {
+    const clearSelection = (event) => {
+      if (event.key === 'Escape') setSelected(null);
+    };
+    window.addEventListener('keydown', clearSelection);
+    return () => window.removeEventListener('keydown', clearSelection);
+  }, []);
 
   function switchFloor(id) {
     setFloorId(id);
     setSelected(null);
     reset();
   }
-  function chooseStand(number, center = false) {
-    setSelected(number);
-    if (center) locate(floor.stands.find((item) => item.number === number));
+  function chooseStand(number, allowOccupied = false) {
+    if (getStandStatus(number) === 'occupied' && !allowOccupied) return;
+    setSelected((current) => (current === number ? null : number));
   }
   function apply() {
     onApply(
@@ -71,15 +71,17 @@ export function Exhibition({ onApply }) {
             Планетария
           </h3>
           <div className="exhibition-stats">
-            <div>
+            <div className="exhibition-stat">
               <strong>
-                400<span>+</span>
+                <span className="exhibition-stat__value">400</span>
+                <span className="exhibition-stat__suffix">+</span>
               </strong>
               <p>компаний</p>
             </div>
-            <div>
+            <div className="exhibition-stat">
               <strong>
-                59<span>%</span>
+                <span className="exhibition-stat__value">59</span>
+                <span className="exhibition-stat__suffix">%</span>
               </strong>
               <p>собственники и топ-менеджеры бизнеса</p>
             </div>
@@ -101,9 +103,11 @@ export function Exhibition({ onApply }) {
         </figure>
       </div>
       <div className="exhibition-benefits">
-        {benefits.map(([Icon, title, text]) => (
+        {benefits.map(([index, title, text]) => (
           <article key={title} className="exhibition-benefit">
-            <Icon aria-hidden="true" />
+            <span className="exhibition-benefit__index" aria-hidden="true">
+              {index}
+            </span>
             <div>
               <h3>{title}</h3>
               <p>{text}</p>
@@ -115,10 +119,14 @@ export function Exhibition({ onApply }) {
         <div>
           <h3>Схема площадки</h3>
         </div>
-        <p className="exhibition-availability">
-          В Планетарии осталось <strong>15 мест под стенды</strong> — выберите свою орбиту на схеме
-          ниже
-        </p>
+        <div className="exhibition-availability">
+          <span className="exhibition-availability__eyebrow">В Планетарии осталось</span>
+          <strong>
+            <span className="exhibition-availability__count">15</span>
+            <span>мест под стенды</span>
+          </strong>
+          <p>Выберите свою орбиту на схеме ниже</p>
+        </div>
       </div>
       <div className="exhibition-map-card">
         <div className="exhibition-toolbar">
@@ -153,7 +161,7 @@ export function Exhibition({ onApply }) {
               >
                 №
               </span>
-              Стенд занят
+              Стенд забронирован
             </span>
           </div>
           <div className="exhibition-zoom" role="group" aria-label="Масштаб схемы">
@@ -223,44 +231,58 @@ export function Exhibition({ onApply }) {
                 {floor.stands
                   .filter(
                     (stand) =>
-                      demoStandStatus[stand.number] === 'occupied' &&
+                      getStandStatus(stand.number) === 'occupied' &&
                       occupiedStandArtwork[stand.number],
                   )
-                  .map((stand) => (
-                    <g key={stand.number} data-occupied-stand={stand.number}>
-                      <path
-                        d={occupiedStandArtwork[stand.number].shape}
-                        fill="#fff"
-                        stroke="#fff"
-                      />
-                      <path d={occupiedStandArtwork[stand.number].number} fill="#01081f" />
-                    </g>
-                  ))}
+                  .map((stand) => {
+                    const cx = stand.x + stand.width / 2;
+                    const cy = stand.y + stand.height / 2;
+                    return (
+                      <g key={stand.number} data-occupied-stand={stand.number}>
+                        <path
+                          d={occupiedStandArtwork[stand.number].shape}
+                          className="exhibition-occupied-shape"
+                        />
+                        <text
+                          x={cx}
+                          y={cy}
+                          className="exhibition-occupied-number"
+                          textAnchor="middle"
+                          dominantBaseline="central"
+                          transform={stand.number === 8 ? `rotate(-32.35 ${cx} ${cy})` : undefined}
+                        >
+                          {stand.number}
+                        </text>
+                      </g>
+                    );
+                  })}
               </svg>
-              {floor.stands.map((stand) => (
-                <button
-                  key={stand.number}
-                  type="button"
-                  className="exhibition-map-stand"
-                  data-stand={stand.number}
-                  data-status={demoStandStatus[stand.number] || 'unknown'}
-                  aria-label={`Стенд ${stand.number}, ${floorId}-й этаж`}
-                  aria-description={
-                    demoStandStatus[stand.number]
-                      ? `Демо: ${demoStandStatus[stand.number] === 'occupied' ? 'занят' : 'свободен'}. Доступность уточняется у организатора.`
-                      : 'Доступность уточняется у организатора.'
-                  }
-                  aria-pressed={selected === stand.number}
-                  title={`Стенд №${stand.number}${demoStandStatus[stand.number] ? ' · Демо: ' + (demoStandStatus[stand.number] === 'occupied' ? 'занят' : 'свободен') : ' · Доступность уточняется'}`}
-                  onClick={() => chooseStand(stand.number)}
-                  style={{
-                    left: `${((stand.x - 6) / floor.width) * 100}%`,
-                    top: `${((stand.y - 6) / floor.height) * 100}%`,
-                    width: `${((stand.width + 12) / floor.width) * 100}%`,
-                    height: `${((stand.height + 12) / floor.height) * 100}%`,
-                  }}
-                />
-              ))}
+              {floor.stands.map((stand) => {
+                const standStatus = getStandStatus(stand.number);
+                const occupied = standStatus === 'occupied';
+                const tooltip = occupied ? 'Стенд забронирован' : `Стенд №${stand.number} свободен`;
+                return (
+                  <button
+                    key={stand.number}
+                    type="button"
+                    className="exhibition-map-stand"
+                    data-stand={stand.number}
+                    data-status={standStatus}
+                    data-tooltip={tooltip}
+                    aria-label={`Стенд ${stand.number}, ${floorId}-й этаж, ${occupied ? 'забронирован' : 'свободен'}`}
+                    aria-disabled={occupied || undefined}
+                    aria-pressed={!occupied && selected === stand.number}
+                    title={tooltip}
+                    onClick={() => chooseStand(stand.number)}
+                    style={{
+                      left: `${((stand.x - 6) / floor.width) * 100}%`,
+                      top: `${((stand.y - 6) / floor.height) * 100}%`,
+                      width: `${((stand.width + 12) / floor.width) * 100}%`,
+                      height: `${((stand.height + 12) / floor.height) * 100}%`,
+                    }}
+                  />
+                );
+              })}
             </div>
           </div>
           <ExhibitionLegend floorId={floorId} />
@@ -268,23 +290,29 @@ export function Exhibition({ onApply }) {
             <div className="exhibition-stand-list">
               <p className="eyebrow">Стенды на {floorId}-м этаже</p>
               <div aria-label="Выберите стенд из списка">
-                {floor.stands.map((stand) => (
-                  <button
-                    type="button"
-                    key={stand.number}
-                    data-status={demoStandStatus[stand.number] || 'unknown'}
-                    aria-label={`Показать стенд ${stand.number}`}
-                    title={
-                      demoStandStatus[stand.number]
-                        ? `Демо: ${demoStandStatus[stand.number] === 'occupied' ? 'занят' : 'свободен'}`
-                        : 'Доступность уточняется'
-                    }
-                    aria-pressed={selected === stand.number}
-                    onClick={() => chooseStand(stand.number, true)}
-                  >
-                    {String(stand.number).padStart(2, '0')}
-                  </button>
-                ))}
+                {floor.stands.map((stand) => {
+                  const standStatus = getStandStatus(stand.number);
+                  const occupied = standStatus === 'occupied';
+                  return (
+                    <button
+                      type="button"
+                      key={stand.number}
+                      data-status={standStatus}
+                      data-tooltip={occupied ? 'Стенд забронирован' : undefined}
+                      aria-label={
+                        occupied
+                          ? `Стенд ${stand.number} забронирован`
+                          : `Выбрать стенд ${stand.number}`
+                      }
+                      aria-disabled={occupied || undefined}
+                      title={occupied ? 'Стенд забронирован' : `Стенд №${stand.number} свободен`}
+                      aria-pressed={!occupied && selected === stand.number}
+                      onClick={() => chooseStand(stand.number)}
+                    >
+                      {String(stand.number).padStart(2, '0')}
+                    </button>
+                  );
+                })}
               </div>
             </div>
             <aside className="exhibition-stand-detail" aria-live="polite" aria-atomic="true">
@@ -295,49 +323,46 @@ export function Exhibition({ onApply }) {
                 <h4>{selected ? `Стенд №${selected}` : 'Найдите свою орбиту'}</h4>
                 {status && (
                   <span className="exhibition-status" data-status={status}>
-                    Стенд {status === 'occupied' ? 'занят' : 'свободен'}
+                    {status === 'occupied' ? 'Стенд забронирован' : 'Стенд свободен'}
                   </span>
                 )}
-                <p>
-                  {company
-                    ? `${company.name}${company.demo ? ' · Демо' : ''}`
-                    : status
-                      ? 'Демонстрационный статус'
-                      : selected
-                        ? 'Уточним доступность и условия размещения у организатора.'
-                        : 'Доступность и условия — у организатора.'}
-                </p>
+                {selected && status === 'occupied' ? (
+                  <>
+                    {company && (
+                      <strong className="exhibition-stand-company">{company.name}</strong>
+                    )}
+                    <p className="exhibition-stand-description">
+                      {company?.description ||
+                        'Информация об экспоненте появится после подтверждения участия.'}
+                    </p>
+                  </>
+                ) : (
+                  <p>
+                    {selected
+                      ? 'Уточните возможность размещения и условия участия в выставке.'
+                      : 'Выберите свободный стенд на схеме или в списке.'}
+                  </p>
+                )}
               </div>
-              <button type="button" className="button" onClick={apply}>
-                <span className="button-label">
-                  {selected ? 'Узнать условия' : 'Стать партнером'}
-                </span>
-                <ActionArrow />
-              </button>
+              {(!selected || status !== 'occupied') && (
+                <button type="button" className="button" onClick={apply}>
+                  <span className="button-label">Стать партнером</span>
+                  <ActionArrow />
+                </button>
+              )}
             </aside>
           </div>
         </div>
       </div>
-      <div className="exhibition-exhibitors">
-        <div className="exhibition-exhibitors__heading">
-          <h3>Экспоненты форума</h3>
-          <p>
-            {floorCompanies.some((item) => item.demo)
-              ? 'Демо-карточки · участие компаний не подтверждено'
-              : floorCompanies.length
-                ? `${floorId}-й этаж`
-                : 'Состав участников выставки пополняется'}
-          </p>
-        </div>
-        {floorCompanies.length ? (
+      {floorCompanies.length > 0 && (
+        <div className="exhibition-exhibitors">
+          <div className="exhibition-exhibitors__heading">
+            <h3>Экспоненты форума</h3>
+            <p>{floorId}-й этаж</p>
+          </div>
           <div className="exhibition-company-grid">
             {floorCompanies.map((item) => (
-              <article
-                key={item.id}
-                className="exhibition-company"
-                data-demo={item.demo || undefined}
-              >
-                {item.demo && <span className="exhibition-company__demo">Демо</span>}
+              <article key={item.id} className="exhibition-company">
                 {item.logo && <img src={assetUrl(item.logo)} alt={item.name} loading="lazy" />}
                 <h4>{item.name}</h4>
                 <p>{item.description}</p>
@@ -367,12 +392,8 @@ export function Exhibition({ onApply }) {
               </article>
             ))}
           </div>
-        ) : (
-          <p className="exhibition-exhibitors__note">
-            Информация о компаниях и их стендах появится здесь после подтверждения участия.
-          </p>
-        )}
-      </div>
+        </div>
+      )}
     </section>
   );
 }

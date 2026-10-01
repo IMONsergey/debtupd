@@ -32,38 +32,36 @@ for (const width of [390, 1440]) {
       .locator('.exhibition-map-canvas')
       .evaluate((canvas) => ({ width: canvas.clientWidth, height: canvas.clientHeight }));
     expect(Math.abs(geometry.width / geometry.height - 2780 / 1591)).toBeLessThan(0.02);
-    await section.getByRole('button', { name: 'Показать стенд 8', exact: true }).click();
-    await expect(section.locator('[data-stand="8"]')).toHaveAttribute('aria-pressed', 'true');
-    await expect(section.getByRole('heading', { name: 'Стенд №8' })).toBeVisible();
-    expect(
-      await section
-        .locator('.exhibition-map-canvas')
-        .evaluate((el) => el.getBoundingClientRect().width / el.parentElement.clientWidth),
-    ).toBeGreaterThan(width < 600 ? 3.9 : 2);
+    await section.getByRole('button', { name: 'Выбрать стенд 11', exact: true }).click();
+    await expect(section.locator('[data-stand="11"]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(section.getByRole('heading', { name: 'Стенд №11' })).toBeVisible();
+    await expect(section.locator('output')).toHaveText('100%');
+    await expect(section.locator('.exhibition-stand-detail')).toContainText(
+      'Уточните возможность размещения и условия участия в выставке.',
+    );
 
+    // Stand selection never changes the camera automatically.
     await section
       .locator('.exhibition-map-card')
-      .screenshot({ path: testInfo.outputPath(`exhibition-zoom-${width}.png`) });
-    // A list selection recenters the correct stand inside the independently transformed map.
-    expect(
-      await section.locator('[data-stand="8"]').evaluate((el) => {
-        const box = el.getBoundingClientRect();
-        const view = el.closest('.exhibition-map-viewport').getBoundingClientRect();
-        return (
-          box.left >= view.left - 1 &&
-          box.right <= view.right + 1 &&
-          box.top >= view.top - 1 &&
-          box.bottom <= view.bottom + 1
-        );
-      }),
-    ).toBe(true);
+      .screenshot({ path: testInfo.outputPath(`exhibition-selection-${width}.png`) });
+    await section.getByRole('button', { name: 'Выбрать стенд 11', exact: true }).click();
+    await expect(section.getByRole('heading', { name: 'Найдите свою орбиту' })).toBeVisible();
+    await section.getByRole('button', { name: 'Выбрать стенд 11', exact: true }).click();
+    await page.keyboard.press('Escape');
+    await expect(section.getByRole('heading', { name: 'Найдите свою орбиту' })).toBeVisible();
+
     await section.getByRole('tab', { name: '2-й этаж' }).click();
     await expect(section.locator('.exhibition-map-stand')).toHaveCount(3);
     await expect(section.locator('output')).toHaveText('100%');
-    await section.getByRole('button', { name: 'Показать стенд 26', exact: true }).click();
+    await section.getByRole('button', { name: 'Выбрать стенд 26', exact: true }).click();
     await expect(section.getByRole('heading', { name: 'Стенд №26' })).toBeVisible();
-    await section.getByRole('button', { name: 'Узнать условия' }).click();
+    await section
+      .locator('.exhibition-stand-detail')
+      .getByRole('button', { name: 'Стать партнером' })
+      .click();
     const dialog = page.getByRole('dialog');
+    await expect(dialog.getByRole('heading', { name: 'Партнерское участие' })).toBeVisible();
+    await expect(dialog.getByRole('button', { name: 'Стать партнером' })).toBeVisible();
     await expect(dialog.locator('textarea[name=comment]')).toHaveValue(
       'Интересует стенд №26, 2-й этаж, выставка решений DEBT TECH 2026.',
     );
@@ -73,7 +71,6 @@ for (const width of [390, 1440]) {
     await page.keyboard.press('Escape');
     await expect(dialog).toHaveCount(0);
     // Direct map selection works as well as the mobile-friendly numbered list.
-    await section.getByRole('button', { name: 'Показать схему целиком' }).click();
     await section.locator('[data-stand="25"]').click();
     await expect(section.getByRole('heading', { name: 'Стенд №25' })).toBeVisible();
     await section.getByRole('tab', { name: '2-й этаж' }).focus();
@@ -113,22 +110,20 @@ test('Small-screen controls fit and no fabricated company allocation is shown', 
         els.filter((el) => el.scrollWidth > el.clientWidth + 2).map((el) => el.className),
       );
     expect(clipped).toEqual([]);
-    await expect(section.locator('.exhibition-company[data-demo]')).toHaveCount(2);
+    await expect(section.locator('.exhibition-exhibitors')).toHaveCount(0);
     await expect(section.locator('.exhibition-map-point, .exhibition-stand-list i')).toHaveCount(0);
-    await expect(section.locator('[data-occupied-stand="8"] path').first()).toHaveAttribute(
+    await expect(section.locator('[data-occupied-stand]')).toHaveCount(11);
+    await expect(section.locator('[data-occupied-stand="8"] .exhibition-occupied-shape')).toHaveCSS(
       'fill',
-      '#fff',
+      'rgb(41, 53, 71)',
     );
     await expect(section.locator('.exhibition-legend')).toContainText('Регистрация');
+    await expect(section.locator('.exhibition-legend')).toContainText('№ выставочного стенда');
     await expect(section.locator('.exhibition-legend')).toContainText('DOLG TALK CAFE');
-
-    await expect(
-      section.getByText('Демо-карточки · участие компаний не подтверждено'),
-    ).toBeVisible();
   }
 });
 
-test('Map gestures, keyboard, bounded fit and demo statuses', async ({ page }) => {
+test('Map gestures, keyboard, bounded fit and occupied statuses', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/#exhibition');
   await page.locator('#site-preloader').waitFor({ state: 'detached' });
@@ -149,16 +144,21 @@ test('Map gestures, keyboard, bounded fit and demo statuses', async ({ page }) =
       );
     }),
   ).toBe(true);
-  await expect(section.locator('[data-stand="8"]')).toHaveAttribute('data-status', 'occupied');
-  await expect(section.locator('[data-stand="9"]')).toHaveAttribute('data-status', 'occupied');
-  await section.getByRole('button', { name: 'Показать стенд 8', exact: true }).click();
-  await expect(section.locator('.exhibition-status')).toHaveText('Стенд занят');
-  await expect(section.locator('.exhibition-company[data-demo]')).toHaveCount(2);
+  await expect(section.locator('.exhibition-map-stand[data-status="occupied"]')).toHaveCount(11);
+  await expect(section.locator('[data-stand="8"]')).toHaveAttribute('aria-disabled', 'true');
+  await expect(section.getByRole('button', { name: 'Стенд 8 забронирован' })).toHaveAttribute(
+    'title',
+    'Стенд забронирован',
+  );
+  await section.getByRole('button', { name: 'Стенд 8 забронирован' }).click({ force: true });
+  await expect(section.getByRole('heading', { name: 'Найдите свою орбиту' })).toBeVisible();
+  await section.getByRole('button', { name: 'Выбрать стенд 11', exact: true }).click();
+  await expect(section.locator('.exhibition-status')).toHaveText('Стенд свободен');
   await view.hover();
   await page.mouse.wheel(0, -160);
   await expect
     .poll(async () => parseInt(await section.locator('output').textContent()))
-    .toBeGreaterThan(250);
+    .toBeGreaterThan(100);
   const box = await view.boundingBox();
   const before = await canvas.getAttribute('style');
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
@@ -167,7 +167,7 @@ test('Map gestures, keyboard, bounded fit and demo statuses', async ({ page }) =
   await page.mouse.up();
   await expect(canvas).not.toHaveAttribute('style', before);
   // Dragging must not change the chosen stand.
-  await expect(section.getByRole('heading', { name: 'Стенд №8' })).toBeVisible();
+  await expect(section.getByRole('heading', { name: 'Стенд №11' })).toBeVisible();
   await view.focus();
   await page.keyboard.press('Home');
   await expect(section.locator('output')).toHaveText('100%');
@@ -230,15 +230,21 @@ test('Camera animates smoothly and respects reduced motion', async ({ page }) =>
   expect(await scale()).toBeCloseTo(1.5, 2);
 });
 
-test('Demo company cards locate their occupied stands', async ({ page }) => {
+test('Occupied stands are explicit, muted and non-actionable', async ({ page }) => {
   await page.goto('/#exhibition');
   await page.locator('#site-preloader').waitFor({ state: 'detached' });
   const section = page.locator('#exhibition');
   await expect(section.locator('.exhibition-toolbar')).toContainText('Стенд свободен');
-  await expect(section.locator('.exhibition-toolbar')).toContainText('Стенд занят');
-  await expect(section.locator('[data-occupied-stand]')).toHaveCount(2);
-  await section.locator('.exhibition-company').getByRole('button', { name: 'Стенд №9' }).click();
-  await expect(section.getByRole('heading', { name: 'Стенд №9' })).toBeVisible();
-  await expect(section.locator('[data-stand="9"]')).toHaveAttribute('aria-pressed', 'true');
-  await expect(section.locator('.exhibition-stand-detail')).toContainText('ВЕКТОР DATA');
+  await expect(section.locator('.exhibition-toolbar')).toContainText('Стенд забронирован');
+  await expect(section.locator('[data-occupied-stand]')).toHaveCount(11);
+  const occupied = await section
+    .locator('.exhibition-stand-list button[data-status="occupied"]')
+    .allTextContents();
+  expect(occupied).toEqual(['03', '04', '05', '06', '07', '08', '09', '10', '15', '16', '20']);
+  await section.getByRole('button', { name: 'Стенд 8 забронирован' }).hover();
+  await expect(section.getByRole('button', { name: 'Стенд 8 забронирован' })).toHaveAttribute(
+    'data-tooltip',
+    'Стенд забронирован',
+  );
+  await expect(section.locator('.exhibition-exhibitors')).toHaveCount(0);
 });

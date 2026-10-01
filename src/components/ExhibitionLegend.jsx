@@ -1,7 +1,7 @@
 import { Coffee, Utensils } from 'lucide-react';
 
 function Symbol({ type }) {
-  if (type === 'stand' || type === 'vip' || type === 'occupied') return '#';
+  if (type === 'stand' || type === 'vip' || type === 'occupied') return '№';
   if (type === 'coffee') return <Coffee aria-hidden="true" />;
   if (type === 'cafe') return <Utensils aria-hidden="true" />;
   return (
@@ -30,6 +30,7 @@ function Symbol({ type }) {
 
 const firstFloor = [
   ['registration', 'Регистрация'],
+  ['stand', '№ выставочного стенда'],
   ['vip', '№ VIP-переговорной'],
   ['cafe', 'DOLG TALK CAFE'],
   ['coffee', 'COFFEE BREAK'],
@@ -37,6 +38,7 @@ const firstFloor = [
   ['stairs', 'Лестница на 2-й этаж'],
 ];
 const secondFloor = [
+  ['stand', '№ выставочного стенда'],
   ['coffee', 'COFFEE BREAK'],
   ['stairs', 'Лестница на 1-й и 3-й этажи'],
 ];

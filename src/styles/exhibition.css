@@ -797,3 +797,284 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Art-direction pass: metrics, benefits and availability. */
+.exhibition-stats {
+  align-items: end;
+  gap: clamp(20px, 2.4vw, 42px);
+  margin: clamp(38px, 4vw, 64px) 0 42px;
+}
+.exhibition-stats strong {
+  display: flex;
+  align-items: flex-start;
+  width: max-content;
+  background: none;
+  color: inherit;
+  line-height: 0.8;
+}
+.exhibition-stat__value,
+.exhibition-stat__suffix {
+  background: linear-gradient(180deg, #d8efff 0%, #65baff 42%, #288de8 100%);
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.exhibition-stat__value {
+  font:
+    400 clamp(106px, 8.7vw, 158px)/0.8 'Bebas Neue',
+    sans-serif;
+}
+.exhibition-stat__suffix {
+  margin: 0.02em 0 0 0.04em;
+  font:
+    400 clamp(54px, 4.5vw, 82px)/0.86 'Bebas Neue',
+    sans-serif;
+}
+.exhibition-stats p {
+  margin-top: 18px;
+  color: #eff7ff;
+  font-weight: 500;
+}
+
+.exhibition-benefit {
+  align-items: flex-start;
+}
+.exhibition-benefit__index {
+  min-width: 42px;
+  padding-top: 1px;
+  color: #65baff;
+  font:
+    400 34px/1 'Bebas Neue',
+    sans-serif;
+  letter-spacing: 0.04em;
+}
+.exhibition-benefit__index::before {
+  content: '//';
+  display: block;
+  margin-bottom: 5px;
+  color: #47769f;
+  font:
+    500 10px/1 Bounded,
+    sans-serif;
+  letter-spacing: 0.12em;
+}
+.exhibition-availability {
+  position: relative;
+  min-width: min(100%, 370px);
+  max-width: 390px;
+  padding: 18px 20px 19px;
+  border: 1px solid #4c7fae;
+  background: linear-gradient(135deg, #0b2849 0%, #07162b 64%, #0c213b 100%);
+}
+.exhibition-availability__eyebrow {
+  display: block;
+  color: #92a8c1;
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+}
+
+.exhibition-availability strong {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 3px 0 2px;
+  color: #f3f8ff;
+}
+.exhibition-availability strong > span:last-child {
+  max-width: 150px;
+  font:
+    500 13px/1.35 Bounded,
+    sans-serif;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+.exhibition-availability__count {
+  flex: none;
+  background: linear-gradient(180deg, #d9f0ff, #4caeff);
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  font:
+    400 58px/0.9 'Bebas Neue',
+    sans-serif;
+}
+.exhibition-availability p {
+  margin: 0;
+  color: #bfd0e2;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.exhibition-occupied-shape {
+  fill: #293547;
+  stroke: #657489;
+  stroke-width: 1.35;
+}
+.exhibition-occupied-number {
+  fill: #9da9b9;
+  font:
+    400 29px/1 'Bebas Neue',
+    sans-serif;
+  pointer-events: none;
+}
+
+.exhibition-legend {
+  gap: 12px 24px;
+  padding: 16px 20px 18px;
+  color: #e7f1fb;
+  font:
+    500 12px/1.35 Bounded,
+    sans-serif;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+.exhibition-legend > span {
+  gap: 10px;
+}
+.exhibition-legend__icon {
+  width: 32px;
+  height: 32px;
+  flex-basis: 32px;
+  font-size: 21px;
+}
+.exhibition-legend__icon svg {
+  width: 20px;
+  height: 20px;
+}
+.exhibition-legend__icon--stand {
+  border-radius: 0;
+}
+.exhibition-status-key .exhibition-legend__icon--occupied {
+  background: #293547;
+  border-color: #657489;
+  color: #9da9b9;
+}
+.exhibition-stand-list button[data-status='occupied'] {
+  background: #1b2637;
+  border-color: #465568;
+  color: #7f8ca0;
+  cursor: default;
+}
+
+.exhibition-map-stand[data-status='occupied'] {
+  cursor: default;
+}
+.exhibition-map-stand[data-status='occupied']:hover {
+  border-color: transparent;
+  background: transparent;
+}
+.exhibition-map-stand[data-status='occupied']::after,
+.exhibition-stand-list button[data-status='occupied']::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  z-index: 20;
+  width: max-content;
+  max-width: 180px;
+  padding: 7px 9px;
+  transform: translate(-50%, 4px);
+  background: #edf5fd;
+  color: #071222;
+  box-shadow: 0 8px 24px #0008;
+  font:
+    500 10px/1.25 'IBM Plex Sans',
+    sans-serif;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+}
+.exhibition-map-stand[data-status='occupied']:hover::after,
+.exhibition-map-stand[data-status='occupied']:focus-visible::after,
+.exhibition-stand-list button[data-status='occupied']:hover::after,
+.exhibition-stand-list button[data-status='occupied']:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.exhibition-stand-list button {
+  position: relative;
+}
+.exhibition-status[data-status='occupied'] {
+  color: #a9b5c4;
+}
+.exhibition-status[data-status='free'] {
+  color: #7cc9ff;
+}
+.exhibition-stand-company {
+  display: block;
+  margin: 10px 0 8px;
+  color: #fff;
+  font:
+    500 clamp(18px, 1.7vw, 24px)/1.3 Bounded,
+    sans-serif;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+.exhibition-stand-detail .exhibition-stand-description {
+  max-width: 390px;
+  color: #d5e0eb;
+}
+@media (max-width: 767px) {
+  .exhibition-stats {
+    gap: 18px;
+    margin: 30px 0 34px;
+  }
+  .exhibition-stat__value {
+    font-size: clamp(78px, 24vw, 104px);
+  }
+  .exhibition-stat__suffix {
+    font-size: clamp(40px, 12vw, 56px);
+  }
+  .exhibition-stats p {
+    margin-top: 12px;
+  }
+  .exhibition-availability {
+    min-width: 0;
+    width: 100%;
+    max-width: none;
+  }
+  .exhibition-legend {
+    gap: 10px 16px;
+    font-size: 10px;
+  }
+  .exhibition-legend__icon {
+    width: 29px;
+    height: 29px;
+    flex-basis: 29px;
+  }
+}
+
+/* Make the two key audience metrics read as primary KPIs, not secondary copy. */
+.exhibition-stat__value {
+  font-size: clamp(142px, 11.4vw, 202px);
+}
+.exhibition-stat__suffix {
+  font-size: clamp(70px, 5.7vw, 102px);
+}
+@media (max-width: 767px) {
+  .exhibition-stat__value {
+    font-size: clamp(108px, 30vw, 132px);
+  }
+  .exhibition-stat__suffix {
+    font-size: clamp(52px, 14vw, 66px);
+  }
+}
+
+.exhibition-stats strong .exhibition-stat__value {
+  font-size: clamp(142px, 11.4vw, 202px);
+}
+.exhibition-stats strong .exhibition-stat__suffix {
+  font-size: clamp(70px, 5.7vw, 102px);
+}
+@media (max-width: 767px) {
+  .exhibition-stats strong .exhibition-stat__value {
+    font-size: clamp(108px, 30vw, 132px);
+  }
+  .exhibition-stats strong .exhibition-stat__suffix {
+    font-size: clamp(52px, 14vw, 66px);
+  }
+}

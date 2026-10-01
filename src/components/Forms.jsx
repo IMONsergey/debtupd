@@ -169,7 +169,7 @@ export function ApplicationModal({
           {kind === 'corporate-package'
             ? 'Корпоративное участие'
             : stand
-              ? 'Забронировать стенд'
+              ? 'Партнерское участие'
               : tariff
                 ? `Тариф «${tariff.title}»`
                 : 'Ранняя регистрация'}
@@ -246,7 +246,11 @@ export function ApplicationModal({
                 </div>
                 <Consent id="application-consent" />
                 <button className="button" type="submit">
-                  {status === 'sending' ? 'Отправляем…' : 'Отправить заявку'}
+                  {status === 'sending'
+                    ? 'Отправляем…'
+                    : stand
+                      ? 'Стать партнером'
+                      : 'Отправить заявку'}
                   <ActionArrow />
                 </button>
               </fieldset>

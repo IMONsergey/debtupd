@@ -70,15 +70,6 @@ export function useExhibitionMap(floor) {
       y: point.y - (point.y - old.y) * ratio,
     });
   }
-  function locate(stand) {
-    const s = size.current;
-    const scale = s.vw < 600 ? 4 : 2.5;
-    move({
-      scale,
-      x: s.vw / 2 - ((stand.x + stand.width / 2) / floor.width) * s.width * scale,
-      y: s.vh / 2 - ((stand.y + stand.height / 2) / floor.height) * s.height * scale,
-    });
-  }
   useLayoutEffect(() => {
     const node = viewport.current;
     reduced.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -203,7 +194,6 @@ export function useExhibitionMap(floor) {
     canvas,
     zoom,
     changeZoom,
-    locate,
     reset,
     handlers: {
       onPointerDown: pointerDown,
