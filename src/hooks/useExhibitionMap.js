@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 
-// A fitted, bounded map. Gestures and buttons share the same camera; SVG stays untouched.
+// A fitted, bounded map. Buttons control zoom; dragging pans the untouched SVG.
 export function useExhibitionMap(floor) {
   const viewport = useRef(null);
   const canvas = useRef(null);
@@ -85,18 +85,8 @@ export function useExhibitionMap(floor) {
     const observer = new ResizeObserver(resize);
     observer.observe(node);
     resize();
-    function wheel(event) {
-      event.preventDefault();
-      const rect = node.getBoundingClientRect();
-      changeZoom(camera.current.scale * Math.exp(-event.deltaY * 0.002), {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
-      });
-    }
-    node.addEventListener('wheel', wheel, { passive: false });
     return () => {
       observer.disconnect();
-      node.removeEventListener('wheel', wheel);
       cancelAnimationFrame(frame.current);
       pointers.current.clear();
       gesture.current = null;
@@ -109,9 +99,7 @@ export function useExhibitionMap(floor) {
       points.length === 2
         ? { x: (points[0].x + points[1].x) / 2, y: (points[0].y + points[1].y) / 2 }
         : points[0];
-    const distance =
-      points.length === 2 ? Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y) : 0;
-    gesture.current = center ? { center, distance, camera: { ...camera.current } } : null;
+    gesture.current = center ? { center, camera: { ...camera.current } } : null;
   }
   function pointerDown(event) {
     if (event.button !== 0) return;
@@ -147,21 +135,11 @@ export function useExhibitionMap(floor) {
     if (Math.hypot(center.x - start.center.x, center.y - start.center.y) > 5 || points.length === 2)
       moved.current = true;
     if (!moved.current) return;
-    const distance =
-      points.length === 2 ? Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y) : 0;
-    const scale = Math.max(
-      1,
-      Math.min(
-        4,
-        start.distance ? (start.camera.scale * distance) / start.distance : start.camera.scale,
-      ),
-    );
-    const ratio = scale / start.camera.scale;
     move(
       {
-        scale,
-        x: center.x - (start.center.x - start.camera.x) * ratio,
-        y: center.y - (start.center.y - start.camera.y) * ratio,
+        scale: start.camera.scale,
+        x: start.camera.x + center.x - start.center.x,
+        y: start.camera.y + center.y - start.center.y,
       },
       false,
     );
@@ -183,11 +161,7 @@ export function useExhibitionMap(floor) {
       event.preventDefault();
       move(actions[event.key]);
     }
-    if (['+', '=', '-', 'Home'].includes(event.key)) {
-      event.preventDefault();
-      if (event.key === 'Home') reset();
-      else changeZoom(old.scale + (event.key === '-' ? -0.5 : 0.5));
-    }
+
   }
   return {
     viewport,

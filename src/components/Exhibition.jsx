@@ -231,9 +231,6 @@ export function Exhibition({ onApply }) {
             ref={viewport}
             tabIndex={0}
             {...handlers}
-            onDoubleClick={(event) => {
-              if (!event.target.closest('button')) changeZoom(zoom < 2 ? 2.5 : 1);
-            }}
             aria-label={`Схема ${floorId}-го этажа. Интерактивная схема площадки.`}
           >
             <div

@@ -134,7 +134,7 @@ test('Small-screen cards and controls fit; all occupied stands have cards', asyn
   }
 });
 
-test('Map gestures, keyboard, bounded fit and occupied statuses', async ({ page }) => {
+test('Map zoom uses only buttons; scrolling, panning and occupied statuses', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/#exhibition');
   await page.locator('#site-preloader').waitFor({ state: 'detached' });
@@ -166,10 +166,16 @@ test('Map gestures, keyboard, bounded fit and occupied statuses', async ({ page 
   await section.getByRole('button', { name: 'Выбрать стенд 11', exact: true }).click();
   await expect(section.locator('.exhibition-status')).toHaveText('Стенд свободен');
   await view.hover();
-  await page.mouse.wheel(0, -160);
-  await expect
-    .poll(async () => parseInt(await section.locator('output').textContent()))
-    .toBeGreaterThan(100);
+  const scrollBefore = await page.evaluate(() => scrollY);
+  await page.mouse.wheel(0, 160);
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(scrollBefore);
+  await expect(section.locator('output')).toHaveText('100%');
+  await view.dispatchEvent('dblclick');
+  await view.focus();
+  await page.keyboard.press('+');
+  await expect(section.locator('output')).toHaveText('100%');
+  await section.getByRole('button', { name: 'Увеличить схему', exact: true }).click();
+  await expect(section.locator('output')).toHaveText('150%');
   const box = await view.boundingBox();
   const before = await canvas.getAttribute('style');
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
@@ -179,11 +185,11 @@ test('Map gestures, keyboard, bounded fit and occupied statuses', async ({ page 
   await expect(canvas).not.toHaveAttribute('style', before);
   // Dragging must not change the chosen stand.
   await expect(section.getByRole('heading', { name: 'Стенд №11' })).toBeVisible();
-  await view.focus();
-  await page.keyboard.press('Home');
+  await section.getByRole('button', { name: 'Уменьшить схему', exact: true }).click();
   await expect(section.locator('output')).toHaveText('100%');
-  await page.keyboard.press('+');
-  await expect(section.locator('output')).toHaveText('150%');
+  await section.getByRole('button', { name: 'Увеличить схему', exact: true }).click();
+  await section.getByRole('button', { name: 'Показать схему целиком', exact: true }).click();
+  await expect(section.locator('output')).toHaveText('100%');
   await section.getByRole('tab', { name: '2-й этаж' }).click();
   await expect(section.locator('output')).toHaveText('100%');
   await expect(section.locator('.exhibition-map-stand[data-status="occupied"]')).toHaveCount(0);
@@ -192,7 +198,7 @@ test('Map gestures, keyboard, bounded fit and occupied statuses', async ({ page 
   await expect(section.locator('[data-occupied-stand]')).toHaveCount(0);
 });
 
-test('Two-finger pinch and touch pan keep the map usable', async ({ page }) => {
+test('Touch gestures pan without changing button-selected zoom', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/#exhibition');
   await page.locator('#site-preloader').waitFor({ state: 'detached' });
@@ -207,12 +213,13 @@ test('Two-finger pinch and touch pan keep the map usable', async ({ page }) => {
       clientX: box.x + x,
       clientY: box.y + y,
     });
+  await page.getByRole('button', { name: 'Увеличить схему', exact: true }).click();
   // Synthetic pointers cannot obtain native capture; the map itself still receives each event.
   await send('pointerdown', 11, 100, 130);
   await send('pointerdown', 12, 200, 130);
   await send('pointermove', 11, 50, 130);
   await send('pointermove', 12, 250, 130);
-  await expect(page.locator('.exhibition-zoom output')).toHaveText('200%');
+  await expect(page.locator('.exhibition-zoom output')).toHaveText('150%');
   await send('pointerup', 12, 250, 130);
   const before = await page.locator('.exhibition-map-canvas').getAttribute('style');
   await send('pointermove', 11, 15, 180);
