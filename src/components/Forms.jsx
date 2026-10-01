@@ -79,6 +79,7 @@ export function ApplicationModal({
   kind = 'early-registration',
   tariff,
   completed = false,
+  initialComment = '',
   onClose,
 }) {
   const ref = useRef(null),
@@ -234,7 +235,12 @@ export function ApplicationModal({
                   {stand && (
                     <label className="field span-two">
                       <span>Комментарий / желаемый формат стенда</span>
-                      <textarea name="comment" rows={3} maxLength={2000} />
+                      <textarea
+                        name="comment"
+                        rows={3}
+                        maxLength={2000}
+                        defaultValue={initialComment}
+                      />
                     </label>
                   )}
                 </div>
