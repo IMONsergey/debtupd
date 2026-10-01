@@ -110,6 +110,16 @@ test('Small-screen controls fit and no fabricated company allocation is shown', 
         els.filter((el) => el.scrollWidth > el.clientWidth + 2).map((el) => el.className),
       );
     expect(clipped).toEqual([]);
+    const metricsFit = await section.locator('.exhibition-stats').evaluate((stats) => {
+      const bounds = stats.getBoundingClientRect();
+      const values = [...stats.querySelectorAll('strong')].map((el) => el.getBoundingClientRect());
+      return (
+        stats.scrollWidth <= stats.clientWidth + 1 &&
+        values.every((rect) => rect.left >= bounds.left - 1 && rect.right <= bounds.right + 1) &&
+        Math.abs(values[0].top - values[1].top) < 1
+      );
+    });
+    expect(metricsFit).toBe(true);
     await expect(section.locator('.exhibition-exhibitors')).toHaveCount(0);
     await expect(section.locator('.exhibition-map-point, .exhibition-stand-list i')).toHaveCount(0);
     await expect(section.locator('[data-occupied-stand]')).toHaveCount(11);

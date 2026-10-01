@@ -7,11 +7,13 @@
 }
 .exhibition-intro {
   display: grid;
-  grid-template-columns: 1.05fr 1fr;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
   border-radius: 0;
   overflow: hidden;
 }
 .exhibition-intro__copy {
+  min-width: 0;
+  container-type: inline-size;
   padding: clamp(24px, 3.2vw, 56px);
   display: flex;
   flex-direction: column;
@@ -800,8 +802,9 @@
 
 /* Art-direction pass: metrics, benefits and availability. */
 .exhibition-stats {
-  align-items: end;
-  gap: clamp(20px, 2.4vw, 42px);
+  align-items: start;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: clamp(16px, 2vw, 32px);
   margin: clamp(38px, 4vw, 64px) 0 42px;
 }
 .exhibition-stats strong {
@@ -1048,33 +1051,15 @@
   }
 }
 
-/* Make the two key audience metrics read as primary KPIs, not secondary copy. */
-.exhibition-stat__value {
-  font-size: clamp(142px, 11.4vw, 202px);
+/* Scale each metric to the actual copy column; keep glyphs inside their gradient box. */
+.exhibition-stats strong {
+  align-items: baseline;
 }
-.exhibition-stat__suffix {
-  font-size: clamp(70px, 5.7vw, 102px);
-}
-@media (max-width: 767px) {
-  .exhibition-stat__value {
-    font-size: clamp(108px, 30vw, 132px);
-  }
-  .exhibition-stat__suffix {
-    font-size: clamp(52px, 14vw, 66px);
-  }
-}
-
 .exhibition-stats strong .exhibition-stat__value {
-  font-size: clamp(142px, 11.4vw, 202px);
+  font-size: clamp(68px, 32cqw, 202px);
+  line-height: 1;
 }
 .exhibition-stats strong .exhibition-stat__suffix {
-  font-size: clamp(70px, 5.7vw, 102px);
-}
-@media (max-width: 767px) {
-  .exhibition-stats strong .exhibition-stat__value {
-    font-size: clamp(108px, 30vw, 132px);
-  }
-  .exhibition-stats strong .exhibition-stat__suffix {
-    font-size: clamp(52px, 14vw, 66px);
-  }
+  font-size: clamp(34px, 16cqw, 102px);
+  line-height: 1;
 }
