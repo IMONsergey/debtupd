@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useExhibitionMap } from '../hooks/useExhibitionMap.js';
 import { BadgeCheck, Handshake, MonitorPlay, Minus, Plus, RotateCcw, MapPin } from 'lucide-react';
+import { ExhibitionLegend } from './ExhibitionLegend.jsx';
 import { ActionArrow } from './ActionArrow.jsx';
 import { assetUrl } from '../lib/assets.js';
-import { floors, exhibitors, demoStandStatus } from '../data/exhibition.js';
+import { floors, exhibitors, demoStandStatus, occupiedStandArtwork } from '../data/exhibition.js';
 
 const benefits = [
   [BadgeCheck, 'Чек-бейджи', 'Механика приводит участников на ваш стенд'],
@@ -189,6 +190,28 @@ export function Exhibition({ onApply }) {
                 decoding="async"
                 draggable="false"
               />
+              <svg
+                className="exhibition-stand-fills"
+                viewBox={`0 0 ${floor.width} ${floor.height}`}
+                aria-hidden="true"
+              >
+                {floor.stands
+                  .filter(
+                    (stand) =>
+                      demoStandStatus[stand.number] === 'occupied' &&
+                      occupiedStandArtwork[stand.number],
+                  )
+                  .map((stand) => (
+                    <g key={stand.number} data-occupied-stand={stand.number}>
+                      <path
+                        d={occupiedStandArtwork[stand.number].shape}
+                        fill="#fff"
+                        stroke="#fff"
+                      />
+                      <path d={occupiedStandArtwork[stand.number].number} fill="#01081f" />
+                    </g>
+                  ))}
+              </svg>
               {floor.stands.map((stand) => (
                 <button
                   key={stand.number}
@@ -211,26 +234,11 @@ export function Exhibition({ onApply }) {
                     width: `${((stand.width + 12) / floor.width) * 100}%`,
                     height: `${((stand.height + 12) / floor.height) * 100}%`,
                   }}
-                >
-                  <span className="exhibition-map-point" aria-hidden="true" />
-                </button>
+                />
               ))}
             </div>
           </div>
-          <div className="exhibition-legend" aria-label="Обозначения схемы">
-            <span>
-              <i data-status="unknown" />
-              Доступность уточняется
-            </span>
-            <span>
-              <i data-status="free" />
-              Демо: свободен
-            </span>
-            <span>
-              <i data-status="occupied" />
-              Демо: занят
-            </span>
-          </div>
+          <ExhibitionLegend floorId={floorId} />
           <div className="exhibition-selection">
             <div className="exhibition-stand-list">
               <p className="eyebrow">Стенды на {floorId}-м этаже</p>
@@ -249,7 +257,6 @@ export function Exhibition({ onApply }) {
                     aria-pressed={selected === stand.number}
                     onClick={() => chooseStand(stand.number, true)}
                   >
-                    <i aria-hidden="true" />
                     {String(stand.number).padStart(2, '0')}
                   </button>
                 ))}

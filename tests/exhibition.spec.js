@@ -34,6 +34,12 @@ for (const width of [390, 1440]) {
     await section.getByRole('button', { name: 'Показать стенд 8', exact: true }).click();
     await expect(section.locator('[data-stand="8"]')).toHaveAttribute('aria-pressed', 'true');
     await expect(section.getByRole('heading', { name: 'Стенд №8' })).toBeVisible();
+    expect(
+      await section
+        .locator('.exhibition-map-canvas')
+        .evaluate((el) => el.getBoundingClientRect().width / el.parentElement.clientWidth),
+    ).toBeGreaterThan(width < 600 ? 3.9 : 2);
+
     await section
       .locator('.exhibition-map-card')
       .screenshot({ path: testInfo.outputPath(`exhibition-zoom-${width}.png`) });
@@ -107,6 +113,14 @@ test('Small-screen controls fit and no fabricated company allocation is shown', 
       );
     expect(clipped).toEqual([]);
     await expect(section.locator('.exhibition-company')).toHaveCount(0);
+    await expect(section.locator('.exhibition-map-point, .exhibition-stand-list i')).toHaveCount(0);
+    await expect(section.locator('[data-occupied-stand="8"] path').first()).toHaveAttribute(
+      'fill',
+      '#fff',
+    );
+    await expect(section.locator('.exhibition-legend')).toContainText('Регистрация');
+    await expect(section.locator('.exhibition-legend')).toContainText('DOLG TALK CAFE');
+
     await expect(
       section.getByText(
         'Информация о компаниях и их стендах появится здесь после подтверждения участия.',
@@ -163,6 +177,9 @@ test('Map gestures, keyboard, bounded fit and demo statuses', async ({ page }) =
   await section.getByRole('tab', { name: '2-й этаж' }).click();
   await expect(section.locator('output')).toHaveText('100%');
   await expect(section.locator('.exhibition-map-stand[data-status="occupied"]')).toHaveCount(0);
+  await expect(section.locator('.exhibition-legend')).toContainText('Лестница на 1-й и 3-й этажи');
+  await expect(section.locator('.exhibition-legend')).not.toContainText('Регистрация');
+  await expect(section.locator('[data-occupied-stand]')).toHaveCount(0);
 });
 
 test('Two-finger pinch and touch pan keep the map usable', async ({ page }) => {

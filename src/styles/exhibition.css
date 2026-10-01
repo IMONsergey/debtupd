@@ -245,50 +245,79 @@
   font-size: 13px;
   border-top: 1px solid #65baff33;
 }
-.exhibition-legend span {
+.exhibition-legend > span {
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
-.exhibition-legend i,
-.exhibition-stand-list i,
-.exhibition-map-point {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #bce0ff;
-  flex: none;
-}
-[data-status='free'] {
-  --stand-color: #5be0bc;
-}
-[data-status='occupied'] {
-  --stand-color: #f5a569;
-}
-.exhibition-legend i[data-status],
-.exhibition-stand-list [data-status] i,
-.exhibition-map-stand[data-status] .exhibition-map-point {
-  background: var(--stand-color, #bce0ff);
-}
-.exhibition-map-stand[data-status='free'],
-.exhibition-map-stand[data-status='occupied'] {
-  border-color: var(--stand-color);
-  background: color-mix(in srgb, var(--stand-color) 18%, transparent);
-}
-.exhibition-map-point {
+.exhibition-stand-fills {
   position: absolute;
-  top: -5px;
-  right: -5px;
-  width: 9px;
-  height: 9px;
-  box-shadow: 0 0 0 2px #01081f;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 .exhibition-status {
   display: inline-block;
   margin: 4px 0 10px;
   font-size: 14px;
-  color: var(--stand-color);
+  color: #b8c4d8;
+}
+.exhibition-stand-list button[data-status='occupied'] {
+  background: #ffffff05;
+  border-color: #ffffff1f;
+  color: #788395;
+}
+.exhibition-stand-list button[data-status='occupied'][aria-pressed='true'] {
+  background: #ffffff0d;
+  border-color: #c5cdd8;
+  color: #a4afbf;
+}
+.exhibition-legend {
+  align-content: start;
+}
+.exhibition-legend__icon {
+  width: 25px;
+  height: 25px;
+  flex: 0 0 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #00c5f1, #075ba4);
+  color: white;
+  border: 1px solid #82b7fa88;
+  font:
+    400 22px/1 'Bebas Neue',
+    sans-serif;
+}
+.exhibition-legend__icon svg {
+  width: 18px;
+  height: 18px;
+}
+.exhibition-legend__icon--registration {
+  background: #0ca6ae;
+  border-color: transparent;
+}
+.exhibition-legend__icon--vip {
+  border-radius: 50%;
+  background: #143451;
+  border-color: #82b7fa;
+}
+.exhibition-legend__icon--cafe {
+  background: #0bafdc;
+  border-color: transparent;
+}
+.exhibition-legend__icon--coffee {
+  background: #1064df;
+  border-color: transparent;
+}
+.exhibition-legend__icon--wardrobe,
+.exhibition-legend__icon--stairs,
+.exhibition-legend__icon--occupied {
+  background: #fff;
+  border-color: #fff;
+  color: #01081f;
 }
 .exhibition-selection {
   display: grid;
@@ -533,10 +562,6 @@
   justify-content: center;
   gap: 7px;
 }
-.exhibition-stand-list button[data-status='free'],
-.exhibition-stand-list button[data-status='occupied'] {
-  border-color: var(--stand-color);
-}
 .exhibition-tabs {
   padding: 0;
   gap: 0;
@@ -554,12 +579,12 @@
     grid-row: 1;
   }
   .exhibition-legend {
-    grid-column: 1;
+    grid-column: 1 / -1;
     grid-row: 2;
   }
   .exhibition-selection {
     grid-column: 2;
-    grid-row: 1 / 3;
+    grid-row: 1;
     display: flex;
     flex-direction: column;
     border-top: 0;
@@ -577,10 +602,6 @@
     min-height: 36px;
     gap: 4px;
     font-size: 13px;
-  }
-  .exhibition-stand-list i {
-    width: 5px;
-    height: 5px;
   }
   .exhibition-stand-detail {
     flex: 1;
@@ -652,11 +673,7 @@
   border-color: #fff;
   box-shadow: 0 0 0 2px #38a6ff;
 }
-@media (max-width: 767px) {
-  .exhibition-map-point {
-    width: 6px;
-    height: 6px;
-    top: -3px;
-    right: -3px;
-  }
+
+.exhibition-map-stand[data-status='occupied'] {
+  background: transparent;
 }
