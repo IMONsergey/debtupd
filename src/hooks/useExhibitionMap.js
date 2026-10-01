@@ -27,8 +27,10 @@ export function useExhibitionMap(floor) {
   function paint(next) {
     camera.current = next;
     if (canvas.current) {
-      canvas.current.style.transform = `translate3d(${next.x}px, ${next.y}px, 0) scale(${next.scale})`;
-      canvas.current.style.setProperty('--map-scale', next.scale);
+      // Render SVG at its actual display size to retain vector sharpness at every zoom.
+      canvas.current.style.width = `${size.current.width * next.scale}px`;
+      canvas.current.style.height = `${size.current.height * next.scale}px`;
+      canvas.current.style.transform = `translate(${next.x}px, ${next.y}px)`;
     }
   }
   function move(next, smooth = true) {

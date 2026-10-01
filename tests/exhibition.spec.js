@@ -34,6 +34,9 @@ for (const width of [390, 1440]) {
     await section.getByRole('button', { name: 'Показать стенд 8', exact: true }).click();
     await expect(section.locator('[data-stand="8"]')).toHaveAttribute('aria-pressed', 'true');
     await expect(section.getByRole('heading', { name: 'Стенд №8' })).toBeVisible();
+    await section
+      .locator('.exhibition-map-card')
+      .screenshot({ path: testInfo.outputPath(`exhibition-zoom-${width}.png`) });
     // A list selection recenters the correct stand inside the independently transformed map.
     expect(
       await section.locator('[data-stand="8"]').evaluate((el) => {
@@ -197,15 +200,16 @@ test('Camera animates smoothly and respects reduced motion', async ({ page }) =>
   await page.goto('/#exhibition');
   await page.locator('#site-preloader').waitFor({ state: 'detached' });
   const canvas = page.locator('.exhibition-map-canvas');
+  const baseWidth = await canvas.evaluate((el) => el.getBoundingClientRect().width);
   const scale = () =>
-    canvas.evaluate((el) => new DOMMatrixReadOnly(getComputedStyle(el).transform).a);
+    canvas.evaluate((el, base) => el.getBoundingClientRect().width / base, baseWidth);
   await page.getByRole('button', { name: 'Увеличить схему', exact: true }).click();
   await expect.poll(scale).toBeGreaterThan(1);
-  await expect.poll(scale).toBe(1.5);
+  await expect.poll(scale).toBeCloseTo(1.5, 2);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   // A fresh mount reads the accessibility preference.
   await page.reload();
   await page.locator('#site-preloader').waitFor({ state: 'detached' });
   await page.getByRole('button', { name: 'Увеличить схему', exact: true }).click();
-  expect(await scale()).toBe(1.5);
+  expect(await scale()).toBeCloseTo(1.5, 2);
 });

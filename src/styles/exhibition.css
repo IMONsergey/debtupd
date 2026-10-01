@@ -199,7 +199,6 @@
   left: 0;
   top: 0;
   transform-origin: 0 0;
-  will-change: transform;
 }
 .exhibition-map-canvas > img {
   display: block;
@@ -649,10 +648,6 @@
   }
 }
 
-.exhibition-map-point {
-  transform: scale(calc(1 / var(--map-scale, 1)));
-  transform-origin: center;
-}
 .exhibition-map-stand[data-status][aria-pressed='true'] {
   border-color: #fff;
   box-shadow: 0 0 0 2px #38a6ff;
