@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
+  await page.route('https://kinescope.io/**', (route) =>
+    route.fulfill({ contentType: 'text/html', body: '<html><body>Video fixture</body></html>' }),
+  );
   await page.addInitScript(() => sessionStorage.setItem('debt2026-early-booking-dismissed', '1'));
   // Never send test leads to production integrations.
   await page.route('**/api/lead', (route) =>
@@ -72,6 +75,14 @@ for (const width of [390, 1440]) {
     );
     expect(errors).toEqual([]);
     await section.screenshot({ path: testInfo.outputPath(`exhibition-${width}.png`) });
+    await page.evaluate(() => {
+      document.activeElement?.blur();
+      const el = document.querySelector('#exhibition');
+      window.scrollTo(0, el.getBoundingClientRect().top + scrollY - 24);
+    });
+    await page.screenshot({ path: testInfo.outputPath(`exhibition-intro-${width}.png`) });
+    await section.locator('.exhibition-map-card').scrollIntoViewIfNeeded();
+    await page.screenshot({ path: testInfo.outputPath(`exhibition-map-${width}.png`) });
   });
 }
 
