@@ -19,3 +19,12 @@ First runtime deployment: `FfyC8z23PReEQNrkg39JDvC9Jyva`, source `b330e381dd5d8c
 
 
 Final runtime deployment: `FPJxEUg9TMzT1wPAfLjQRqHMU6BY`, source `010080ba48205ed7643cfab75eed9407110efa59`. Deployment completed successfully and the existing alias `https://debt-tech-exhibition-test.vercel.app/#exhibition` was checked. Final SVG patch: 18/18 Chromium/Firefox/WebKit checks passed, build passed, enlarged SVG inspected on desktop/mobile. Two final runtime Chromium checks passed at 390 and 1440 px; floor reset, selection, geometry, editable stand #26 form comment and no overflow were verified. HTTP 200 and noindex/nofollow headers confirmed. Original SVG files and unconfirmed exhibitors are unchanged. No real leads sent.
+
+
+## Status legend and demo company tiles
+
+Latest source: `fc723d45416cf1ce9b7429ae0d0453091157856f`. Deployment `7RGhzE3S1R66BC8vGD4EYmcrsHH8` completed READY; stable test alias checked with HTTP 200 and noindex/nofollow headers.
+
+The free/occupied numbered square key is beside floor tabs. Venue symbols remain floor-specific below the map. Occupied demo stands #8 and #9 use white fills and original digit outlines copied from the source SVG; their list tiles are muted. No status dots. Two fictional companies, ОРБИТА AI and ВЕКТОР DATA, appear as explicitly labelled demo cards with full-width stand buttons. Each button centers the corresponding stand and scrolls to the map; reduced-motion preference is respected. Demo data is separate from the still-empty confirmed exhibitors array. Source SVG files remain unchanged.
+
+Validation: 11 unit tests and build passed; all 7 Chromium and 7 Firefox checks passed. Desktop/mobile map and card screenshots inspected. Two additional live Chromium tests passed for responsive layout, both white fills, top status labels and company-to-stand selection. Cloud browser independently verified the published card and selected #9. Real leads were not sent. The image test now explicitly scrolls its lazy-loaded photograph into view before checking naturalWidth.
