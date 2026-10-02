@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useExhibitionMap } from '../hooks/useExhibitionMap.js';
 import { Minus, Plus, RotateCcw } from 'lucide-react';
 import { ExhibitionLegend } from './ExhibitionLegend.jsx';
+import { ExhibitorCarousel } from './ExhibitorCarousel.jsx';
 import { ActionArrow } from './ActionArrow.jsx';
 import { assetUrl } from '../lib/assets.js';
 import { floors, exhibitors, getStandStatus, occupiedStandArtwork } from '../data/exhibition.js';
@@ -54,6 +55,21 @@ export function Exhibition({ onApply }) {
     const id = event.key === 'Home' ? 1 : event.key === 'End' ? 2 : floorId === 1 ? 2 : 1;
     switchFloor(id);
     document.getElementById(`exhibition-tab-${id}`)?.focus();
+  }
+
+  function selectExhibitor(number) {
+    const targetFloor = floors.find((item) => item.stands.some((stand) => stand.number === number));
+    if (targetFloor?.id !== floorId) switchFloor(targetFloor.id);
+    setSelected(number);
+    requestAnimationFrame(() => {
+      detail.current?.focus({ preventScroll: true });
+      detail.current?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 'instant'
+          : 'smooth',
+        block: 'nearest',
+      });
+    });
   }
 
   return (
@@ -385,53 +401,7 @@ export function Exhibition({ onApply }) {
           <div className="exhibition-exhibitors__heading">
             <h3>Экспоненты форума</h3>
           </div>
-          <div className="exhibition-company-grid">
-            {displayedExhibitors.map((item) => (
-              <article key={item.id} className="exhibition-company glass corners">
-                <div className="exhibition-company__logo">
-                  {item.logo ? (
-                    <img
-                      src={assetUrl(item.logo)}
-                      alt={item.name}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  ) : (
-                    <h4>{item.name}</h4>
-                  )}
-                </div>
-                <p>{item.description}</p>
-                <div>
-                  {item.standNumbers.map((number) => (
-                    <button
-                      type="button"
-                      className="exhibition-company__stand"
-                      aria-controls="exhibition-stand-detail"
-                      onClick={() => {
-                        const targetFloor = floors.find((f) =>
-                          f.stands.some((s) => s.number === number),
-                        );
-                        if (targetFloor.id !== floorId) switchFloor(targetFloor.id);
-                        setSelected(number);
-                        requestAnimationFrame(() => {
-                          detail.current?.focus({ preventScroll: true });
-                          detail.current?.scrollIntoView({
-                            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-                              ? 'instant'
-                              : 'smooth',
-                            block: 'nearest',
-                          });
-                        });
-                      }}
-                      key={number}
-                    >
-                      Стенд №{number}
-                    </button>
-                  ))}
-                </div>
-              </article>
-            ))}
-          </div>
+          <ExhibitorCarousel exhibitors={displayedExhibitors} onSelect={selectExhibitor} />
         </div>
       )}
     </section>

@@ -140,8 +140,9 @@ test('Small-screen cards and controls fit; all occupied stands have cards', asyn
       );
     });
     expect(metricsFit).toBe(true);
-    await expect(section.locator('.exhibition-company')).toHaveCount(11);
-    await expect(section.locator('.exhibition-company__logo img')).toHaveCount(11);
+    await expect(section.locator('.exhibition-company')).toHaveCount(33);
+    await expect(section.locator('.exhibition-company[data-primary]')).toHaveCount(11);
+    await expect(section.locator('.exhibition-company__logo img')).toHaveCount(33);
     await expect(section.locator('.exhibition-company h4')).toHaveCount(0);
     await expect(
       section.locator('.exhibition-company__demo, .exhibition-company__stand svg'),
@@ -311,8 +312,9 @@ test('Occupied stands show the real exhibitor set and logos', async ({ page }) =
     'data-tooltip',
     'Стенд забронирован',
   );
-  await expect(section.locator('.exhibition-company')).toHaveCount(11);
-  await expect(section.locator('.exhibition-company__logo img')).toHaveCount(11);
+  await expect(section.locator('.exhibition-company')).toHaveCount(33);
+  await expect(section.locator('.exhibition-company[data-primary]')).toHaveCount(11);
+  await expect(section.locator('.exhibition-company__logo img')).toHaveCount(33);
   await expect(section.locator('.exhibition-company h4')).toHaveCount(0);
   await expect(
     section.locator('.exhibition-company__demo, .exhibition-company__stand svg'),
@@ -351,7 +353,8 @@ test('Company cards open real reserved stand details without a booking CTA', asy
   );
   await page.keyboard.press('Escape');
   await section.getByRole('tab', { name: '2-й этаж' }).click();
-  await expect(section.locator('.exhibition-company')).toHaveCount(11);
+  await expect(section.locator('.exhibition-company')).toHaveCount(33);
+  await expect(section.locator('.exhibition-company[data-primary]')).toHaveCount(11);
   await section.getByRole('button', { name: 'Стенд №9', exact: true }).click();
   await expect(section.getByRole('tab', { name: '1-й этаж' })).toHaveAttribute(
     'aria-selected',
@@ -370,4 +373,43 @@ test('Company cards open real reserved stand details without a booking CTA', asy
   await expect(detail.getByRole('button')).toHaveCount(0);
   await page.keyboard.press('Escape');
   await expect(detail.getByRole('heading', { name: 'Найдите свою орбиту' })).toBeVisible();
+});
+
+
+test('Exhibitor carousel combines an infinite slider with a slow marquee', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/#exhibition');
+  await page.locator('#site-preloader').waitFor({ state: 'detached' });
+  const section = page.locator('#exhibition');
+  const marquee = section.locator('.exhibition-company-marquee');
+  await marquee.scrollIntoViewIfNeeded();
+
+  await expect(section.locator('.exhibition-company')).toHaveCount(33);
+  await expect(section.locator('.exhibition-company[data-primary]')).toHaveCount(11);
+  await expect(section.getByRole('button', { name: 'Предыдущий экспонент' })).toBeEnabled();
+  await expect(section.getByRole('button', { name: 'Следующий экспонент' })).toBeEnabled();
+
+  const before = await marquee.evaluate((node) => node.scrollLeft);
+  await page.waitForTimeout(900);
+  const after = await marquee.evaluate((node) => node.scrollLeft);
+  expect(after - before).toBeGreaterThan(5);
+  expect(after - before).toBeLessThan(60);
+
+  await marquee.hover();
+  const paused = await marquee.evaluate((node) => node.scrollLeft);
+  await page.waitForTimeout(450);
+  const pausedAfter = await marquee.evaluate((node) => node.scrollLeft);
+  expect(Math.abs(pausedAfter - paused)).toBeLessThan(3);
+
+  const start = await marquee.evaluate((node) => {
+    const cards = node.querySelectorAll('.exhibition-company');
+    const middleStart = cards[11].offsetLeft;
+    node.scrollLeft = middleStart;
+    return middleStart;
+  });
+  await section.getByRole('button', { name: 'Предыдущий экспонент' }).click();
+  await page.waitForTimeout(500);
+  const wrapped = await marquee.evaluate((node) => node.scrollLeft);
+  expect(wrapped).toBeGreaterThan(start);
 });
