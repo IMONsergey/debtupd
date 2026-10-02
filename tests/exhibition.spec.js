@@ -403,21 +403,29 @@ test('Exhibitor carousel combines an infinite slider with a slow marquee', async
   const counter = section.locator('.exhibition-exhibitor-controls > span');
   await expect(counter).toContainText(`/ ${String(expectedPages).padStart(2, '0')}`);
 
-  // Keep the pointer outside the track while checking automatic motion.
+  const track = section.locator('.exhibition-company-track');
+  const transformX = () =>
+    track.evaluate((node) => new DOMMatrix(getComputedStyle(node).transform).m41);
+
+  // Automatic motion is transform-based so mobile and desktop stay compositor-smooth.
   await page.mouse.move(1430, 10);
-  const before = await marquee.evaluate((node) => node.scrollLeft);
+  const before = await transformX();
   await page.waitForTimeout(900);
-  const after = await marquee.evaluate((node) => node.scrollLeft);
-  expect(after - before).toBeGreaterThan(0);
-  expect(after - before).toBeLessThan(100);
+  const after = await transformX();
+  expect(before - after).toBeGreaterThan(5);
+  expect(before - after).toBeLessThan(100);
+  expect(await marquee.evaluate((node) => node.scrollLeft)).toBe(0);
+  await expect(track).toHaveCSS('will-change', 'transform');
 
-  await marquee.dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 1 });
-  const paused = await marquee.evaluate((node) => node.scrollLeft);
+  await marquee.dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 1, clientX: 200 });
+  const paused = await transformX();
   await page.waitForTimeout(450);
-  const pausedAfter = await marquee.evaluate((node) => node.scrollLeft);
-  expect(Math.abs(pausedAfter - paused)).toBeLessThan(3);
-  await marquee.dispatchEvent('pointerup', { pointerType: 'touch', pointerId: 1 });
+  const pausedAfter = await transformX();
+  expect(Math.abs(pausedAfter - paused)).toBeLessThan(2);
+  await marquee.dispatchEvent('pointerup', { pointerType: 'touch', pointerId: 1, clientX: 200 });
 
+  // Freeze autoplay for deterministic manual-slider checks.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   // Pagination counts slider positions/pages, not the eleven individual cards.
   await section.getByRole('button', { name: 'Следующий экспонент' }).click();
   await expect(counter).toContainText(`02 / ${String(expectedPages).padStart(2, '0')}`);
@@ -449,14 +457,19 @@ test('Mobile exhibitor carousel keeps both marquee motion and infinite slider co
   const counter = section.locator('.exhibition-exhibitor-controls > span');
   await expect(counter).toContainText('/ 11');
 
+  const track = section.locator('.exhibition-company-track');
+  const transformX = () =>
+    track.evaluate((node) => new DOMMatrix(getComputedStyle(node).transform).m41);
   await page.mouse.move(380, 10);
-  const before = await marquee.evaluate((node) => node.scrollLeft);
+  const before = await transformX();
   await page.waitForTimeout(900);
-  const after = await marquee.evaluate((node) => node.scrollLeft);
-  expect(after - before).toBeGreaterThan(1);
+  const after = await transformX();
+  expect(before - after).toBeGreaterThan(5);
+  expect(await marquee.evaluate((node) => node.scrollLeft)).toBe(0);
+  await expect(track).toHaveCSS('will-change', 'transform');
 
-  // Freeze autoplay while verifying manual infinite navigation from whatever page is currently visible.
-  await marquee.dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 2 });
+  // Manual slider remains infinite on mobile while autoplay can be disabled for the check.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   const current = Number((await counter.textContent()).trim().slice(0, 2));
   const next = (current % 11) + 1;
   await section.getByRole('button', { name: 'Следующий экспонент' }).click();
@@ -469,5 +482,4 @@ test('Mobile exhibitor carousel keeps both marquee motion and infinite slider co
   await expect(counter).toContainText('01 / 11');
   await section.getByRole('button', { name: 'Предыдущий экспонент' }).click();
   await expect(counter).toContainText('11 / 11');
-  await marquee.dispatchEvent('pointerup', { pointerType: 'touch', pointerId: 2 });
 });

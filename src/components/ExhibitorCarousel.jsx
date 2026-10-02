@@ -4,6 +4,11 @@ import { assetUrl } from '../lib/assets.js';
 
 const COPIES = [0, 1, 2];
 const MARQUEE_SPEED = 48;
+const SLIDE_DURATION = 420;
+const RESUME_DELAY = 700;
+
+const mod = (value, divisor) => ((value % divisor) + divisor) % divisor;
+const easeInOut = (t) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
 
 function ExhibitorCard({ item, copy, onSelect }) {
   const hiddenCopy = copy !== 1;
@@ -42,30 +47,39 @@ function ExhibitorCard({ item, copy, onSelect }) {
 
 export function ExhibitorCarousel({ exhibitors, onSelect }) {
   const viewport = useRef(null);
+  const track = useRef(null);
+  const marquee = useRef(null);
+  const counterFrame = useRef(0);
+  const slideFrame = useRef(0);
+  const resumeTimer = useRef(0);
   const indexRef = useRef(0);
-  const frame = useRef(0);
-  const lastTime = useRef(0);
-  const settle = useRef(0);
-  const holdUntil = useRef(0);
+  const reducedMotion = useRef(false);
+  const interaction = useRef({ focus: false, drag: false });
+  const drag = useRef({ pointerId: null, x: 0, time: 0, moved: false });
   const metrics = useRef({
     start: 0,
-    end: 0,
     setWidth: 0,
     step: 1,
     pageSize: 1,
     pageCount: exhibitors.length,
+    pageStarts: [0],
+    duration: 1,
   });
-  const interaction = useRef({ focus: false, drag: false });
-  const reducedMotion = useRef(false);
   const [index, setIndex] = useState(0);
   const [pageCount, setPageCount] = useState(exhibitors.length);
 
+  const logicalOffset = () => {
+    const animation = marquee.current;
+    const { duration, setWidth } = metrics.current;
+    if (!animation || !duration || !setWidth) return 0;
+    const time = Number(animation.currentTime) || 0;
+    return (mod(time, duration) / duration) * setWidth;
+  };
+
   const updateIndex = () => {
-    const node = viewport.current;
-    const { start, setWidth, step, pageSize, pageCount: totalPages } = metrics.current;
-    if (!node || !setWidth || !step || !totalPages) return;
-    const offset = (((node.scrollLeft - start) % setWidth) + setWidth) % setWidth;
-    const cardIndex = Math.round(offset / step) % exhibitors.length;
+    const { step, pageSize, pageCount: totalPages } = metrics.current;
+    if (!step || !pageSize || !totalPages) return;
+    const cardIndex = Math.round(logicalOffset() / step) % exhibitors.length;
     const next = Math.min(totalPages - 1, Math.floor(cardIndex / pageSize));
     if (next !== indexRef.current) {
       indexRef.current = next;
@@ -73,123 +87,201 @@ export function ExhibitorCarousel({ exhibitors, onSelect }) {
     }
   };
 
-  const normalize = () => {
-    const node = viewport.current;
-    const { start, end, setWidth } = metrics.current;
-    if (!node || !setWidth) return;
-    if (node.scrollLeft < start) node.scrollLeft += setWidth;
-    if (node.scrollLeft >= end) node.scrollLeft -= setWidth;
-    updateIndex();
+  const clearResume = () => {
+    clearTimeout(resumeTimer.current);
+    resumeTimer.current = 0;
   };
-  const measure = () => {
+
+  const pause = () => {
+    clearResume();
+    marquee.current?.pause();
+  };
+
+  const resume = (delay = RESUME_DELAY) => {
+    clearResume();
+    if (reducedMotion.current || interaction.current.focus || interaction.current.drag) return;
+    resumeTimer.current = setTimeout(() => marquee.current?.play(), delay);
+  };
+
+  const rebuildAnimation = () => {
     const node = viewport.current;
-    if (!node || exhibitors.length < 1) return;
-    const cards = [...node.querySelectorAll('.exhibition-company')];
+    const rail = track.current;
+    if (!node || !rail || exhibitors.length < 1) return;
+
+    const cards = [...rail.querySelectorAll('.exhibition-company')];
     const first = cards[exhibitors.length];
     const next = cards[exhibitors.length + 1];
     const third = cards[exhibitors.length * 2];
     if (!first || !third) return;
+
+    const old = metrics.current;
+    const oldOffset = logicalOffset();
+    const oldProgress = old.step ? oldOffset / old.step : indexRef.current * old.pageSize;
     const start = first.offsetLeft;
-    const end = third.offsetLeft;
+    const setWidth = third.offsetLeft - start;
     const step = next ? next.offsetLeft - first.offsetLeft : first.offsetWidth;
     const gap = Math.max(0, step - first.offsetWidth);
     const pageSize = Math.max(1, Math.floor((node.clientWidth + gap + 1) / step));
     const totalPages = Math.max(1, Math.ceil(exhibitors.length / pageSize));
+    const pageStarts = Array.from({ length: totalPages }, (_, i) => i * pageSize * step);
+    const duration = (setWidth / MARQUEE_SPEED) * 1000;
+    const nextOffset = mod(oldProgress * step, setWidth);
+
+    marquee.current?.cancel();
+    marquee.current = rail.animate(
+      [
+        { transform: `translate3d(${-start}px, 0, 0)` },
+        { transform: `translate3d(${-(start + setWidth)}px, 0, 0)` },
+      ],
+      { duration, iterations: Infinity, easing: 'linear' },
+    );
     metrics.current = {
       start,
-      end,
-      setWidth: end - start,
+      setWidth,
       step,
       pageSize,
       pageCount: totalPages,
+      pageStarts,
+      duration,
     };
-    const nextIndex = Math.min(indexRef.current, totalPages - 1);
+    marquee.current.currentTime = duration + (nextOffset / setWidth) * duration;
+
+    const nextIndex = Math.min(
+      totalPages - 1,
+      Math.floor(Math.round(nextOffset / step) / pageSize),
+    );
     indexRef.current = nextIndex;
     setIndex(nextIndex);
     setPageCount(totalPages);
-    node.scrollLeft = start + nextIndex * pageSize * step;
+
+    if (reducedMotion.current || interaction.current.focus || interaction.current.drag) {
+      marquee.current.pause();
+    } else {
+      marquee.current.play();
+    }
   };
 
   useLayoutEffect(() => {
     const node = viewport.current;
     if (!node) return;
-    const observer = new ResizeObserver(measure);
+    const observer = new ResizeObserver(rebuildAnimation);
     observer.observe(node);
-    measure();
+    rebuildAnimation();
     return () => observer.disconnect();
   }, [exhibitors.length]);
+
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
     const syncMotion = () => {
       reducedMotion.current = media.matches;
+      if (media.matches) pause();
+      else resume(0);
     };
     syncMotion();
     media.addEventListener?.('change', syncMotion);
 
-    const tick = (time) => {
-      const node = viewport.current;
-      if (!lastTime.current) lastTime.current = time;
-      const delta = Math.min(1000, time - lastTime.current);
-      lastTime.current = time;
-      const paused =
-        reducedMotion.current ||
-        interaction.current.focus ||
-        interaction.current.drag ||
-        time < holdUntil.current;
-      if (node && !paused) {
-        node.scrollLeft += (MARQUEE_SPEED * delta) / 1000;
-        const { end, setWidth } = metrics.current;
-        if (setWidth && node.scrollLeft >= end) node.scrollLeft -= setWidth;
-        updateIndex();
-      }
-      frame.current = requestAnimationFrame(tick);
+    const watchCounter = () => {
+      updateIndex();
+      counterFrame.current = requestAnimationFrame(watchCounter);
     };
-    frame.current = requestAnimationFrame(tick);
+    counterFrame.current = requestAnimationFrame(watchCounter);
+
     return () => {
-      cancelAnimationFrame(frame.current);
-      clearTimeout(settle.current);
+      cancelAnimationFrame(counterFrame.current);
+      cancelAnimationFrame(slideFrame.current);
+      clearResume();
       media.removeEventListener?.('change', syncMotion);
-      frame.current = 0;
-      lastTime.current = 0;
+      marquee.current?.cancel();
+      marquee.current = null;
     };
   }, [exhibitors.length]);
 
-  const pauseFor = (ms = 1200) => {
-    holdUntil.current = performance.now() + ms;
+  const setAnimationTime = (time) => {
+    if (!marquee.current) return;
+    marquee.current.currentTime = time;
+    updateIndex();
+  };
+
+  const tweenTo = (targetTime, nextIndex) => {
+    const animation = marquee.current;
+    if (!animation) return;
+    pause();
+    cancelAnimationFrame(slideFrame.current);
+    const from = Number(animation.currentTime) || 0;
+    const started = performance.now();
+    indexRef.current = nextIndex;
+    setIndex(nextIndex);
+
+    if (reducedMotion.current) {
+      setAnimationTime(targetTime);
+      return;
+    }
+
+    const tick = (now) => {
+      const t = Math.min(1, (now - started) / SLIDE_DURATION);
+      setAnimationTime(from + (targetTime - from) * easeInOut(t));
+      if (t < 1) {
+        slideFrame.current = requestAnimationFrame(tick);
+      } else {
+        setAnimationTime(targetTime);
+        resume();
+      }
+    };
+    slideFrame.current = requestAnimationFrame(tick);
   };
 
   const move = (direction) => {
-    const node = viewport.current;
-    const { start, setWidth, step, pageSize, pageCount: totalPages } = metrics.current;
-    if (!node || !setWidth || !step || !totalPages) return;
-    pauseFor(1400);
+    const animation = marquee.current;
+    const { pageStarts, pageCount: totalPages, duration } = metrics.current;
+    if (!animation || !totalPages || !duration) return;
 
     const current = indexRef.current;
-    const nextPage = (current + direction + totalPages) % totalPages;
-    const lastPageStart = (totalPages - 1) * pageSize * step;
-
-    node.scrollLeft = start + current * pageSize * step;
-
-    let target = start + nextPage * pageSize * step;
-    if (direction > 0 && current === totalPages - 1) {
-      target = start + setWidth;
-    } else if (direction < 0 && current === 0) {
-      target = start - setWidth + lastPageStart;
-    }
-
-    indexRef.current = nextPage;
-    setIndex(nextPage);
-    node.scrollTo({
-      left: target,
-      behavior: reducedMotion.current ? 'instant' : 'smooth',
-    });
+    const next = (current + direction + totalPages) % totalPages;
+    const logicalTime = mod(Number(animation.currentTime) || 0, duration);
+    const currentTime = duration + logicalTime;
+    animation.currentTime = currentTime;
+    let target = duration + (pageStarts[next] / metrics.current.setWidth) * duration;
+    if (direction > 0 && target <= currentTime) target += duration;
+    if (direction < 0 && target >= currentTime) target -= duration;
+    tweenTo(target, next);
   };
-  const handleScroll = () => {
+
+  const handlePointerDown = (event) => {
+    const animation = marquee.current;
+    if (!animation) return;
+    pause();
+    if (event.target.closest('button')) {
+      resume();
+      return;
+    }
+    cancelAnimationFrame(slideFrame.current);
+    interaction.current.drag = true;
+    const duration = metrics.current.duration;
+    const safeTime = duration + mod(Number(animation.currentTime) || 0, duration);
+    animation.currentTime = safeTime;
+    drag.current = {
+      pointerId: event.pointerId,
+      x: event.clientX,
+      time: safeTime,
+      moved: false,
+    };
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  };
+
+  const handlePointerMove = (event) => {
+    if (!interaction.current.drag || drag.current.pointerId !== event.pointerId) return;
+    const dx = drag.current.x - event.clientX;
+    if (Math.abs(dx) > 3) drag.current.moved = true;
+    const millisecondsPerPixel = metrics.current.duration / metrics.current.setWidth;
+    setAnimationTime(drag.current.time + dx * millisecondsPerPixel);
+  };
+
+  const finishDrag = (event) => {
+    if (!interaction.current.drag || drag.current.pointerId !== event.pointerId) return;
+    interaction.current.drag = false;
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
     updateIndex();
-    clearTimeout(settle.current);
-    settle.current = setTimeout(() => {
-      if (!interaction.current.drag) normalize();
-    }, 180);
+    resume();
   };
 
   return (
@@ -220,24 +312,23 @@ export function ExhibitorCarousel({ exhibitors, onSelect }) {
       <div
         className="exhibition-company-marquee"
         ref={viewport}
-        onScroll={handleScroll}
-        onPointerDown={() => {
-          interaction.current.drag = true;
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={finishDrag}
+        onPointerCancel={finishDrag}
+        onWheel={() => {
+          pause();
+          resume(500);
         }}
-        onPointerUp={() => {
-          interaction.current.drag = false;
-          pauseFor();
-        }}
-        onPointerCancel={() => {
-          interaction.current.drag = false;
-          pauseFor();
-        }}
-        onWheel={() => pauseFor()}
         onFocusCapture={() => {
           interaction.current.focus = true;
+          pause();
         }}
         onBlurCapture={(event) => {
-          if (!event.currentTarget.contains(event.relatedTarget)) interaction.current.focus = false;
+          if (!event.currentTarget.contains(event.relatedTarget)) {
+            interaction.current.focus = false;
+            resume();
+          }
         }}
         aria-label="Экспоненты форума"
         tabIndex={0}
@@ -249,7 +340,7 @@ export function ExhibitorCarousel({ exhibitors, onSelect }) {
           }
         }}
       >
-        <div className="exhibition-company-track">
+        <div className="exhibition-company-track" ref={track}>
           {COPIES.flatMap((copy) =>
             exhibitors.map((item) => (
               <ExhibitorCard

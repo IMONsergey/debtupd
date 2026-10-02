@@ -1160,25 +1160,25 @@
   gap: 10px;
 }
 .exhibition-company-marquee {
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
+  position: relative;
+  overflow: hidden;
   overscroll-behavior-x: contain;
+  touch-action: pan-y;
   cursor: grab;
 }
 .exhibition-company-marquee:active {
   cursor: grabbing;
 }
-.exhibition-company-marquee::-webkit-scrollbar {
-  display: none;
-}
 .exhibition-company-track {
   display: flex;
   align-items: stretch;
   gap: var(--exhibitor-gap);
-  width: 100%;
+  width: max-content;
   min-width: 100%;
   padding-bottom: 4px;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
 }
 .exhibition-company-track > .exhibition-company {
   flex: 0 0 var(--exhibitor-card-width);
