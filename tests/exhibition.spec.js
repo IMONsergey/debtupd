@@ -430,3 +430,35 @@ test('Exhibitor carousel combines an infinite slider with a slow marquee', async
   await section.getByRole('button', { name: 'Следующий экспонент' }).click();
   await expect(counter).toContainText(`01 / ${String(expectedPages).padStart(2, '0')}`);
 });
+
+test('Mobile exhibitor carousel keeps both marquee motion and infinite slider controls', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/#exhibition');
+  await page.locator('#site-preloader').waitFor({ state: 'detached' });
+
+  const section = page.locator('#exhibition');
+  const marquee = section.locator('.exhibition-company-marquee');
+  await marquee.scrollIntoViewIfNeeded();
+
+  await expect(section.getByRole('button', { name: 'Предыдущий экспонент' })).toBeVisible();
+  await expect(section.getByRole('button', { name: 'Следующий экспонент' })).toBeVisible();
+
+  const counter = section.locator('.exhibition-exhibitor-controls > span');
+  await expect(counter).toContainText('/ 11');
+
+  await page.mouse.move(380, 10);
+  const before = await marquee.evaluate((node) => node.scrollLeft);
+  await page.waitForTimeout(900);
+  const after = await marquee.evaluate((node) => node.scrollLeft);
+  expect(after - before).toBeGreaterThan(1);
+
+  await section.getByRole('button', { name: 'Следующий экспонент' }).click();
+  await expect(counter).toContainText('02 / 11');
+  await section.getByRole('button', { name: 'Предыдущий экспонент' }).click();
+  await expect(counter).toContainText('01 / 11');
+  await section.getByRole('button', { name: 'Предыдущий экспонент' }).click();
+  await expect(counter).toContainText('11 / 11');
+});
