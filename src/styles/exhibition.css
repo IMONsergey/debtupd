@@ -820,6 +820,9 @@
 .exhibition-intro__copy > .button {
   margin-top: auto;
 }
+.exhibition-cta--mobile {
+  display: none;
+}
 .exhibition-photo {
   position: relative;
   margin: 0;
@@ -1001,7 +1004,15 @@
   }
   .exhibition-benefits {
     grid-template-columns: 1fr;
-    margin: 24px 0 32px;
+    margin: 24px 0 16px;
+  }
+  .exhibition-cta--desktop {
+    display: none;
+  }
+  .exhibition-cta--mobile {
+    display: flex;
+    width: max-content;
+    margin: 0 0 32px;
   }
   .exhibition-benefit {
     flex-direction: row;

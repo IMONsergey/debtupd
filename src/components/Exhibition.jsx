@@ -112,7 +112,11 @@ export function Exhibition({ onApply }) {
               <p>собственники и топ-менеджеры бизнеса</p>
             </div>
           </div>
-          <button type="button" className="button" onClick={() => apply()}>
+          <button
+            type="button"
+            className="button exhibition-cta exhibition-cta--desktop"
+            onClick={() => apply()}
+          >
             <span className="button-label">Стать партнером</span>
             <ActionArrow />
           </button>
@@ -141,6 +145,14 @@ export function Exhibition({ onApply }) {
           </article>
         ))}
       </div>
+      <button
+        type="button"
+        className="button exhibition-cta exhibition-cta--mobile"
+        onClick={() => apply()}
+      >
+        <span className="button-label">Стать партнером</span>
+        <ActionArrow />
+      </button>
       <div className="exhibition-map-heading">
         <div>
           <h3>Схема площадки</h3>
@@ -326,7 +338,7 @@ export function Exhibition({ onApply }) {
                           ? `Стенд ${stand.number} забронирован`
                           : `Выбрать стенд ${stand.number}`
                       }
-                        title={occupied ? 'Стенд забронирован' : `Стенд №${stand.number} свободен`}
+                      title={occupied ? 'Стенд забронирован' : `Стенд №${stand.number} свободен`}
                       aria-pressed={selected === stand.number}
                       onClick={() => chooseStand(stand.number)}
                     >
