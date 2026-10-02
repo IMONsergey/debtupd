@@ -1131,7 +1131,6 @@
   }
 }
 
-
 /* Exhibitors: speaker-style manual carousel + slow continuous infinite marquee. */
 .exhibition-exhibitor-carousel {
   --exhibitor-gap: 20px;
@@ -1186,6 +1185,7 @@
   width: var(--exhibitor-card-width);
   min-width: 0;
 }
+
 @media (min-width: 600px) and (max-width: 899px) {
   .exhibition-exhibitor-carousel {
     --exhibitor-card-width: calc((100% - var(--exhibitor-gap)) / 2);

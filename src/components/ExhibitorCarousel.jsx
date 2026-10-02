@@ -48,7 +48,7 @@ export function ExhibitorCarousel({ exhibitors, onSelect }) {
   const settle = useRef(0);
   const holdUntil = useRef(0);
   const metrics = useRef({ start: 0, end: 0, setWidth: 0, step: 1 });
-  const interaction = useRef({ hover: false, focus: false, drag: false });
+  const interaction = useRef({ focus: false, drag: false });
   const reducedMotion = useRef(false);
   const [index, setIndex] = useState(0);
 
@@ -56,7 +56,7 @@ export function ExhibitorCarousel({ exhibitors, onSelect }) {
     const node = viewport.current;
     const { start, setWidth, step } = metrics.current;
     if (!node || !setWidth || !step) return;
-    const offset = ((node.scrollLeft - start) % setWidth + setWidth) % setWidth;
+    const offset = (((node.scrollLeft - start) % setWidth) + setWidth) % setWidth;
     const next = Math.round(offset / step) % exhibitors.length;
     if (next !== indexRef.current) {
       indexRef.current = next;
@@ -72,7 +72,6 @@ export function ExhibitorCarousel({ exhibitors, onSelect }) {
     if (node.scrollLeft >= end) node.scrollLeft -= setWidth;
     updateIndex();
   };
-
   const measure = () => {
     const node = viewport.current;
     if (!node || exhibitors.length < 1) return;
@@ -96,7 +95,6 @@ export function ExhibitorCarousel({ exhibitors, onSelect }) {
     measure();
     return () => observer.disconnect();
   }, [exhibitors.length]);
-
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
     const syncMotion = () => {
@@ -108,11 +106,10 @@ export function ExhibitorCarousel({ exhibitors, onSelect }) {
     const tick = (time) => {
       const node = viewport.current;
       if (!lastTime.current) lastTime.current = time;
-      const delta = Math.min(50, time - lastTime.current);
+      const delta = Math.min(1000, time - lastTime.current);
       lastTime.current = time;
       const paused =
         reducedMotion.current ||
-        interaction.current.hover ||
         interaction.current.focus ||
         interaction.current.drag ||
         time < holdUntil.current;
@@ -140,20 +137,18 @@ export function ExhibitorCarousel({ exhibitors, onSelect }) {
 
   const move = (direction) => {
     const node = viewport.current;
-    const { start, end, setWidth, step } = metrics.current;
-    if (!node || !setWidth) return;
+    const { start, setWidth, step } = metrics.current;
+    if (!node || !setWidth || !step) return;
     pauseFor(1400);
-    if (direction < 0 && node.scrollLeft <= start + step * 0.25) {
-      node.scrollLeft += setWidth;
-    } else if (direction > 0 && node.scrollLeft >= end - step * 1.25) {
-      node.scrollLeft -= setWidth;
-    }
-    node.scrollBy({
-      left: direction * step,
+    const logicalOffset = (((node.scrollLeft - start) % setWidth) + setWidth) % setWidth;
+    const current = Math.round(logicalOffset / step) % exhibitors.length;
+    // Always rebase into the middle copy, then move exactly one card.
+    node.scrollLeft = start + logicalOffset;
+    node.scrollTo({
+      left: start + (current + direction) * step,
       behavior: reducedMotion.current ? 'instant' : 'smooth',
     });
   };
-
   const handleScroll = () => {
     updateIndex();
     clearTimeout(settle.current);
@@ -166,8 +161,7 @@ export function ExhibitorCarousel({ exhibitors, onSelect }) {
     <div className="exhibition-exhibitor-carousel">
       <div className="exhibition-exhibitor-controls">
         <span aria-label={`Карточка ${index + 1} из ${exhibitors.length}`}>
-          {String(index + 1).padStart(2, '0')}{' '}
-          <i>/ {String(exhibitors.length).padStart(2, '0')}</i>
+          {String(index + 1).padStart(2, '0')} <i>/ {String(exhibitors.length).padStart(2, '0')}</i>
         </span>
         <div>
           <button
@@ -192,12 +186,6 @@ export function ExhibitorCarousel({ exhibitors, onSelect }) {
         className="exhibition-company-marquee"
         ref={viewport}
         onScroll={handleScroll}
-        onPointerEnter={() => {
-          interaction.current.hover = true;
-        }}
-        onPointerLeave={() => {
-          interaction.current.hover = false;
-        }}
         onPointerDown={() => {
           interaction.current.drag = true;
         }}

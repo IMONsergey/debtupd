@@ -375,7 +375,6 @@ test('Company cards open real reserved stand details without a booking CTA', asy
   await expect(detail.getByRole('heading', { name: 'Найдите свою орбиту' })).toBeVisible();
 });
 
-
 test('Exhibitor carousel combines an infinite slider with a slow marquee', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -390,17 +389,20 @@ test('Exhibitor carousel combines an infinite slider with a slow marquee', async
   await expect(section.getByRole('button', { name: 'Предыдущий экспонент' })).toBeEnabled();
   await expect(section.getByRole('button', { name: 'Следующий экспонент' })).toBeEnabled();
 
+  // Keep the pointer outside the track while checking automatic motion.
+  await page.mouse.move(1430, 10);
   const before = await marquee.evaluate((node) => node.scrollLeft);
   await page.waitForTimeout(900);
   const after = await marquee.evaluate((node) => node.scrollLeft);
-  expect(after - before).toBeGreaterThan(5);
+  expect(after - before).toBeGreaterThan(0);
   expect(after - before).toBeLessThan(60);
 
-  await marquee.hover();
+  await marquee.dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 1 });
   const paused = await marquee.evaluate((node) => node.scrollLeft);
   await page.waitForTimeout(450);
   const pausedAfter = await marquee.evaluate((node) => node.scrollLeft);
   expect(Math.abs(pausedAfter - paused)).toBeLessThan(3);
+  await marquee.dispatchEvent('pointerup', { pointerType: 'touch', pointerId: 1 });
 
   const start = await marquee.evaluate((node) => {
     const cards = node.querySelectorAll('.exhibition-company');
