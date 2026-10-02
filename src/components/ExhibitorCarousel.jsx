@@ -47,17 +47,26 @@ export function ExhibitorCarousel({ exhibitors, onSelect }) {
   const lastTime = useRef(0);
   const settle = useRef(0);
   const holdUntil = useRef(0);
-  const metrics = useRef({ start: 0, end: 0, setWidth: 0, step: 1 });
+  const metrics = useRef({
+    start: 0,
+    end: 0,
+    setWidth: 0,
+    step: 1,
+    pageSize: 1,
+    pageCount: exhibitors.length,
+  });
   const interaction = useRef({ focus: false, drag: false });
   const reducedMotion = useRef(false);
   const [index, setIndex] = useState(0);
+  const [pageCount, setPageCount] = useState(exhibitors.length);
 
   const updateIndex = () => {
     const node = viewport.current;
-    const { start, setWidth, step } = metrics.current;
-    if (!node || !setWidth || !step) return;
+    const { start, setWidth, step, pageSize, pageCount: totalPages } = metrics.current;
+    if (!node || !setWidth || !step || !totalPages) return;
     const offset = (((node.scrollLeft - start) % setWidth) + setWidth) % setWidth;
-    const next = Math.round(offset / step) % exhibitors.length;
+    const cardIndex = Math.round(offset / step) % exhibitors.length;
+    const next = Math.min(totalPages - 1, Math.floor(cardIndex / pageSize));
     if (next !== indexRef.current) {
       indexRef.current = next;
       setIndex(next);
@@ -83,8 +92,22 @@ export function ExhibitorCarousel({ exhibitors, onSelect }) {
     const start = first.offsetLeft;
     const end = third.offsetLeft;
     const step = next ? next.offsetLeft - first.offsetLeft : first.offsetWidth;
-    metrics.current = { start, end, setWidth: end - start, step };
-    node.scrollLeft = start + indexRef.current * step;
+    const gap = Math.max(0, step - first.offsetWidth);
+    const pageSize = Math.max(1, Math.floor((node.clientWidth + gap + 1) / step));
+    const totalPages = Math.max(1, Math.ceil(exhibitors.length / pageSize));
+    metrics.current = {
+      start,
+      end,
+      setWidth: end - start,
+      step,
+      pageSize,
+      pageCount: totalPages,
+    };
+    const nextIndex = Math.min(indexRef.current, totalPages - 1);
+    indexRef.current = nextIndex;
+    setIndex(nextIndex);
+    setPageCount(totalPages);
+    node.scrollLeft = start + nextIndex * pageSize * step;
   };
 
   useLayoutEffect(() => {
@@ -137,15 +160,27 @@ export function ExhibitorCarousel({ exhibitors, onSelect }) {
 
   const move = (direction) => {
     const node = viewport.current;
-    const { start, setWidth, step } = metrics.current;
-    if (!node || !setWidth || !step) return;
+    const { start, setWidth, step, pageSize, pageCount: totalPages } = metrics.current;
+    if (!node || !setWidth || !step || !totalPages) return;
     pauseFor(1400);
-    const logicalOffset = (((node.scrollLeft - start) % setWidth) + setWidth) % setWidth;
-    const current = Math.round(logicalOffset / step) % exhibitors.length;
-    // Always rebase into the middle copy, then move exactly one card.
-    node.scrollLeft = start + logicalOffset;
+
+    const current = indexRef.current;
+    const nextPage = (current + direction + totalPages) % totalPages;
+    const lastPageStart = (totalPages - 1) * pageSize * step;
+
+    node.scrollLeft = start + current * pageSize * step;
+
+    let target = start + nextPage * pageSize * step;
+    if (direction > 0 && current === totalPages - 1) {
+      target = start + setWidth;
+    } else if (direction < 0 && current === 0) {
+      target = start - setWidth + lastPageStart;
+    }
+
+    indexRef.current = nextPage;
+    setIndex(nextPage);
     node.scrollTo({
-      left: start + (current + direction) * step,
+      left: target,
       behavior: reducedMotion.current ? 'instant' : 'smooth',
     });
   };
@@ -160,8 +195,8 @@ export function ExhibitorCarousel({ exhibitors, onSelect }) {
   return (
     <div className="exhibition-exhibitor-carousel">
       <div className="exhibition-exhibitor-controls">
-        <span aria-label={`Карточка ${index + 1} из ${exhibitors.length}`}>
-          {String(index + 1).padStart(2, '0')} <i>/ {String(exhibitors.length).padStart(2, '0')}</i>
+        <span aria-label={`Слайд ${index + 1} из ${pageCount}`}>
+          {String(index + 1).padStart(2, '0')} <i>/ {String(pageCount).padStart(2, '0')}</i>
         </span>
         <div>
           <button

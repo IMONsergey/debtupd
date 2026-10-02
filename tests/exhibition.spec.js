@@ -389,6 +389,20 @@ test('Exhibitor carousel combines an infinite slider with a slow marquee', async
   await expect(section.getByRole('button', { name: 'Предыдущий экспонент' })).toBeEnabled();
   await expect(section.getByRole('button', { name: 'Следующий экспонент' })).toBeEnabled();
 
+  const expectedPages = await marquee.evaluate((node) => {
+    const card = node.querySelector('.exhibition-company');
+    const track = node.querySelector('.exhibition-company-track');
+    const gap = parseFloat(getComputedStyle(track).gap) || 0;
+    const pageSize = Math.max(
+      1,
+      Math.floor((node.clientWidth + gap + 1) / (card.offsetWidth + gap)),
+    );
+    return Math.ceil(11 / pageSize);
+  });
+  expect(expectedPages).toBeLessThan(11);
+  const counter = section.locator('.exhibition-exhibitor-controls > span');
+  await expect(counter).toContainText(`/ ${String(expectedPages).padStart(2, '0')}`);
+
   // Keep the pointer outside the track while checking automatic motion.
   await page.mouse.move(1430, 10);
   const before = await marquee.evaluate((node) => node.scrollLeft);
@@ -404,14 +418,15 @@ test('Exhibitor carousel combines an infinite slider with a slow marquee', async
   expect(Math.abs(pausedAfter - paused)).toBeLessThan(3);
   await marquee.dispatchEvent('pointerup', { pointerType: 'touch', pointerId: 1 });
 
-  const start = await marquee.evaluate((node) => {
-    const cards = node.querySelectorAll('.exhibition-company');
-    const middleStart = cards[11].offsetLeft;
-    node.scrollLeft = middleStart;
-    return middleStart;
-  });
+  // Pagination counts slider positions/pages, not the eleven individual cards.
+  await section.getByRole('button', { name: 'Следующий экспонент' }).click();
+  await expect(counter).toContainText(`02 / ${String(expectedPages).padStart(2, '0')}`);
   await section.getByRole('button', { name: 'Предыдущий экспонент' }).click();
-  await page.waitForTimeout(500);
-  const wrapped = await marquee.evaluate((node) => node.scrollLeft);
-  expect(wrapped).toBeGreaterThan(start);
+  await expect(counter).toContainText(`01 / ${String(expectedPages).padStart(2, '0')}`);
+  await section.getByRole('button', { name: 'Предыдущий экспонент' }).click();
+  await expect(counter).toContainText(
+    `${String(expectedPages).padStart(2, '0')} / ${String(expectedPages).padStart(2, '0')}`,
+  );
+  await section.getByRole('button', { name: 'Следующий экспонент' }).click();
+  await expect(counter).toContainText(`01 / ${String(expectedPages).padStart(2, '0')}`);
 });

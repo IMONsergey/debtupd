@@ -1134,7 +1134,7 @@
 /* Exhibitors: speaker-style manual carousel + slow continuous infinite marquee. */
 .exhibition-exhibitor-carousel {
   --exhibitor-gap: 20px;
-  --exhibitor-card-width: calc((100% - (var(--exhibitor-gap) * 2)) / 3);
+  --exhibitor-card-width: clamp(280px, 20vw, 360px);
   overflow-anchor: none;
 }
 .exhibition-exhibitor-controls {
@@ -1188,7 +1188,7 @@
 
 @media (min-width: 600px) and (max-width: 899px) {
   .exhibition-exhibitor-carousel {
-    --exhibitor-card-width: calc((100% - var(--exhibitor-gap)) / 2);
+    --exhibitor-card-width: clamp(260px, 36vw, 320px);
   }
 }
 @media (max-width: 599px) {
