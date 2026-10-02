@@ -409,7 +409,7 @@ test('Exhibitor carousel combines an infinite slider with a slow marquee', async
   await page.waitForTimeout(900);
   const after = await marquee.evaluate((node) => node.scrollLeft);
   expect(after - before).toBeGreaterThan(0);
-  expect(after - before).toBeLessThan(60);
+  expect(after - before).toBeLessThan(100);
 
   await marquee.dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 1 });
   const paused = await marquee.evaluate((node) => node.scrollLeft);
@@ -455,10 +455,19 @@ test('Mobile exhibitor carousel keeps both marquee motion and infinite slider co
   const after = await marquee.evaluate((node) => node.scrollLeft);
   expect(after - before).toBeGreaterThan(1);
 
+  // Freeze autoplay while verifying manual infinite navigation from whatever page is currently visible.
+  await marquee.dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 2 });
+  const current = Number((await counter.textContent()).trim().slice(0, 2));
+  const next = (current % 11) + 1;
   await section.getByRole('button', { name: 'Следующий экспонент' }).click();
-  await expect(counter).toContainText('02 / 11');
+  await expect(counter).toContainText(`${String(next).padStart(2, '0')} / 11`);
   await section.getByRole('button', { name: 'Предыдущий экспонент' }).click();
+  await expect(counter).toContainText(`${String(current).padStart(2, '0')} / 11`);
+  for (let pageIndex = current; pageIndex > 1; pageIndex -= 1) {
+    await section.getByRole('button', { name: 'Предыдущий экспонент' }).click();
+  }
   await expect(counter).toContainText('01 / 11');
   await section.getByRole('button', { name: 'Предыдущий экспонент' }).click();
   await expect(counter).toContainText('11 / 11');
+  await marquee.dispatchEvent('pointerup', { pointerType: 'touch', pointerId: 2 });
 });

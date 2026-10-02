@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { assetUrl } from '../lib/assets.js';
 
 const COPIES = [0, 1, 2];
-const MARQUEE_SPEED = 36;
+const MARQUEE_SPEED = 48;
 
 function ExhibitorCard({ item, copy, onSelect }) {
   const hiddenCopy = copy !== 1;
