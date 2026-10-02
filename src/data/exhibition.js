@@ -207,12 +207,88 @@ export const floors = [
   },
 ];
 
-// Add only confirmed DEBT TECH 2026 assignments. The brief screenshot is a past event.
-// { id, name, logo: "assets/...", description, standNumbers: [1, 2] }
-export const exhibitors = [];
+// Confirmed DEBT TECH 2026 exhibitors and stand assignments.
+export const exhibitors = [
+  {
+    id: 'everest-plus',
+    name: 'Эверест Плюс',
+    logo: 'assets/exhibition/logos/everest-plus.png',
+    description: 'IT-вендор «ЭВЕРЕСТ ПЛЮС»',
+    standNumbers: [3],
+  },
+  {
+    id: 'i-digital',
+    name: 'i-digital',
+    logo: 'assets/exhibition/logos/i-digital.png',
+    description: 'IT-вендор «i-Digital»',
+    standNumbers: [4],
+  },
+  {
+    id: 'vzyskator',
+    name: 'Взыскатор',
+    logo: 'assets/exhibition/logos/vzyskator.png',
+    description: 'Сервис «Взыскатор»',
+    standNumbers: [5],
+  },
+  {
+    id: 'smart-legal-data',
+    name: 'Smart Legal Data',
+    logo: 'assets/exhibition/logos/smart-legal-data.png',
+    description: 'IT-вендор «Смарт Бизнес Лаб»',
+    standNumbers: [6],
+  },
+  {
+    id: 'a-storm',
+    name: 'А.Сторм',
+    logo: 'assets/exhibition/logos/a-storm.png',
+    description: 'ПКО «А.Сторм»',
+    standNumbers: [7],
+  },
+  {
+    id: 'debtprice',
+    name: 'DEBT PRICE',
+    logo: 'assets/exhibition/logos/debtprice.png',
+    description: 'Аукцион долговых активов',
+    standNumbers: [8],
+  },
+  {
+    id: 'dekodika',
+    name: 'Декодика',
+    logo: 'assets/exhibition/logos/dekodika.png',
+    description: 'IT-вендор «Декодика»',
+    standNumbers: [9],
+  },
+  {
+    id: 'skorozvon',
+    name: 'Скорозвон',
+    logo: 'assets/exhibition/logos/skorozvon.png',
+    description: 'IT-вендор «Смартьюб»',
+    standNumbers: [10],
+  },
+  {
+    id: 'asv',
+    name: 'Агентство судебного взыскания',
+    logo: 'assets/exhibition/logos/asv.png',
+    description: 'ПКО «АСВ»',
+    standNumbers: [15],
+  },
+  {
+    id: 'legal-resources',
+    name: 'Legal Resources',
+    logo: 'assets/exhibition/logos/legal-resources.png',
+    description: 'IT-вендор «Legal Resources»',
+    standNumbers: [16],
+  },
+  {
+    id: 'best2pay',
+    name: 'best2pay',
+    logo: 'assets/exhibition/logos/best2pay.png',
+    description: 'Платежный сервис «Бест2пей»',
+    standNumbers: [20],
+  },
+];
 
-// Occupied stands confirmed by the art-direction brief. Company details are added separately.
-export const occupiedStandNumbers = [3, 4, 5, 6, 7, 8, 9, 10, 15, 16, 20];
+export const occupiedStandNumbers = exhibitors.flatMap((item) => item.standNumbers);
 
 export const getStandStatus = (number) =>
   occupiedStandNumbers.includes(number) ? 'occupied' : 'free';
@@ -265,38 +341,3 @@ export const occupiedStandArtwork = {
       'M1778.52 625.859L1778.52 577.837C1778.52 570.381 1784.56 564.336 1792.02 564.336L1816.41 564.336C1823.87 564.336 1829.91 570.38 1829.91 577.836L1829.91 625.859C1829.91 633.315 1823.87 639.359 1816.41 639.359L1792.02 639.359C1784.56 639.359 1778.52 633.315 1778.52 625.859Z',
   },
 };
-
-// Test-site sample content requested for all reserved stands; not confirmed assignments.
-export const demoExhibitors = [
-  ...[
-    [3, 'ИМПУЛЬС AI', 'Автоматизация общения с клиентами'],
-    [4, 'СПЕКТР DATA', 'Данные для точных бизнес-решений'],
-    [5, 'КОНТУР LAB', 'Цифровые инструменты взыскания'],
-    [6, 'ПУЛЬС TECH', 'Мониторинг и управление процессами'],
-    [7, 'ПОТОК CRM', 'Единая система работы с клиентами'],
-    [10, 'СФЕРА CLOUD', 'Облачные сервисы для бизнеса'],
-    [15, 'ФОКУС BI', 'Наглядная аналитика показателей'],
-    [16, 'АТЛАС API', 'Интеграция сервисов и данных'],
-    [20, 'МАЯК SOFT', 'Программные решения для команд'],
-  ].map(([number, name, description]) => ({
-    id: `demo-stand-${number}`,
-    name,
-    description,
-    standNumbers: [number],
-    demo: true,
-  })),
-  {
-    id: 'demo-orbita',
-    name: 'ОРБИТА AI',
-    description: 'Интеллектуальные решения для бизнеса',
-    standNumbers: [8],
-    demo: true,
-  },
-  {
-    id: 'demo-vector',
-    name: 'ВЕКТОР DATA',
-    description: 'Аналитика и автоматизация процессов',
-    standNumbers: [9],
-    demo: true,
-  },
-];

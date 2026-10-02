@@ -4,14 +4,7 @@ import { Minus, Plus, RotateCcw } from 'lucide-react';
 import { ExhibitionLegend } from './ExhibitionLegend.jsx';
 import { ActionArrow } from './ActionArrow.jsx';
 import { assetUrl } from '../lib/assets.js';
-import {
-  floors,
-  exhibitors,
-  demoExhibitors,
-  getStandStatus,
-  occupiedStandNumbers,
-  occupiedStandArtwork,
-} from '../data/exhibition.js';
+import { floors, exhibitors, getStandStatus, occupiedStandArtwork } from '../data/exhibition.js';
 
 const benefits = [
   ['01', 'Чек-бейджи', 'Механика приводит участников на ваш стенд'],
@@ -19,27 +12,9 @@ const benefits = [
   ['03', 'Сервис знакомств', 'Организация переговоров между участниками'],
 ];
 
-// Confirmed company data takes precedence over a sample for the same stand.
-const namedExhibitors = [
-  ...exhibitors,
-  ...demoExhibitors.filter(
-    (sample) =>
-      !exhibitors.some((company) =>
-        company.standNumbers.some((n) => sample.standNumbers.includes(n)),
-      ),
-  ),
-];
-const displayedExhibitors = [
-  ...namedExhibitors,
-  ...occupiedStandNumbers
-    .filter((number) => !namedExhibitors.some((item) => item.standNumbers.includes(number)))
-    .map((number) => ({
-      id: `reserved-${number}`,
-      name: 'Экспонент',
-      description: 'Стенд забронирован',
-      standNumbers: [number],
-    })),
-].sort((a, b) => Math.min(...a.standNumbers) - Math.min(...b.standNumbers));
+const displayedExhibitors = [...exhibitors].sort(
+  (a, b) => Math.min(...a.standNumbers) - Math.min(...b.standNumbers),
+);
 
 export function Exhibition({ onApply }) {
   const detail = useRef(null);
@@ -368,8 +343,19 @@ export function Exhibition({ onApply }) {
                 )}
                 {selected && status === 'occupied' ? (
                   <>
-                    {company && (
-                      <strong className="exhibition-stand-company">{company.name}</strong>
+                    {company?.logo ? (
+                      <div className="exhibition-stand-company-logo">
+                        <img
+                          src={assetUrl(company.logo)}
+                          alt={company.name}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </div>
+                    ) : (
+                      company && (
+                        <strong className="exhibition-stand-company">{company.name}</strong>
+                      )
                     )}
                     <p className="exhibition-stand-description">
                       {company?.description ||
@@ -402,8 +388,18 @@ export function Exhibition({ onApply }) {
           <div className="exhibition-company-grid">
             {displayedExhibitors.map((item) => (
               <article key={item.id} className="exhibition-company glass corners">
-                {item.logo && <img src={assetUrl(item.logo)} alt={item.name} loading="lazy" />}
-                <h4>{item.name}</h4>
+                <div className="exhibition-company__logo">
+                  {item.logo ? (
+                    <img
+                      src={assetUrl(item.logo)}
+                      alt={item.name}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <h4>{item.name}</h4>
+                  )}
+                </div>
                 <p>{item.description}</p>
                 <div>
                   {item.standNumbers.map((number) => (

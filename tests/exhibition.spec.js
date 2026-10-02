@@ -141,9 +141,23 @@ test('Small-screen cards and controls fit; all occupied stands have cards', asyn
     });
     expect(metricsFit).toBe(true);
     await expect(section.locator('.exhibition-company')).toHaveCount(11);
+    await expect(section.locator('.exhibition-company__logo img')).toHaveCount(11);
+    await expect(section.locator('.exhibition-company h4')).toHaveCount(0);
     await expect(
       section.locator('.exhibition-company__demo, .exhibition-company__stand svg'),
     ).toHaveCount(0);
+    const logoAssetsAvailable = await section
+      .locator('.exhibition-company__logo img')
+      .evaluateAll(async (imgs) => {
+        const checks = await Promise.all(
+          imgs.map(async (img) => {
+            const response = await fetch(img.src);
+            return response.ok && response.headers.get('content-type')?.startsWith('image/');
+          }),
+        );
+        return checks.every(Boolean);
+      });
+    expect(logoAssetsAvailable).toBe(true);
     await expect(section.locator('.exhibition-map-point, .exhibition-stand-list i')).toHaveCount(0);
     await expect(section.locator('[data-occupied-stand]')).toHaveCount(11);
     await expect(section.locator('[data-occupied-stand="8"] .exhibition-occupied-shape')).toHaveCSS(
@@ -186,17 +200,15 @@ test('Map zoom uses only buttons; scrolling, panning and occupied statuses', asy
   const detail = section.locator('.exhibition-stand-detail');
   await section.getByRole('button', { name: 'Стенд 8 забронирован' }).click();
   await expect(detail.getByRole('heading', { name: 'Стенд №8' })).toBeVisible();
-  await expect(detail.locator('.exhibition-stand-company')).toHaveText('ОРБИТА AI');
+  await expect(detail.getByRole('img', { name: 'DEBT PRICE' })).toBeVisible();
   await expect(detail.locator('.exhibition-stand-description')).toHaveText(
-    'Интеллектуальные решения для бизнеса',
+    'Аукцион долговых активов',
   );
   await expect(detail.getByRole('button')).toHaveCount(0);
   await section.locator('[data-stand="9"]').click();
   await expect(detail.getByRole('heading', { name: 'Стенд №9' })).toBeVisible();
-  await expect(detail.locator('.exhibition-stand-company')).toHaveText('ВЕКТОР DATA');
-  await expect(detail.locator('.exhibition-stand-description')).toHaveText(
-    'Аналитика и автоматизация процессов',
-  );
+  await expect(detail.getByRole('img', { name: 'Декодика' })).toBeVisible();
+  await expect(detail.locator('.exhibition-stand-description')).toHaveText('IT-вендор «Декодика»');
   await expect(detail.getByRole('button')).toHaveCount(0);
   await section.getByRole('button', { name: 'Выбрать стенд 11', exact: true }).click();
   await expect(section.locator('.exhibition-status')).toHaveText('Стенд свободен');
@@ -283,7 +295,7 @@ test('Camera animates smoothly and respects reduced motion', async ({ page }) =>
   expect(await scale()).toBeCloseTo(1.5, 2);
 });
 
-test('Occupied stands are explicit, muted and non-actionable', async ({ page }) => {
+test('Occupied stands show the real exhibitor set and logos', async ({ page }) => {
   await page.goto('/#exhibition');
   await page.locator('#site-preloader').waitFor({ state: 'detached' });
   const section = page.locator('#exhibition');
@@ -300,14 +312,23 @@ test('Occupied stands are explicit, muted and non-actionable', async ({ page }) 
     'Стенд забронирован',
   );
   await expect(section.locator('.exhibition-company')).toHaveCount(11);
+  await expect(section.locator('.exhibition-company__logo img')).toHaveCount(11);
+  await expect(section.locator('.exhibition-company h4')).toHaveCount(0);
   await expect(
     section.locator('.exhibition-company__demo, .exhibition-company__stand svg'),
   ).toHaveCount(0);
+  await expect(section.getByRole('img', { name: 'Эверест Плюс' })).toBeVisible();
+  await expect(section.getByRole('img', { name: 'i-digital' })).toBeVisible();
+  await expect(section.getByRole('img', { name: 'best2pay' })).toBeVisible();
+  await expect(section.locator('.exhibition-exhibitors')).toContainText('IT-вендор «ЭВЕРЕСТ ПЛЮС»');
+  await expect(section.locator('.exhibition-exhibitors')).toContainText(
+    'Платежный сервис «Бест2пей»',
+  );
+  await expect(section.locator('.exhibition-exhibitors')).not.toContainText('ИМПУЛЬС AI');
+  await expect(section.locator('.exhibition-exhibitors')).not.toContainText('ОРБИТА AI');
 });
 
-test('Restored company cards open reserved stand details without a booking CTA', async ({
-  page,
-}) => {
+test('Company cards open real reserved stand details without a booking CTA', async ({ page }) => {
   await page.goto('/#exhibition');
   await page.locator('#site-preloader').waitFor({ state: 'detached' });
   const section = page.locator('#exhibition');
@@ -315,8 +336,8 @@ test('Restored company cards open reserved stand details without a booking CTA',
   await section.getByRole('button', { name: 'Стенд №8', exact: true }).click();
   await expect(detail.getByRole('heading', { name: 'Стенд №8' })).toBeVisible();
   await expect(detail.locator('.exhibition-status')).toHaveText('Стенд забронирован');
-  await expect(detail.locator('.exhibition-stand-company')).toContainText('ОРБИТА AI');
-  await expect(detail).toContainText('Интеллектуальные решения для бизнеса');
+  await expect(detail.getByRole('img', { name: 'DEBT PRICE' })).toBeVisible();
+  await expect(detail).toContainText('Аукцион долговых активов');
   await expect(detail.getByRole('button')).toHaveCount(0);
   await expect(section.locator('[data-stand="8"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(section.locator('output')).toHaveText('100%');
@@ -336,10 +357,13 @@ test('Restored company cards open reserved stand details without a booking CTA',
     'aria-selected',
     'true',
   );
-  await expect(detail.locator('.exhibition-stand-company')).toContainText('ВЕКТОР DATA');
+  await expect(detail.getByRole('img', { name: 'Декодика' })).toBeVisible();
+  await expect(detail).toContainText('IT-вендор «Декодика»');
   await section.getByRole('button', { name: 'Стенд №20', exact: true }).click();
   await expect(detail.getByRole('heading', { name: 'Стенд №20' })).toBeVisible();
   await expect(detail.locator('.exhibition-status')).toHaveText('Стенд забронирован');
+  await expect(detail.getByRole('img', { name: 'best2pay' })).toBeVisible();
+  await expect(detail).toContainText('Платежный сервис «Бест2пей»');
   await expect(section.locator('.exhibition-exhibitors')).not.toContainText(
     'Участие компаний не подтверждено',
   );
