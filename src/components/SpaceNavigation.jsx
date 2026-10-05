@@ -27,6 +27,37 @@ export function SpaceNavigation({ mobile = false, onNavigate }) {
     return () => ro.disconnect();
   }, []);
   useEffect(() => {
+    let frame = 0;
+    const restoreHash = () => {
+      const hash = decodeURIComponent(location.hash.slice(1));
+      const item = destinations.find(
+        (destination) => (destination.anchor || destination.id) === hash,
+      );
+      const section = item && document.getElementById(hash);
+      if (!section) return;
+      setActive(item.id);
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        frame = requestAnimationFrame(() => {
+          window.scrollTo({
+            top: Math.max(0, section.getBoundingClientRect().top + scrollY - (mobile ? 80 : 36)),
+            behavior: 'instant',
+          });
+        });
+      });
+    };
+    const ready = () => document.fonts.ready.then(restoreHash);
+    if (document.getElementById('site-preloader')) {
+      document.addEventListener('debt:preloader-closed', ready, { once: true });
+    } else {
+      ready();
+    }
+    return () => {
+      cancelAnimationFrame(frame);
+      document.removeEventListener('debt:preloader-closed', ready);
+    };
+  }, [mobile]);
+  useEffect(() => {
     let frame = 0,
       positions = [],
       viewportHeight = innerHeight,
