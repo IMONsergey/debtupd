@@ -80,6 +80,8 @@ export function ApplicationModal({
   kind = 'early-registration',
   tariff,
   completed = false,
+  initialComment = '',
+  partner = false,
   onClose,
 }) {
   const ref = useRef(null),
@@ -184,7 +186,9 @@ export function ApplicationModal({
           {kind === 'corporate-package'
             ? 'Корпоративное участие'
             : stand
-              ? 'Забронировать стенд'
+              ? partner
+                ? 'Партнерское участие'
+                : 'Забронировать стенд'
               : activeTariff
                 ? `Тариф «${activeTariff.title}»`
                 : 'Ранняя регистрация'}
@@ -250,13 +254,22 @@ export function ApplicationModal({
                   {stand && (
                     <label className="field span-two">
                       <span>Комментарий / желаемый формат стенда</span>
-                      <textarea name="comment" rows={3} maxLength={2000} />
+                      <textarea
+                        name="comment"
+                        rows={3}
+                        maxLength={2000}
+                        defaultValue={initialComment}
+                      />
                     </label>
                   )}
                 </div>
                 <Consent id="application-consent" />
                 <button className="button" type="submit">
-                  {status === 'sending' ? 'Отправляем…' : 'Отправить заявку'}
+                  {status === 'sending'
+                    ? 'Отправляем…'
+                    : partner
+                      ? 'Стать партнером'
+                      : 'Отправить заявку'}
                   <ActionArrow />
                 </button>
               </fieldset>

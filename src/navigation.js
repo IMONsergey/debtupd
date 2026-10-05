@@ -6,6 +6,7 @@ export const destinations = [
   { id: 'services', label: 'Услуги участникам' },
   { id: 'topics', label: 'Ключевые темы' },
   { id: 'speakers', label: 'Спикеры' },
+  { id: 'exhibition', label: 'Выставка' },
   { id: 'tariffs', label: 'Тарифы' },
   { id: 'partners', label: 'Партнеры' },
   { id: 'contacts', label: 'Контакты' },

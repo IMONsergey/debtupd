@@ -15,6 +15,7 @@ import './styles/fluid-experience.css';
 import './styles/partner-review.css';
 import './styles/art-director.css';
 import './styles/cosmic-motion.css';
+import './styles/exhibition.css';
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />

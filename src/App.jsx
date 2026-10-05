@@ -3,6 +3,7 @@ import { ArrowUpRight, ArrowRight, Play, Info } from 'lucide-react';
 import { content } from './content.js';
 import { Supporters } from './components/Supporters.jsx';
 import { SpeakerCollection } from './components/SpeakerCollection.jsx';
+import { Exhibition } from './components/Exhibition.jsx';
 import { VenueMap } from './components/VenueMap.jsx';
 import { topics, stages, spaces, audience, partnerNames } from './data.js';
 import speakers from './speakers.json';
@@ -887,8 +888,13 @@ export default function App() {
     [media, setMedia] = useState(null);
   const closeForm = useCallback(() => setForm(null), []),
     closeMedia = useCallback(() => setMedia(null), []);
-  const openForm = (kind = 'early-registration', tariff = null) => {
-    setForm({ kind, tariff });
+  const openForm = (
+    kind = 'early-registration',
+    tariff = null,
+    initialComment = '',
+    partner = false,
+  ) => {
+    setForm({ kind, tariff, initialComment, partner });
     goal('form_open', { form: kind, tariff: tariff?.id || '' });
   };
   const openMedia = (kind) => {
@@ -923,6 +929,7 @@ export default function App() {
           <Services onRegister={() => openForm()} />
           <Topics />
           <Speakers />
+          <Exhibition onApply={(comment) => openForm('stand-booking', null, comment, true)} />
           <Audience />
           <Organizer />
           <Tariffs onApply={(t) => openForm('early-registration', t)} />
