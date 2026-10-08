@@ -1,8 +1,8 @@
-// Партнёры конференции. Порядок, уровни и сайты — по ТЗ 8 октября 2026.
+// Партнеры конференции. Порядок, уровни и сайты — по ТЗ 8 октября 2026.
 export const conferencePartners = [
   {
     name: 'АО «НИРУМ»',
-    tier: 'Золотой партнёр',
+    tier: 'Золотой партнер',
     logo: 'nirum.webp',
     planet: 'planet-gold.webp',
     href: 'https://nirum.ru/',
@@ -12,7 +12,7 @@ export const conferencePartners = [
   },
   {
     name: 'АО «Агредатор»',
-    tier: 'Стратегический партнёр',
+    tier: 'Стратегический партнер',
     logo: 'vzyskator.webp',
     planet: 'planet-strategic.webp',
     href: 'https://vzyskator.ru/',
@@ -22,17 +22,17 @@ export const conferencePartners = [
   },
   {
     name: 'Best2pay',
-    tier: 'Бриллиантовый партнёр',
+    tier: 'Бриллиантовый партнер',
     logo: 'best2pay.webp',
     planet: 'planet-diamond.webp',
     href: 'https://best2pay.net/',
     description: [
-      'Best2pay — провайдер платёжных решений для банков, МФО и других финансовых организаций. Компания предоставляет инфраструктуру для автоматизации денежных потоков, проведения платежей и выплат, сокращения операционных расходов и управления рисками.',
+      'Best2pay — провайдер платежных решений для банков, МФО и других финансовых организаций. Компания предоставляет инфраструктуру для автоматизации денежных потоков, проведения платежей и выплат, сокращения операционных расходов и управления рисками.',
     ],
   },
   {
     name: 'ООО «Смарт Бизнес Лаб»',
-    tier: 'Серебряный партнёр',
+    tier: 'Серебряный партнер',
     logo: 'smart-legal-data.webp',
     planet: 'planet-silver.webp',
     href: 'https://legaldatacloud.ru/',
@@ -42,7 +42,7 @@ export const conferencePartners = [
   },
   {
     name: 'ПКО «Интел коллект»',
-    tier: 'Специальный партнёр',
+    tier: 'Специальный партнер',
     logo: 'intel-collect.webp',
     planet: 'planet-special.webp',
     href: 'https://intelcollect.ru/',
@@ -53,7 +53,7 @@ export const conferencePartners = [
   },
   {
     name: 'ООО «ЭВЕРЕСТ ПЛЮС»',
-    tier: 'Партнёр',
+    tier: 'Партнер',
     logo: 'everest-plus.webp',
     planet: 'planet-standard.webp',
     href: 'https://ooo-everest.ru/',
@@ -63,7 +63,7 @@ export const conferencePartners = [
   },
   {
     name: 'iD Systems',
-    tier: 'Партнёр',
+    tier: 'Партнер',
     logo: 'idsystems.webp',
     planet: 'planet-standard.webp',
     href: 'https://www.id-sys.ru/',
