@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { getPricingPhase } from '../src/lib/ticket-pricing.js';
 
 const PORT = Number(process.env.PORT || 32026);
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -36,11 +37,15 @@ const BITRIX_DEBT_FIELDS = {
   utmContent: 'UF_CRM_DEBT2026_UTM_CONTENT',
   utmTerm: 'UF_CRM_DEBT2026_UTM_TERM',
 };
+// The same pricing schedule drives both the public tariff cards and CRM product rows.
+// Base prices apply before October 2; the published current prices come from getPricingPhase().
 const TARIFFS = {
   business: { name: 'Деловой', price: 44_000 },
   full: { name: 'Полный', price: 49_000 },
   'full-plus': { name: 'Полный Plus', price: 66_000 },
+  fincifra: { name: '«ФинЦифра» для членов НСФР', price: 24_500, maxTickets: 2 },
 };
+const CORPORATE_TARIFFS = new Set(['business', 'full', 'full-plus']);
 
 const rateBuckets = new Map();
 
@@ -156,7 +161,10 @@ function normalizeTariff(payload) {
   const id = clean(payload.tariff_id, 40);
   const tariff = TARIFFS[id];
   if (!tariff) return null;
-  return { id, ...tariff };
+  const currentPrice = getPricingPhase().prices?.[id];
+  const price = currentPrice ? Number(currentPrice.replace(/[^0-9]/g, '')) : tariff.price;
+  if (!Number.isInteger(price) || price <= 0) return null;
+  return { id, ...tariff, price };
 }
 
 function buildBitrixDealFields(payload, contactId, companyId) {
@@ -419,8 +427,17 @@ function validatePayload(payload) {
     const count = Number(payload.participants_count);
     if (!Number.isInteger(count) || count < 1 || count > 999) return 'invalid_participants';
   }
-  if (formId === 'corporate-package-form' && !TARIFFS[payload.tariff_id]) return 'invalid_tariff';
+  if (formId === 'corporate-package-form' && !CORPORATE_TARIFFS.has(payload.tariff_id))
+    return 'invalid_tariff';
   if (payload.tariff_id && !TARIFFS[payload.tariff_id]) return 'invalid_tariff';
+  // The individual NSFR offer must not become a corporate-discount ticket or allow 3+ seats
+  // through a hand-crafted request that bypasses the browser's max attribute.
+  if (payload.tariff_id === 'fincifra') {
+    if (formId !== 'early-registration-form') return 'invalid_tariff';
+    const count = Number(payload.participants_count);
+    if (!Number.isInteger(count) || count < 1 || count > TARIFFS.fincifra.maxTickets)
+      return 'invalid_participants';
+  }
   return null;
 }
 
