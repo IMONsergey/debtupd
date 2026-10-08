@@ -20,8 +20,8 @@ for (const width of widths)
     page.on('pageerror', (e) => errors.push(e.message));
     await page.goto('/');
     await page.evaluate(() => document.fonts.ready);
-    await expect(page.locator('.speaker')).toHaveCount(15);
-    await expect(page.locator('.tariff')).toHaveCount(3);
+    await expect(page.locator('.speaker')).toHaveCount(17);
+    await expect(page.locator('.tariff')).toHaveCount(4);
     await expect(page.getByRole('heading', { name: /Тарифы\s*участия/ })).toBeVisible();
     const issues = await page.evaluate(() => ({
       overflow: document.documentElement.scrollWidth > innerWidth,

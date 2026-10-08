@@ -1,0 +1,98 @@
+/* All four tariffs use the same card structure. The fourth is distinguished only by color. */
+.tariff-grid {
+  align-items: stretch;
+}
+
+.tariff-grid > .tariff--fincifra {
+  background: radial-gradient(ellipse at 35% 15%, #106d72 0%, #07545e 52%, #05313f 100%);
+  border-color: rgba(66, 209, 207, 0.48);
+}
+
+.tariff--fincifra li {
+  background: rgba(42, 195, 190, 0.09);
+}
+
+.tariff--fincifra li > img {
+  filter: hue-rotate(-35deg) saturate(1.2);
+}
+
+.tariff--fincifra .not-included > span:not(.sr-only) {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.tariff--fincifra .tariff-limit-note {
+  color: #c5eced;
+  font:
+    400 13px/1.45 'IBM Plex Sans',
+    sans-serif;
+  margin: 0 0 18px;
+}
+
+@media (min-width: 1181px) {
+  .tariff-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(12px, 1.2vw, 18px);
+  }
+  .tariff-grid > .tariff {
+    min-width: 0;
+    min-height: 0;
+    padding: clamp(16px, 1.6cqi, 24px);
+  }
+  .tariff-grid > .tariff h3 {
+    font-size: clamp(16px, 1.7cqi, 23px);
+    line-height: 1.34;
+    min-height: 82px;
+    margin-bottom: 16px;
+    letter-spacing: 0.015em;
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+  }
+  .tariff-grid > .tariff ul {
+    gap: 7px;
+    margin-bottom: 22px;
+  }
+  .tariff-grid > .tariff li {
+    font-size: clamp(12px, 1.15cqi, 15px);
+    line-height: 1.42;
+    min-height: 44px;
+    padding: 9px 7px;
+    gap: 8px;
+  }
+  .tariff-grid > .tariff li img {
+    width: 11px;
+    height: 11px;
+  }
+  .tariff-grid > .tariff .tariff-bottom strong {
+    font-size: clamp(24px, 2.35cqi, 35px);
+    margin-bottom: 20px;
+  }
+  .tariff-grid > .tariff .tariff-limit-note {
+    font-size: clamp(12px, 1.03cqi, 14px);
+    line-height: 1.4;
+    margin: 0 0 18px;
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1180px) {
+  .tariff-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .tariff-grid > .tariff {
+    min-height: 560px;
+  }
+}
+.form-dialog .tariff-form-limit {
+  margin: 0 0 18px;
+  padding: 10px 13px;
+  border-left: 2px solid #76c8e1;
+  background: #1a405a52;
+  color: #d7eeff;
+  font:
+    400 14px/1.55 'IBM Plex Sans',
+    sans-serif;
+}
+
+.form-dialog--fincifra {
+  --tariff-light: #62b9d4;
+}

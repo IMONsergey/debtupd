@@ -123,7 +123,8 @@ export function ApplicationModal({
           label: 'Количество участников',
           type: 'number',
           min: 1,
-          max: 999,
+          max: activeTariff?.maxTicketsPerMember ?? 999,
+          step: 1,
           required: true,
           defaultValue: '1',
         },
@@ -225,6 +226,9 @@ export function ApplicationModal({
                   {activeTariff.title} · {activeTariff.price}
                 </strong>
               </p>
+            )}
+            {activeTariff?.limitNote && (
+              <p className="tariff-form-limit">{activeTariff.limitNote}</p>
             )}
             <form id={id} onSubmit={send}>
               <Honeypot />
@@ -360,11 +364,13 @@ export function CorporateForm({ onSuccess }) {
               onChange={(e) => setTariff(e.target.value)}
               required
             >
-              {tariffs.items.map((t) => (
-                <option value={t.id} key={t.id}>
-                  {t.title}
-                </option>
-              ))}
+              {tariffs.items
+                .filter((t) => !t.fixedPrice)
+                .map((t) => (
+                  <option value={t.id} key={t.id}>
+                    {t.title}
+                  </option>
+                ))}
             </select>
           </label>
           <label className="field span-two">

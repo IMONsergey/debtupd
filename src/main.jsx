@@ -17,6 +17,8 @@ import './styles/art-director.css';
 import './styles/cosmic-motion.css';
 import './styles/exhibition.css';
 import './styles/conference-partners.css';
+import './styles/fincifra-tariff.css';
+import './styles/topics-carousel.css';
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />

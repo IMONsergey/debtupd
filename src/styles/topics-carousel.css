@@ -1,0 +1,84 @@
+/* Mobile/tablet: native touch scrolling with scroll-snap and explicit controls.
+   Large desktop retains the original topic grid without any card redesign. */
+.topics-controls {
+  display: none;
+}
+
+@media (max-width: 899px) {
+  .topics-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    min-width: 0;
+    padding: 1px 0 4px;
+  }
+  .topics-grid::-webkit-scrollbar {
+    display: none;
+  }
+  .topics-grid:focus-visible {
+    outline: 2px solid #6bbdf5;
+    outline-offset: 4px;
+  }
+  .topics-grid > .topic-card {
+    flex: 0 0 min(88%, 465px);
+    min-width: 0;
+    max-width: none;
+    height: auto;
+    scroll-snap-align: start;
+  }
+  .topics-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 14px;
+  }
+  .topics-counter {
+    color: #93abc2;
+    font:
+      430 14px/1 Bounded,
+      sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+  .topics-counter strong {
+    color: #fff;
+    font-weight: 500;
+  }
+  .topics-controls-buttons {
+    display: flex;
+    gap: 8px;
+  }
+  .topics-controls-buttons button {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 1px solid rgba(125, 179, 220, 0.56);
+    border-radius: 0;
+    background: rgba(11, 32, 59, 0.87);
+    color: #e5f4ff;
+    cursor: pointer;
+  }
+  .topics-controls-buttons button:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .topics-controls-buttons button:focus-visible {
+    outline: 2px solid #6bbdf5;
+    outline-offset: 3px;
+  }
+}
+
+@media (max-width: 599px) {
+  .topics-grid > .topic-card {
+    flex-basis: calc(100% - 28px);
+  }
+}
