@@ -225,3 +225,65 @@
     right: calc(50% - 50px);
   }
 }
+
+/* On mobile/tablet, share the same controls as the site's other scroll-snap
+   carousels. The original infinite desktop slider and its controls are intact. */
+.other-conferences-mobile {
+  display: none;
+}
+
+@media (max-width: 899px) {
+  .other-conferences-section > .other-conferences-carousel {
+    display: none;
+  }
+
+  .other-conferences-mobile {
+    display: block;
+    min-width: 0;
+    margin-top: 22px;
+  }
+
+  .other-conferences-mobile__track {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    min-width: 0;
+    padding: 3px 0 5px;
+  }
+
+  .other-conferences-mobile__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .other-conferences-mobile__track:focus-visible {
+    outline: 2px solid #6bbdf5;
+    outline-offset: 3px;
+  }
+
+  .other-conferences-mobile__track > .conference-link-card {
+    flex: 0 0 calc(100% - 64px);
+    width: calc(100% - 64px);
+    min-width: 0;
+    max-width: none;
+    height: auto;
+    aspect-ratio: 950 / 560;
+    scroll-snap-align: start;
+  }
+
+  .other-conferences-mobile__controls {
+    margin-top: 14px;
+  }
+}
+
+@media (max-width: 599px) {
+  .other-conferences-mobile__track > .conference-link-card {
+    flex-basis: calc(100% - 28px);
+    width: calc(100% - 28px);
+  }
+}

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { assetUrl } from '../lib/assets.js';
+import { useSnapCarousel } from '../lib/useSnapCarousel.js';
+import { MobileCarouselControls } from './MobileCarouselControls.jsx';
 
 // Native archive cards and scroll-snap carousel from debt-tech.ru.
 export function OtherConferencesSection({ archive }) {
@@ -24,6 +26,15 @@ export function OtherConferencesSection({ archive }) {
   const scrollFrameRef = useRef(0);
   const requestedIndexRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(items.length);
+  const {
+    trackRef: mobileTrackRef,
+    index: mobileIndex,
+    scrollToIndex: mobileScrollToIndex,
+    onScroll: onMobileScroll,
+    onScrollEnd: onMobileScrollEnd,
+    onKeyDown: onMobileKeyDown,
+    interrupt: interruptMobileScroll,
+  } = useSnapCarousel(items.length);
 
   function centerCardInstantly(index) {
     const viewport = viewportRef.current;
@@ -225,6 +236,53 @@ export function OtherConferencesSection({ archive }) {
             aria-hidden="true"
           />
         </button>
+      </div>
+
+      <div className="other-conferences-mobile">
+        <div
+          className="other-conferences-mobile__track"
+          ref={mobileTrackRef}
+          role="region"
+          aria-label="Архив конференций — мобильный слайдер"
+          tabIndex={0}
+          onScroll={onMobileScroll}
+          onScrollEnd={onMobileScrollEnd}
+          onPointerDown={interruptMobileScroll}
+          onWheel={interruptMobileScroll}
+          onKeyDown={onMobileKeyDown}
+        >
+          {items.map((item, index) => (
+            <a
+              className={'conference-link-card' + (index === mobileIndex ? ' is-active' : '')}
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              key={item.title + '-' + item.year + '-' + index}
+            >
+              <img src={item.image} alt="" loading="lazy" decoding="async" />
+              <span className="conference-link-card__shade" aria-hidden="true" />
+              <span className="conference-link-card__title">
+                {(item.titleLines ?? [item.title]).map((line) => (
+                  <span key={line}>{line}</span>
+                ))}
+              </span>
+              <strong className="conference-link-card__year">{item.year}</strong>
+              <span className="conference-link-card__arrow" aria-hidden="true">
+                <img src={assetUrl('assets/icons/arrow-up.svg')} alt="" />
+              </span>
+            </a>
+          ))}
+        </div>
+        <MobileCarouselControls
+          className="other-conferences-mobile__controls"
+          label="Навигация по архиву конференций"
+          index={mobileIndex}
+          count={items.length}
+          onPrev={() => mobileScrollToIndex(mobileIndex - 1)}
+          onNext={() => mobileScrollToIndex(mobileIndex + 1)}
+          prevLabel="Предыдущая конференция"
+          nextLabel="Следующая конференция"
+        />
       </div>
     </section>
   );
