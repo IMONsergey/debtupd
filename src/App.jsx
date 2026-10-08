@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ArrowUpRight, ArrowRight, Play, Info } from 'lucide-react';
 import { content } from './content.js';
 import { Supporters } from './components/Supporters.jsx';
+import { ConferencePartners } from './components/ConferencePartners.jsx';
 import { SpeakerCollection } from './components/SpeakerCollection.jsx';
 import { Exhibition } from './components/Exhibition.jsx';
 import { VenueMap } from './components/VenueMap.jsx';
@@ -780,6 +781,7 @@ function Sponsor() {
           </p>
         </div>
       </div>
+      <ConferencePartners />
     </section>
   );
 }
