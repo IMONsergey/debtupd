@@ -34,6 +34,7 @@ test('Unconfigured lead service validates data and never reports delivered leads
       { participants_count: '1000' },
       { participants_count: '2.5' },
       { tariff_id: 'invalid' },
+      { tariff_id: 'fincifra' }, // member-only offer is not a corporate package
     ]) {
       const r = await fetch(`http://127.0.0.1:${port}/api/lead`, {
         method: 'POST',
@@ -122,13 +123,14 @@ test(
         utm_term: 'term',
       };
       const cases = [
-        ['early-registration-form', 'business', 44000, 'C15:NEW'],
-        ['early-registration-form', 'full', 49000, 'C15:NEW'],
+        ['early-registration-form', 'business', 49000, 'C15:NEW'],
+        ['early-registration-form', 'full', 54000, 'C15:NEW'],
         ['corporate-package-form', 'full-plus', 66000, 'C15:NEW'],
+        ['early-registration-form', 'fincifra', 24500, 'C15:NEW'],
         ['stand-booking-form', '', null, 'C15:PREPARATION'],
       ];
       for (const [form_id, tariff_id, price, stage] of cases) {
-        const response = await request({ ...base, form_id, tariff_id });
+        const response = await request({ ...base, form_id, tariff_id, tariff_price: '1 ₽' });
         assert.equal(response.status, 200);
         assert.equal((await response.json()).success, true);
         const deal = lines.filter((line) => line.method === 'crm.deal.add').at(-1).body.fields;
@@ -152,15 +154,44 @@ test(
           assert.equal(rows[0].QUANTITY, 2);
         }
       }
+      // Browser-side max=2 is not an authorization boundary: enforce on the API as well.
+      const rejectedRequests = [
+        {
+          ...base,
+          form_id: 'early-registration-form',
+          tariff_id: 'fincifra',
+          participants_count: '3',
+        },
+        {
+          ...base,
+          form_id: 'early-registration-form',
+          tariff_id: 'fincifra',
+          participants_count: '0',
+        },
+        {
+          ...base,
+          form_id: 'corporate-package-form',
+          tariff_id: 'fincifra',
+          participants_count: '2',
+        },
+      ];
+      const createdBefore = lines.filter((line) => line.method === 'crm.deal.add').length;
+      for (const payload of rejectedRequests) {
+        const response = await request(payload);
+        assert.equal(response.status, 400);
+        assert.equal((await response.json()).success, false);
+      }
+      assert.equal(lines.filter((line) => line.method === 'crm.deal.add').length, createdBefore);
+
       for (
         let i = 0;
-        i < 100 && lines.filter((line) => line.event === 'telegram_delivered').length < 4;
+        i < 100 && lines.filter((line) => line.event === 'telegram_delivered').length < 5;
         i++
       )
         await delay(20);
       const messages = lines.filter((line) => line.method === 'sendMessage');
-      assert.equal(messages.length, 4);
-      assert.equal(lines.filter((line) => line.event === 'telegram_delivered').length, 4);
+      assert.equal(messages.length, 5);
+      assert.equal(lines.filter((line) => line.event === 'telegram_delivered').length, 5);
       for (const { body } of messages) {
         assert.equal(body.chat_id, '-123');
         assert.equal(body.message_thread_id, '7');
@@ -177,7 +208,7 @@ test(
       assert.equal(failed.status, 502);
       assert.equal((await failed.json()).success, false);
       await delay(100);
-      assert.equal(lines.filter((line) => line.method === 'sendMessage').length, 4);
+      assert.equal(lines.filter((line) => line.method === 'sendMessage').length, 5);
     } finally {
       server.kill();
       await once(server, 'exit');
