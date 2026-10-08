@@ -31,6 +31,28 @@ for (const width of [1440, 1024, 768, 390, 320]) {
     await expect(page.locator('.tariff')).toHaveCount(4);
     await expect(tariff).toBeVisible();
     await expect(tariff.locator('h3')).toHaveText('«ФинЦифра» для членов НСФР');
+    const compact = await tariff.evaluate((card) => {
+      const heading = card.querySelector('h3');
+      const subtitle = heading.querySelector('small');
+      const note = card.querySelector('.tariff-limit-note');
+      const benefit = card.querySelector('li.included');
+      const first = benefit.querySelector('img').getBoundingClientRect();
+      const firstText = benefit.querySelector('span').getBoundingClientRect();
+      const subtitleSize = parseFloat(getComputedStyle(subtitle).fontSize);
+      const headingSize = parseFloat(getComputedStyle(heading).fontSize);
+      return {
+        subtitleRatio: subtitleSize / headingSize,
+        noteFont: parseFloat(getComputedStyle(note).fontSize),
+        iconOffset: first.top - firstText.top,
+        height: card.getBoundingClientRect().height,
+      };
+    });
+    expect(compact.subtitleRatio).toBeLessThan(0.75);
+    expect(compact.noteFont).toBeLessThanOrEqual(12.1);
+    expect(compact.iconOffset).toBeGreaterThanOrEqual(0);
+    expect(compact.iconOffset).toBeLessThan(6);
+    if (width === 1440) expect(compact.height).toBeLessThan(650);
+    if (width === 390) expect(compact.height).toBeLessThan(640);
     await expect(tariff.locator('.tariff-limit-note')).toContainText('Не более двух билетов');
     await expect(tariff.locator('.tariff-bottom > strong')).toHaveText('24 500 ₽');
     await expect(tariff.locator('.tariff-bottom > span')).toHaveText('Стоимость');

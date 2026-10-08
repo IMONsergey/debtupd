@@ -1,4 +1,4 @@
-/* All four tariffs use the same card structure. The fourth is distinguished only by color. */
+/* Compact tariff rhythm: all four cards retain one coherent grid and bottom-aligned CTAs. */
 .tariff-grid {
   align-items: stretch;
 }
@@ -21,12 +21,36 @@
   text-decoration-thickness: 1px;
 }
 
+.tariff-grid > .tariff h3 small {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.64em;
+  font-weight: 430;
+  line-height: 1.3;
+  letter-spacing: 0.015em;
+  color: #c9edf0;
+}
+
+/* Multi-line benefits: pin the icon to the FIRST line, not the centre of the row. */
+.tariff-grid > .tariff li {
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.tariff-grid > .tariff li > img {
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  margin-top: 0.24em;
+  align-self: flex-start;
+}
+
 .tariff--fincifra .tariff-limit-note {
   color: #c5eced;
   font:
-    400 13px/1.45 'IBM Plex Sans',
+    400 12px/1.35 'IBM Plex Sans',
     sans-serif;
-  margin: 0 0 18px;
+  margin: 0 0 12px;
 }
 
 @media (min-width: 1181px) {
@@ -37,40 +61,34 @@
   .tariff-grid > .tariff {
     min-width: 0;
     min-height: 0;
-    padding: clamp(16px, 1.6cqi, 24px);
+    padding: clamp(14px, 1.32cqi, 20px);
   }
   .tariff-grid > .tariff h3 {
-    font-size: clamp(16px, 1.7cqi, 23px);
-    line-height: 1.34;
-    min-height: 82px;
-    margin-bottom: 16px;
-    letter-spacing: 0.015em;
+    font-size: clamp(16px, 1.62cqi, 22px);
+    line-height: 1.25;
+    min-height: 64px;
+    margin-bottom: 11px;
+    letter-spacing: 0.012em;
     text-wrap: pretty;
     overflow-wrap: anywhere;
   }
   .tariff-grid > .tariff ul {
-    gap: 7px;
-    margin-bottom: 22px;
+    gap: 6px;
+    margin-bottom: 15px;
   }
   .tariff-grid > .tariff li {
-    font-size: clamp(12px, 1.15cqi, 15px);
-    line-height: 1.42;
-    min-height: 44px;
-    padding: 9px 7px;
-    gap: 8px;
-  }
-  .tariff-grid > .tariff li img {
-    width: 11px;
-    height: 11px;
+    font-size: clamp(12px, 1.11cqi, 15px);
+    line-height: 1.36;
+    min-height: 37px;
+    padding: 7px 8px;
   }
   .tariff-grid > .tariff .tariff-bottom strong {
     font-size: clamp(24px, 2.35cqi, 35px);
-    margin-bottom: 20px;
+    margin-bottom: 13px;
   }
   .tariff-grid > .tariff .tariff-limit-note {
-    font-size: clamp(12px, 1.03cqi, 14px);
-    line-height: 1.4;
-    margin: 0 0 18px;
+    font-size: clamp(11px, 0.95cqi, 12px);
+    margin-bottom: 10px;
   }
 }
 
@@ -79,7 +97,68 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .tariff-grid > .tariff {
-    min-height: 560px;
+    min-height: 0;
+    padding: 20px;
+  }
+  .tariff-grid > .tariff h3 {
+    min-height: 50px;
+    margin-bottom: 14px;
+  }
+  .tariff-grid > .tariff ul {
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .tariff-grid > .tariff li {
+    min-height: 40px;
+    padding: 8px 10px;
+    line-height: 1.34;
+  }
+  .tariff-grid > .tariff .tariff-bottom strong {
+    margin-bottom: 14px;
+  }
+}
+
+@media (max-width: 899px) {
+  .tariff-grid > .tariff {
+    min-height: 0;
+    padding: 21px 20px 22px;
+  }
+  .tariff-grid > .tariff h3 {
+    min-height: 0;
+    font-size: clamp(19px, 4vw, 23px);
+    line-height: 1.2;
+    margin-bottom: 13px;
+  }
+  .tariff-grid > .tariff ul {
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .tariff-grid > .tariff li {
+    min-height: 0;
+    padding: 8px 9px;
+    font-size: 14px;
+    line-height: 1.33;
+  }
+  .tariff-grid > .tariff .tariff-bottom strong {
+    margin-bottom: 13px;
+  }
+  .tariff-grid > .tariff .tariff-limit-note {
+    font-size: 12px;
+    line-height: 1.35;
+    margin-bottom: 11px;
+  }
+}
+
+@media (max-width: 599px) {
+  .tariff-grid > .tariff {
+    padding: 20px 18px 21px;
+  }
+  .tariff-grid > .tariff h3 {
+    font-size: 20px;
+  }
+  .tariff-grid > .tariff li {
+    font-size: 13px;
+    padding: 7px 8px;
   }
 }
 .form-dialog .tariff-form-limit {

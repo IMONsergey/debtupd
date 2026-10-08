@@ -749,7 +749,16 @@ function Tariffs({ onApply }) {
       <div className="tariff-grid" id="tariff-plans">
         {tariffs.items.map((t) => (
           <article className={'tariff tariff--' + t.id + ' corners'} key={t.id}>
-            <h3>{t.title}</h3>
+            <h3>
+              {t.titleSuffix ? (
+                <>
+                  {t.titleMain}
+                  <small> {t.titleSuffix}</small>
+                </>
+              ) : (
+                t.title
+              )}
+            </h3>
             <ul>
               {t.features.map((f) => (
                 <li key={f.label} className={f.active ? 'included' : 'not-included'}>
