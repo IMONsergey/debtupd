@@ -24,7 +24,7 @@ for (const width of [1440, 768, 390, 320]) {
     expect(tierTypography.family).toMatch(/Bounded/i);
     expect(tierTypography.transform).toBe('uppercase');
 
-    const logos = cards.locator('img');
+    const logos = cards.locator('.conference-partner-logo img');
     for (let index = 0; index < 7; index++) {
       const logo = logos.nth(index);
       await logo.scrollIntoViewIfNeeded();
@@ -41,6 +41,36 @@ for (const width of [1440, 768, 390, 320]) {
       () => cards.first().locator('.conference-partner-planet').evaluate((img) => img.complete && img.naturalWidth > 0),
       { timeout: 12000 },
     ).toBe(true);
+    // Typography is intentionally shared with the original DEBTPRICE panel.
+    const originalCopy = page.locator('.sponsor-panel:not(.sponsor-panel--partner) .sponsor-copy');
+    const partnerCopy = cards.first().locator('.conference-partner-copy');
+    const typography = async (locator) => locator.evaluate((el) => {
+      const style = getComputedStyle(el);
+      return {
+        family: style.fontFamily,
+        size: style.fontSize,
+        lineHeight: style.lineHeight,
+        color: style.color,
+        gap: style.gap,
+      };
+    });
+    expect(await typography(partnerCopy)).toEqual(await typography(originalCopy));
+    if (width > 760) {
+      const offset = await page.evaluate(() => {
+        const original = document.querySelector('.sponsor-panel:not(.sponsor-panel--partner) .sponsor-copy').getBoundingClientRect();
+        const partner = document.querySelector('.sponsor-panel--partner .conference-partner-copy').getBoundingClientRect();
+        return Math.abs(original.left - partner.left);
+      });
+      expect(offset).toBeLessThan(3);
+    }
+
+    // A planet must be vertically centered against its card's full height.
+    const planetOffset = await cards.first().evaluate((card) => {
+      const container = card.getBoundingClientRect();
+      const planet = card.querySelector('.conference-partner-planet').getBoundingClientRect();
+      return Math.abs((planet.top + planet.bottom) / 2 - (container.top + container.bottom) / 2);
+    });
+    expect(planetOffset).toBeLessThan(2);
     expect(pageErrors).toEqual([]);
   });
 }

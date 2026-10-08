@@ -6,15 +6,15 @@ export function ConferencePartners() {
     <div className="conference-partners-list" aria-label="Партнёры DEBT TECH 2026">
       {conferencePartners.map((partner) => (
         <article className="sponsor-panel sponsor-panel--partner glass corners" key={partner.name}>
+          <img
+            className="sponsor-planet conference-partner-planet"
+            src={assetUrl('assets/figma/sponsor-planet.webp')}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
+          />
           <div className="sponsor-brand conference-partner-brand">
-            <img
-              className="sponsor-planet conference-partner-planet"
-              src={assetUrl('assets/figma/sponsor-planet.webp')}
-              alt=""
-              aria-hidden="true"
-              loading="lazy"
-              decoding="async"
-            />
             <h3 className="conference-partner-name">{partner.name}</h3>
             <a
               className="conference-partner-logo"
@@ -32,7 +32,7 @@ export function ConferencePartners() {
             </a>
             <h4 className="conference-partner-tier">{partner.tier}</h4>
           </div>
-          <div className="conference-partner-copy">
+          <div className="sponsor-copy conference-partner-copy">
             {partner.description.map((paragraph, index) => (
               <p key={index}>{paragraph}</p>
             ))}
