@@ -189,10 +189,23 @@
 .space-planet--5::after {
   background: linear-gradient(22deg, transparent 34%, #7f96ad55 43%, transparent 51%);
 }
+/* Tariff stop: an intact, softly textured sphere, not the old ring-shaped
+   transparent crater that looked like a missing/corrupted planet texture. */
+.space-planet--6 {
+  background: radial-gradient(
+    circle at 30% 24%,
+    #d3e1e6 0%,
+    #8ca3ae 27%,
+    #4b6476 55%,
+    #1c3448 78%,
+    #08172b 100%
+  );
+}
 .space-planet--6::after {
   background:
-    radial-gradient(ellipse at 50% 38%, transparent 0 28%, #14273a77 31% 38%, transparent 41%),
-    radial-gradient(circle at 63% 66%, #13283f88 0 13%, transparent 18%);
+    radial-gradient(ellipse at 34% 44%, #66849342 0 15%, transparent 33%),
+    linear-gradient(157deg, transparent 32%, #a3bec721 43%, transparent 55%),
+    radial-gradient(ellipse at 71% 68%, #233b504d 0 12%, transparent 28%);
 }
 .space-planet--7::after {
   background:
