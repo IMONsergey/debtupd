@@ -210,7 +210,9 @@
 }
 
 /* Native mobile carousel retaining the existing partner cards. */
-.conference-partners-carousel { min-width: 0; }
+.conference-partners-carousel {
+  min-width: 0;
+}
 @media (max-width: 899px) {
   .conference-partners-list {
     display: flex;
@@ -225,13 +227,15 @@
     scrollbar-width: none;
     padding: 1px 0 3px;
   }
-  .conference-partners-list::-webkit-scrollbar { display: none; }
+  .conference-partners-list::-webkit-scrollbar {
+    display: none;
+  }
   .conference-partners-list:focus-visible {
     outline: 2px solid #6bbdf5;
     outline-offset: 3px;
   }
   .conference-partners-list > .sponsor-panel--partner {
-    flex: 0 0 min(88%, 460px);
+    flex: 0 0 calc(100% - 64px);
     min-width: 0;
     max-width: none;
     height: auto;
@@ -240,5 +244,7 @@
   }
 }
 @media (max-width: 599px) {
-  .conference-partners-list > .sponsor-panel--partner { flex-basis: calc(100% - 28px); }
+  .conference-partners-list > .sponsor-panel--partner {
+    flex-basis: calc(100% - 28px);
+  }
 }
