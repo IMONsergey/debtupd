@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowUpRight, ArrowRight, ChevronLeft, ChevronRight, Play, Info } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { ArrowUpRight, ArrowRight, Play, Info } from 'lucide-react';
 import { content } from './content.js';
 import { Supporters } from './components/Supporters.jsx';
 import { ConferencePartners } from './components/ConferencePartners.jsx';
+import { MobileCarouselControls } from './components/MobileCarouselControls.jsx';
+import { useSnapCarousel } from './lib/useSnapCarousel.js';
 import { SpeakerCollection } from './components/SpeakerCollection.jsx';
 import { Exhibition } from './components/Exhibition.jsx';
 import { VenueMap } from './components/VenueMap.jsx';
@@ -476,56 +478,8 @@ function Bullets({ items }) {
   );
 }
 function Topics() {
-  const trackRef = useRef(null);
-  const [activeTopic, setActiveTopic] = useState(0);
-
-  const goToTopic = (index) => {
-    const track = trackRef.current;
-    if (!track || index < 0 || index >= topics.length) return;
-    const card = track.children[index];
-    if (!card) return;
-    const x =
-      card.getBoundingClientRect().left - track.getBoundingClientRect().left + track.scrollLeft;
-    track.scrollTo({ left: x, behavior: 'smooth' });
-    setActiveTopic(index);
-  };
-
-  const onTopicsScroll = () => {
-    const track = trackRef.current;
-    if (!track || !track.children.length) return;
-    // The last slide cannot always align to the left on wider tablets:
-    // a scroll-at-end check prevents the counter stopping at the penultimate card.
-    if (track.scrollLeft >= track.scrollWidth - track.clientWidth - 2) {
-      setActiveTopic(topics.length - 1);
-      return;
-    }
-    const left = track.getBoundingClientRect().left;
-    let closest = 0;
-    let distance = Infinity;
-    Array.from(track.children).forEach((child, index) => {
-      const delta = Math.abs(child.getBoundingClientRect().left - left);
-      if (delta < distance) {
-        distance = delta;
-        closest = index;
-      }
-    });
-    setActiveTopic((current) => (current === closest ? current : closest));
-  };
-
-  const onTopicsKeyDown = (event) => {
-    if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
-    if (!window.matchMedia('(max-width: 899px)').matches) return;
-    event.preventDefault();
-    if (event.key === 'Home') goToTopic(0);
-    else if (event.key === 'End') goToTopic(topics.length - 1);
-    else
-      goToTopic(
-        Math.max(
-          0,
-          Math.min(topics.length - 1, activeTopic + (event.key === 'ArrowRight' ? 1 : -1)),
-        ),
-      );
-  };
+  const { trackRef, index, scrollToIndex, onScroll, onScrollEnd, onKeyDown, interrupt } =
+    useSnapCarousel(topics.length);
 
   return (
     <section className="section topics" id="topics">
@@ -536,8 +490,11 @@ function Topics() {
         role="region"
         aria-label="Карточки ключевых тем"
         tabIndex={0}
-        onScroll={onTopicsScroll}
-        onKeyDown={onTopicsKeyDown}
+        onScroll={onScroll}
+        onScrollEnd={onScrollEnd}
+        onPointerDown={interrupt}
+        onWheel={interrupt}
+        onKeyDown={onKeyDown}
       >
         {topics.map(([title, items], i) => (
           <article className="topic-card glass corners" key={title}>
@@ -547,31 +504,16 @@ function Topics() {
           </article>
         ))}
       </div>
-      <div className="topics-controls" aria-label="Навигация по ключевым темам">
-        <span className="topics-counter" aria-live="polite" aria-atomic="true">
-          <strong>{String(activeTopic + 1).padStart(2, '0')}</strong>
-          {' / '}
-          {String(topics.length).padStart(2, '0')}
-        </span>
-        <div className="topics-controls-buttons">
-          <button
-            type="button"
-            aria-label="Предыдущая тема"
-            onClick={() => goToTopic(activeTopic - 1)}
-            disabled={activeTopic === 0}
-          >
-            <ChevronLeft size={21} strokeWidth={1.6} aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            aria-label="Следующая тема"
-            onClick={() => goToTopic(activeTopic + 1)}
-            disabled={activeTopic === topics.length - 1}
-          >
-            <ChevronRight size={21} strokeWidth={1.6} aria-hidden="true" />
-          </button>
-        </div>
-      </div>
+      <MobileCarouselControls
+        className="topics-controls"
+        label="Навигация по ключевым темам"
+        index={index}
+        count={topics.length}
+        onPrev={() => scrollToIndex(index - 1)}
+        onNext={() => scrollToIndex(index + 1)}
+        prevLabel="Предыдущая тема"
+        nextLabel="Следующая тема"
+      />
     </section>
   );
 }
@@ -774,7 +716,7 @@ function Tariffs({ onApply }) {
             </ul>
             {t.limitNote && <p className="tariff-limit-note">{t.limitNote}</p>}
             <div className="tariff-bottom">
-              <span>{t.fixedPrice ? 'Стоимость' : 'Стоимость*'}</span>
+              <span>Стоимость*</span>
               <strong>{t.price}</strong>
               <ArrowButton className="secondary" onClick={() => onApply(t)}>
                 Принять участие
