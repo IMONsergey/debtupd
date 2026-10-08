@@ -11,6 +11,20 @@ for (const width of [1440, 768, 390, 320]) {
     await expect(cards).toHaveCount(7);
     await expect(page.locator('.sponsor-panel:not(.sponsor-panel--partner)')).toHaveCount(1);
     await expect(cards.locator('.conference-partner-planet')).toHaveCount(7);
+    const planetNames = [
+      'planet-gold.webp', 'planet-silver.webp', 'planet-strategic.webp',
+      'planet-diamond.webp', 'planet-special.webp',
+      'planet-standard.webp', 'planet-standard.webp',
+    ];
+    for (const [index, planetName] of planetNames.entries()) {
+      const planet = cards.nth(index).locator('.conference-partner-planet');
+      expect((await planet.getAttribute('src')).endsWith('/assets/partners/planets/' + planetName)).toBe(true);
+      await planet.scrollIntoViewIfNeeded();
+      await expect.poll(
+        () => planet.evaluate((img) => img.complete && img.naturalWidth === 516 && img.naturalHeight === 525),
+        { timeout: 12000 },
+      ).toBe(true);
+    }
     await expect(cards.locator('.conference-partner-link')).toHaveCount(0);
     await expect(cards.locator('a')).toHaveCount(7);
     for (const link of await cards.locator('a').all()) {

@@ -8,7 +8,7 @@ export function ConferencePartners() {
         <article className="sponsor-panel sponsor-panel--partner glass corners" key={partner.name}>
           <img
             className="sponsor-planet conference-partner-planet"
-            src={assetUrl('assets/figma/sponsor-planet.webp')}
+            src={assetUrl('assets/partners/planets/' + partner.planet)}
             alt=""
             aria-hidden="true"
             loading="lazy"
