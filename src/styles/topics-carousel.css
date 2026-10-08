@@ -1,9 +1,17 @@
 /* Mobile/tablet: native touch scrolling with scroll-snap and explicit controls.
    Large desktop retains the original topic grid without any card redesign. */
-.mobile-carousel-controls { display: none; }
+.mobile-carousel-controls {
+  display: none;
+}
 @media (max-width: 899px) {
-  .mobile-carousel-controls { display: flex; margin: 14px 0 0; }
-  .mobile-carousel-controls button:disabled { opacity: .3; cursor: default; }
+  .mobile-carousel-controls {
+    display: flex;
+    margin: 14px 0 0;
+  }
+  .mobile-carousel-controls button:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
 }
 @media (max-width: 899px) {
   .topics-grid {
@@ -28,13 +36,12 @@
     outline-offset: 4px;
   }
   .topics-grid > .topic-card {
-    flex: 0 0 min(88%, 465px);
+    flex: 0 0 calc(100% - 64px);
     min-width: 0;
     max-width: none;
     height: auto;
     scroll-snap-align: start;
   }
-
 }
 
 @media (max-width: 599px) {
