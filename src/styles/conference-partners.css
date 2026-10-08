@@ -9,13 +9,6 @@
   min-width: 0;
 }
 
-/* Center the lone seventh card, instead of leaving it in the left margin. */
-@media (min-width: 1181px) {
-  .conference-partners-list > :last-child:nth-child(3n + 1) {
-    grid-column: 2;
-  }
-}
-
 .sponsor-panel.sponsor-panel--partner {
   position: relative;
   isolation: isolate;

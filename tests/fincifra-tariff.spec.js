@@ -44,23 +44,30 @@ for (const width of [1440, 1024, 768, 390, 320]) {
     await expect(page.locator('.tariff--business .tariff-bottom > strong')).toHaveText('49 000 ₽');
     await expect(page.locator('.tariff--full .tariff-bottom > strong')).toHaveText('54 000 ₽');
     await expect(page.locator('.tariff--full-plus .tariff-bottom > strong')).toHaveText('66 000 ₽');
-    const geometry = await tariff.evaluate((el) => {
-      const tariffBox = el.getBoundingClientRect();
-      const cards = el.parentElement.getBoundingClientRect();
-      const ul = el.querySelector('ul').getBoundingClientRect();
-      const h3 = el.querySelector('h3').getBoundingClientRect();
-      return {
-        width: tariffBox.width,
-        groupWidth: cards.width,
-        featuresToRight:
-          ul.left > h3.left && ul.top <= h3.bottom && ul.right <= tariffBox.right + 1,
-        featureWithin: ul.right <= tariffBox.right + 1 && ul.left >= tariffBox.left - 1,
-      };
+    const layout = await page.locator('.tariff-grid').evaluate((grid) => {
+      const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length;
+      const cards = Array.from(grid.children).map((card) => {
+        const r = card.getBoundingClientRect();
+        const ul = card.querySelector('ul').getBoundingClientRect();
+        return {
+          x: r.x,
+          y: r.y,
+          width: r.width,
+          height: r.height,
+          contentInside: ul.left >= r.left - 1 && ul.right <= r.right + 1,
+        };
+      });
+      return { columns, cards, groupWidth: grid.getBoundingClientRect().width };
     });
-    expect(geometry.featureWithin).toBe(true);
-    if (width >= 900) {
-      expect(Math.abs(geometry.width - geometry.groupWidth)).toBeLessThan(3);
-      expect(geometry.featuresToRight).toBe(true);
+    const expectedColumns = width > 1180 ? 4 : width >= 900 ? 2 : 1;
+    expect(layout.columns).toBe(expectedColumns);
+    expect(layout.cards.every((card) => card.contentInside)).toBe(true);
+    if (width > 1180) {
+      expect(layout.cards.every((card) => Math.abs(card.y - layout.cards[0].y) < 2)).toBe(true);
+      expect(layout.cards.every((card) => Math.abs(card.height - layout.cards[0].height) < 2)).toBe(
+        true,
+      );
+      expect(Math.abs(layout.cards[3].width - layout.cards[0].width)).toBeLessThan(2);
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBe(
       true,
