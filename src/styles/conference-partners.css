@@ -1,133 +1,217 @@
-/* Partner cards share the DEBTPRICE sponsor's typography and grid geometry. */
+/* Vertical partner cards in a responsive three-column desktop grid.
+   Featured DEBTPRICE block above is intentionally unchanged. */
 .conference-partners-list {
   display: grid;
-  gap: 20px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: clamp(14px, 1.55vw, 20px);
   margin-top: 20px;
+  min-width: 0;
+}
+
+/* Center the lone seventh card, instead of leaving it in the left margin. */
+@media (min-width: 1181px) {
+  .conference-partners-list > :last-child:nth-child(3n + 1) {
+    grid-column: 2;
+  }
 }
 
 .sponsor-panel.sponsor-panel--partner {
   position: relative;
   isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  min-width: 0;
   min-height: 0;
-  height: auto;
-  display: grid;
-  align-items: center;
+  height: 100%;
+  padding: 0;
   overflow: hidden;
 }
 
-/* Center the decoration on the complete card, not on its brand column. */
-.sponsor-panel--partner > .conference-partner-planet {
+.sponsor-panel--partner .conference-partner-visual {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-height: 268px;
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+.sponsor-panel--partner .conference-partner-visual::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  inset: 45% 0 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, rgba(5, 12, 30, 0.58));
+}
+
+.sponsor-panel--partner .conference-partner-planet {
   position: absolute;
   display: block;
   z-index: 0;
   pointer-events: none;
-  width: min(53%, 700px);
+  width: min(125%, 460px);
   max-width: none;
   height: auto;
   top: 50%;
-  left: -6%;
+  left: -19%;
   transform: translateY(-50%);
   opacity: 0.86;
   object-fit: contain;
 }
 
-.sponsor-panel--partner > .conference-partner-brand,
-.sponsor-panel--partner > .conference-partner-copy {
+.sponsor-panel--partner .conference-partner-brand {
   position: relative;
   z-index: 1;
-}
-
-.sponsor-panel--partner .conference-partner-brand {
   isolation: auto;
   min-width: 0;
-  min-height: 205px;
+  width: 100%;
+  min-height: 268px;
+  padding: 25px 23px 23px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
-  gap: clamp(14px, 1.4vw, 20px);
+  justify-content: space-between;
+  gap: 15px;
 }
 
 .sponsor-panel--partner .conference-partner-name {
+  flex: 0 0 auto;
   max-width: 100%;
   margin: 0;
-  font: 430 clamp(17px, 1.4vw, 22px)/1.35 Bounded, sans-serif;
+  font:
+    430 clamp(15px, 1.24vw, 19px)/1.32 Bounded,
+    sans-serif;
   color: #fff;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.015em;
   text-transform: uppercase;
   overflow-wrap: anywhere;
 }
 
-.conference-partner-logo {
+.sponsor-panel--partner .conference-partner-logo {
   position: relative;
   display: flex;
+  flex: 1 1 auto;
+  min-height: 76px;
   align-items: center;
   justify-content: flex-start;
-  width: min(100%, 295px);
-  height: 100px;
-  margin: 2px 0;
+  width: min(100%, 245px);
+  margin: 0;
 }
 
-.conference-partner-logo img {
+.sponsor-panel--partner .conference-partner-logo img {
   display: block;
   width: auto;
   height: auto;
   max-width: 100%;
-  max-height: 100%;
+  max-height: 90px;
   object-fit: contain;
   object-position: left center;
   transition: opacity 180ms ease;
 }
 
-.conference-partner-logo:hover img,
-.conference-partner-logo:focus-visible img { opacity: 0.8; }
+.sponsor-panel--partner .conference-partner-logo:hover img,
+.sponsor-panel--partner .conference-partner-logo:focus-visible img {
+  opacity: 0.8;
+}
 
 .sponsor-panel--partner .conference-partner-tier {
-  margin: 0;
+  flex: 0 0 auto;
   max-width: 100%;
-  font: 440 clamp(15px, 1.18vw, 18px)/1.45 Bounded, sans-serif;
+  margin: 0;
+  font:
+    440 clamp(13px, 1.1vw, 16px)/1.4 Bounded,
+    sans-serif;
   color: #fff;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.035em;
   text-transform: uppercase;
 }
 
 .sponsor-panel--partner .conference-partner-copy {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  display: block;
   min-width: 0;
-  /* .sponsor-copy defines the exact family/size/line-height/gap/color,
-     including all desktop and mobile responsive states. */
+  margin: 0;
+  padding: 24px 23px 29px;
+  border-top: 1px solid rgba(133, 182, 224, 0.24);
+  font-family: Inter, sans-serif;
+  font-size: clamp(13px, 1.04vw, 15px);
+  font-weight: 400;
+  line-height: 1.62;
+  color: #e4edf9;
+  overflow-wrap: break-word;
+}
+
+.sponsor-panel--partner .conference-partner-copy p {
+  margin: 0;
+}
+
+.sponsor-panel--partner .conference-partner-copy p + p {
+  margin-top: 16px;
+}
+
+@media (min-width: 761px) and (max-width: 1180px) {
+  .conference-partners-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sponsor-panel--partner .conference-partner-visual,
+  .sponsor-panel--partner .conference-partner-brand {
+    min-height: 260px;
+  }
 }
 
 @media (max-width: 760px) {
-  .conference-partners-list { gap: 14px; margin-top: 14px; }
-  .sponsor-panel.sponsor-panel--partner {
+  .conference-partners-list {
     grid-template-columns: minmax(0, 1fr);
-    gap: 25px;
-    padding: 28px 23px;
+    gap: 14px;
+    margin-top: 14px;
+  }
+  .sponsor-panel.sponsor-panel--partner {
+    display: flex;
+    gap: 0;
+    padding: 0;
     min-height: 0;
   }
+  .sponsor-panel--partner .conference-partner-visual,
   .sponsor-panel--partner .conference-partner-brand {
-    min-height: 210px;
-    gap: 16px;
+    min-height: 238px;
   }
-  .sponsor-panel--partner > .conference-partner-planet {
-    width: 125%;
-    left: -34%;
+  .sponsor-panel--partner .conference-partner-brand {
+    padding: 24px 23px 22px;
+    gap: 13px;
+  }
+  .sponsor-panel--partner .conference-partner-planet {
+    width: min(112%, 430px);
+    left: -15%;
   }
   .sponsor-panel--partner .conference-partner-name {
     font-size: 17px;
     line-height: 1.35;
   }
-  .conference-partner-logo {
+  .sponsor-panel--partner .conference-partner-logo {
     width: min(100%, 235px);
-    height: 76px;
-    margin: 1px 0;
+    min-height: 67px;
+  }
+  .sponsor-panel--partner .conference-partner-logo img {
+    max-height: 80px;
   }
   .sponsor-panel--partner .conference-partner-tier {
     font-size: 15px;
-    line-height: 1.5;
+  }
+  .sponsor-panel--partner .conference-partner-copy {
+    padding: 23px 23px 26px;
+    font-size: 14px;
+    line-height: 1.56;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .conference-partner-logo img { transition: none; }
+  .sponsor-panel--partner .conference-partner-logo img {
+    transition: none;
+  }
 }

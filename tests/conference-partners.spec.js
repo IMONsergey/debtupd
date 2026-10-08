@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-for (const width of [1440, 768, 390, 320]) {
+for (const width of [1440, 1180, 1024, 768, 760, 390, 320]) {
   test(`conference partners render and stay within viewport at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     const pageErrors = [];
@@ -22,18 +22,29 @@ for (const width of [1440, 768, 390, 320]) {
     await expect(page.locator('.sponsor-panel:not(.sponsor-panel--partner)')).toHaveCount(1);
     await expect(cards.locator('.conference-partner-planet')).toHaveCount(7);
     const planetNames = [
-      'planet-gold.webp', 'planet-strategic.webp', 'planet-diamond.webp',
-      'planet-silver.webp', 'planet-special.webp',
-      'planet-standard.webp', 'planet-standard.webp',
+      'planet-gold.webp',
+      'planet-strategic.webp',
+      'planet-diamond.webp',
+      'planet-silver.webp',
+      'planet-special.webp',
+      'planet-standard.webp',
+      'planet-standard.webp',
     ];
     for (const [index, planetName] of planetNames.entries()) {
       const planet = cards.nth(index).locator('.conference-partner-planet');
-      expect((await planet.getAttribute('src')).endsWith('/assets/partners/planets/' + planetName)).toBe(true);
-      await planet.scrollIntoViewIfNeeded();
-      await expect.poll(
-        () => planet.evaluate((img) => img.complete && img.naturalWidth === 516 && img.naturalHeight === 525),
-        { timeout: 12000 },
+      expect(
+        (await planet.getAttribute('src')).endsWith('/assets/partners/planets/' + planetName),
       ).toBe(true);
+      await planet.scrollIntoViewIfNeeded();
+      await expect
+        .poll(
+          () =>
+            planet.evaluate(
+              (img) => img.complete && img.naturalWidth === 516 && img.naturalHeight === 525,
+            ),
+          { timeout: 12000 },
+        )
+        .toBe(true);
     }
     await expect(cards.locator('.conference-partner-link')).toHaveCount(0);
     await expect(cards.locator('a')).toHaveCount(7);
@@ -41,10 +52,13 @@ for (const width of [1440, 768, 390, 320]) {
       await expect(link).toHaveAttribute('href', /^https:\/\//);
       await expect(link.locator('img')).toHaveCount(1);
     }
-    const tierTypography = await cards.first().locator('.conference-partner-tier').evaluate((el) => ({
-      family: getComputedStyle(el).fontFamily,
-      transform: getComputedStyle(el).textTransform,
-    }));
+    const tierTypography = await cards
+      .first()
+      .locator('.conference-partner-tier')
+      .evaluate((el) => ({
+        family: getComputedStyle(el).fontFamily,
+        transform: getComputedStyle(el).textTransform,
+      }));
     expect(tierTypography.family).toMatch(/Bounded/i);
     expect(tierTypography.transform).toBe('uppercase');
 
@@ -52,49 +66,62 @@ for (const width of [1440, 768, 390, 320]) {
     for (let index = 0; index < 7; index++) {
       const logo = logos.nth(index);
       await logo.scrollIntoViewIfNeeded();
-      await expect.poll(
-        () => logo.evaluate((img) => img.complete && img.naturalWidth > 0),
-        { timeout: 12000 },
-      ).toBe(true);
+      await expect
+        .poll(() => logo.evaluate((img) => img.complete && img.naturalWidth > 0), {
+          timeout: 12000,
+        })
+        .toBe(true);
     }
 
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 2),
     ).toBe(true);
-    await expect.poll(
-      () => cards.first().locator('.conference-partner-planet').evaluate((img) => img.complete && img.naturalWidth > 0),
-      { timeout: 12000 },
-    ).toBe(true);
-    // Typography is intentionally shared with the original DEBTPRICE panel.
-    const originalCopy = page.locator('.sponsor-panel:not(.sponsor-panel--partner) .sponsor-copy');
-    const partnerCopy = cards.first().locator('.conference-partner-copy');
-    const typography = async (locator) => locator.evaluate((el) => {
-      const style = getComputedStyle(el);
+    await expect
+      .poll(
+        () =>
+          cards
+            .first()
+            .locator('.conference-partner-planet')
+            .evaluate((img) => img.complete && img.naturalWidth > 0),
+        { timeout: 12000 },
+      )
+      .toBe(true);
+    const columns = await page
+      .locator('.conference-partners-list')
+      .evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length);
+    expect(columns).toBe(width > 1180 ? 3 : width > 760 ? 2 : 1);
+
+    const geometry = await cards.first().evaluate((card) => {
+      const visual = card.querySelector('.conference-partner-visual').getBoundingClientRect();
+      const copy = card.querySelector('.conference-partner-copy').getBoundingClientRect();
+      const planet = card.querySelector('.conference-partner-planet').getBoundingClientRect();
+      const logo = card.querySelector('.conference-partner-logo').getBoundingClientRect();
       return {
-        family: style.fontFamily,
-        size: style.fontSize,
-        lineHeight: style.lineHeight,
-        color: style.color,
-        gap: style.gap,
+        vertical: copy.top >= visual.bottom - 2,
+        planetCenterOffset: Math.abs((planet.top + planet.bottom - visual.top - visual.bottom) / 2),
+        logoWithinCard: logo.left >= visual.left - 2 && logo.right <= visual.right + 2,
+        copyWidth: copy.width,
       };
     });
-    expect(await typography(partnerCopy)).toEqual(await typography(originalCopy));
-    if (width > 760) {
-      const offset = await page.evaluate(() => {
-        const original = document.querySelector('.sponsor-panel:not(.sponsor-panel--partner) .sponsor-copy').getBoundingClientRect();
-        const partner = document.querySelector('.sponsor-panel--partner .conference-partner-copy').getBoundingClientRect();
-        return Math.abs(original.left - partner.left);
-      });
-      expect(offset).toBeLessThan(3);
-    }
+    expect(geometry.vertical).toBe(true);
+    expect(geometry.planetCenterOffset).toBeLessThan(2);
+    expect(geometry.logoWithinCard).toBe(true);
+    expect(geometry.copyWidth).toBeGreaterThan(190);
 
-    // A planet must be vertically centered against its card's full height.
-    const planetOffset = await cards.first().evaluate((card) => {
-      const container = card.getBoundingClientRect();
-      const planet = card.querySelector('.conference-partner-planet').getBoundingClientRect();
-      return Math.abs((planet.top + planet.bottom) / 2 - (container.top + container.bottom) / 2);
-    });
-    expect(planetOffset).toBeLessThan(2);
+    const topPositions = await cards.evaluateAll((nodes) =>
+      nodes.slice(0, 3).map((el) => Math.round(el.getBoundingClientRect().top)),
+    );
+    if (width > 1180) {
+      expect(topPositions[0]).toBe(topPositions[1]);
+      expect(topPositions[1]).toBe(topPositions[2]);
+    } else if (width > 760) {
+      expect(topPositions[0]).toBe(topPositions[1]);
+      expect(topPositions[2]).toBeGreaterThan(topPositions[1]);
+    } else {
+      expect(topPositions[1]).toBeGreaterThan(topPositions[0]);
+      expect(topPositions[2]).toBeGreaterThan(topPositions[1]);
+    }
+    await expect(page.locator('.conference-partners-carousel')).toHaveCount(0);
     expect(pageErrors).toEqual([]);
   });
 }
