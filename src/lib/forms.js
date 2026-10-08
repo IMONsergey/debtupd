@@ -70,13 +70,13 @@ export async function submitLead(fields, { endpoint, signal, timeout = 20000 } =
     if (!response.ok || result?.success !== true)
       throw new Error(
         result?.message ||
-          'Не удалось отправить заявку. Попробуйте ещё раз или свяжитесь с организаторами.',
+          'Не удалось отправить заявку. Попробуйте еще раз или свяжитесь с организаторами.',
       );
     goal('form_success', { form: payload.form_id, tariff: payload.tariff_id || '' });
     return result;
   } catch (error) {
     if (error.name === 'AbortError')
-      throw new Error('Сервер не ответил вовремя. Попробуйте ещё раз.');
+      throw new Error('Сервер не ответил вовремя. Попробуйте еще раз.');
     if (error instanceof TypeError)
       throw new Error(
         'Не удалось связаться с сервером заявок. Данные не отправлены. Повторите попытку или свяжитесь с организатором.',

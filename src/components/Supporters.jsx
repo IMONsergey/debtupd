@@ -1,12 +1,12 @@
 import { assetUrl } from '../lib/assets.js';
 const supporters = [
-  { id: 'mir', short: 'СРО МИР', name: 'Саморегулируемая организация МИР' },
+  { id: 'mir', short: 'СРО «МиР»', name: 'СРО «МиР»' },
   {
     id: 'napka',
     short: 'НАПКА',
-    name: 'Национальная Ассоциация Профессиональных Коллекторских Агентств',
+    name: 'Национальной Ассоциации Профессиональных Коллекторских Агентств',
   },
-  { id: 'nsfr', short: 'НСФР', name: 'Национальный совет финансового рынка' },
+  { id: 'nsfr', short: 'НСФР', name: 'Национального совета финансового рынка' },
 ];
 export function Supporters() {
   return (
@@ -25,7 +25,7 @@ export function Supporters() {
               <span className="supporter-prefix">
                 При поддержке
                 <br />
-              </span>
+              </span>{' '}
               {s.name}
             </span>
             <span className="supporter-short" aria-hidden="true">

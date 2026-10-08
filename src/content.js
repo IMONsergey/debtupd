@@ -315,8 +315,8 @@ export const content = {
   aboutForum: {
     eyebrow: 'О форуме',
     title: 'DEBT TECH 2026',
-    description: 'Ежегодная форум-выставка о технологиях на рынке долговых активов',
-    titleLines: ['Ежегодная', 'форум-выставка', 'о технологиях', 'на рынке долговых', 'активов'],
+    description: 'Ежегодный форум-выставка о технологиях на рынке долговых активов',
+    titleLines: ['Ежегодный', 'форум-выставка', 'о технологиях', 'на рынке долговых', 'активов'],
     planetImage: assetUrl('assets/images/about-forum/planet-v3.png'),
     shuttleImage: assetUrl('assets/images/about-forum/shuttle-v3.png'),
     logoImage: assetUrl('assets/debttech-logo.svg'),
@@ -326,7 +326,7 @@ export const content = {
       'Активное участие представителей государственных органов и СРО',
       'Спецформаты и услуги для участников',
       'Доступ к готовым решениям: демостенды, контакты интеграторов и разработчиков',
-      'Новые партнёры и сделки',
+      'Новые партнеры и сделки',
     ],
     stats: [
       { value: '800+', label: 'участников' },
