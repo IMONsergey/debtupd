@@ -1,0 +1,149 @@
+/* NSFR-specific seminar pass: additional fixed-price card, not an early-registration tier.
+   It spans the existing three-column tariff layout rather than compressing all four cards. */
+.tariff-grid > .tariff--fincifra {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(250px, 0.84fr) minmax(0, 1.65fr);
+  grid-template-rows: auto 1fr auto;
+  gap: 0 clamp(24px, 4vw, 62px);
+  min-height: 0;
+  padding: clamp(24px, 3vw, 38px);
+  align-items: start;
+  background: radial-gradient(ellipse at 4% 5%, #16476a 0%, #12304b 38%, #06172e 100%);
+  border-color: #70b7cf78;
+}
+
+.tariff--fincifra h3 {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: clamp(21px, 2.15cqi, 29px);
+  line-height: 1.28;
+  margin: 0 0 13px;
+  text-wrap: balance;
+}
+
+.tariff--fincifra .tariff-limit-note {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: start;
+  margin: 0 0 24px;
+  color: #c0dfef;
+  font:
+    400 clamp(13px, 1.2cqi, 16px)/1.5 'IBM Plex Sans',
+    sans-serif;
+}
+
+.tariff--fincifra ul {
+  grid-column: 2;
+  grid-row: 1 / 4;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  align-items: stretch;
+  gap: 10px 12px;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.tariff--fincifra li {
+  min-width: 0;
+  min-height: 60px;
+  padding: 11px 12px;
+  font-size: clamp(13px, 1.25cqi, 16px);
+  line-height: 1.38;
+}
+
+.tariff--fincifra .not-included > span:not(.sr-only) {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.tariff--fincifra .tariff-bottom {
+  grid-column: 1;
+  grid-row: 3;
+  align-self: end;
+  display: block;
+  margin: 0;
+  min-width: 0;
+}
+
+.tariff--fincifra .tariff-bottom > span,
+.tariff--fincifra .tariff-bottom > strong,
+.tariff--fincifra .tariff-bottom > .button {
+  grid-column: auto;
+  grid-row: auto;
+}
+
+.tariff--fincifra .tariff-bottom > strong {
+  margin: 3px 0 16px;
+  font-size: clamp(30px, 3cqi, 42px);
+}
+
+.tariff--fincifra .tariff-bottom > .button {
+  width: 100%;
+}
+
+.form-dialog .tariff-form-limit {
+  margin: 0 0 18px;
+  padding: 10px 13px;
+  border-left: 2px solid #76c8e1;
+  background: #1a405a52;
+  color: #d7eeff;
+  font:
+    400 14px/1.55 'IBM Plex Sans',
+    sans-serif;
+}
+
+.form-dialog--fincifra {
+  --tariff-light: #62b9d4;
+}
+
+@media (max-width: 899px) {
+  .tariff-grid > .tariff--fincifra {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 0;
+  }
+  .tariff--fincifra .tariff-limit-note {
+    margin-bottom: 22px;
+  }
+  .tariff--fincifra ul {
+    width: 100%;
+    margin: 0 0 26px;
+  }
+  .tariff--fincifra .tariff-bottom {
+    width: 100%;
+  }
+}
+
+@media (max-width: 599px) {
+  .tariff-grid > .tariff--fincifra {
+    padding: 26px 24px;
+  }
+  .tariff--fincifra ul {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  .tariff--fincifra li {
+    font-size: 14px;
+    min-height: 43px;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 899px) {
+  .tariff--fincifra .tariff-bottom {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 24px;
+  }
+  .tariff--fincifra .tariff-bottom > span,
+  .tariff--fincifra .tariff-bottom > strong {
+    grid-column: 1;
+  }
+  .tariff--fincifra .tariff-bottom > .button {
+    grid-column: 2;
+    grid-row: 1 / 3;
+  }
+}

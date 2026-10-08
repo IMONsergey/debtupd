@@ -666,6 +666,7 @@ function Tariffs({ onApply }) {
         {tariffs.items.map((t) => (
           <article className={'tariff tariff--' + t.id + ' corners'} key={t.id}>
             <h3>{t.title}</h3>
+            {t.limitNote && <p className="tariff-limit-note">{t.limitNote}</p>}
             <ul>
               {t.features.map((f) => (
                 <li key={f.label} className={f.active ? 'included' : 'not-included'}>
@@ -680,7 +681,7 @@ function Tariffs({ onApply }) {
               ))}
             </ul>
             <div className="tariff-bottom">
-              <span>Стоимость*</span>
+              <span>{t.fixedPrice ? 'Стоимость' : 'Стоимость*'}</span>
               <strong>{t.price}</strong>
               <ArrowButton className="secondary" onClick={() => onApply(t)}>
                 Принять участие
