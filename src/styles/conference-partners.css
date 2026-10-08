@@ -14,27 +14,48 @@
   align-items: center;
   overflow: hidden;
 }
-.conference-partner-brand {
+.sponsor-panel--partner .conference-partner-brand {
+  position: relative;
+  isolation: isolate;
   min-width: 0;
+  min-height: 210px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
+  gap: 19px;
 }
-.conference-partner-name {
-  color: #b9cbe0;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1.5;
-  letter-spacing: 0.035em;
+.sponsor-panel--partner .conference-partner-planet {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  display: block;
+  width: clamp(280px, 35vw, 470px);
+  max-width: none;
+  height: auto;
+  top: 50%;
+  left: -20%;
+  translate: 0 -50%;
+  opacity: 0.86;
+  object-fit: contain;
+}
+.sponsor-panel--partner .conference-partner-name {
+  max-width: 100%;
+  margin: 0;
+  font: 430 clamp(18px, 1.55vw, 24px)/1.35 Bounded, sans-serif;
+  color: #fff;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 .conference-partner-logo {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  width: min(100%, 390px);
-  height: 112px;
-  margin: 22px 0 20px;
+  width: min(100%, 255px);
+  height: 85px;
+  margin: 2px 0;
 }
 .conference-partner-logo img {
   display: block;
@@ -48,12 +69,13 @@
 }
 .conference-partner-logo:hover img,
 .conference-partner-logo:focus-visible img { opacity: 0.8; }
-.conference-partner-tier {
+.sponsor-panel--partner .conference-partner-tier {
   margin: 0;
-  color: #f7fbff;
-  font-size: clamp(18px, 1.4vw, 23px);
-  line-height: 1.35;
-  font-weight: 500;
+  max-width: 100%;
+  font: 440 clamp(16px, 1.27vw, 20px)/1.45 Bounded, sans-serif;
+  color: #fff;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 .conference-partner-copy {
   min-width: 0;
@@ -65,20 +87,6 @@
   line-height: 1.6;
 }
 .conference-partner-copy p { margin: 0; }
-.conference-partner-link {
-  width: fit-content;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 7px;
-  padding-bottom: 4px;
-  color: #fff;
-  text-decoration: none;
-  border-bottom: 1px solid rgba(255,255,255,.38);
-  transition: border-color 180ms ease, opacity 180ms ease;
-}
-.conference-partner-link:hover,
-.conference-partner-link:focus-visible { border-color: #fff; opacity: .8; }
 @media (max-width: 760px) {
   .conference-partners-list { gap: 14px; margin-top: 14px; }
   .sponsor-panel.sponsor-panel--partner {
@@ -88,12 +96,25 @@
     padding: 28px 23px;
     min-height: 0;
   }
-  .conference-partner-name { font-size: 12px; }
-  .conference-partner-logo { width: min(100%, 320px); height: 84px; margin: 18px 0; }
-  .conference-partner-tier { font-size: 19px; }
+  .sponsor-panel--partner .conference-partner-brand {
+    min-height: 220px;
+    gap: 18px;
+  }
+  .sponsor-panel--partner .conference-partner-planet {
+    width: min(123%, 380px);
+    left: -13%;
+  }
+  .sponsor-panel--partner .conference-partner-name {
+    font-size: 17px;
+    line-height: 1.35;
+  }
+  .conference-partner-logo { width: min(100%, 205px); height: 64px; margin: 1px 0; }
+  .sponsor-panel--partner .conference-partner-tier {
+    font-size: 15px;
+    line-height: 1.5;
+  }
   .conference-partner-copy { gap: 12px; font-size: 14px; line-height: 1.56; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .conference-partner-logo img,
-  .conference-partner-link { transition: none; }
+  .conference-partner-logo img { transition: none; }
 }
