@@ -136,6 +136,10 @@ for (const width of [1440, 1180, 1024, 768, 760, 390, 320]) {
     if (width <= 899) {
       const nav = page.locator('.conference-partners-controls');
       const counter = nav.locator('span').first();
+      // Previous asset checks scrolled through every card; reset before testing navigation.
+      await page
+        .locator('.conference-partners-list')
+        .evaluate((el) => el.scrollTo({ left: 0, behavior: 'instant' }));
       await expect(counter).toContainText('01 / 07');
       await nav.getByRole('button', { name: 'Следующий партнер' }).click();
       await expect(counter).toContainText('02 / 07');
