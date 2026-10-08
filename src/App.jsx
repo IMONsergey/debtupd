@@ -484,6 +484,16 @@ function Topics() {
   return (
     <section className="section topics" id="topics">
       <SectionTitle>Ключевые темы</SectionTitle>
+      <MobileCarouselControls
+        className="topics-controls"
+        label="Навигация по ключевым темам"
+        index={index}
+        count={topics.length}
+        onPrev={() => scrollToIndex(index - 1)}
+        onNext={() => scrollToIndex(index + 1)}
+        prevLabel="Предыдущая тема"
+        nextLabel="Следующая тема"
+      />
       <div
         className="topics-grid"
         ref={trackRef}
@@ -504,16 +514,6 @@ function Topics() {
           </article>
         ))}
       </div>
-      <MobileCarouselControls
-        className="topics-controls"
-        label="Навигация по ключевым темам"
-        index={index}
-        count={topics.length}
-        onPrev={() => scrollToIndex(index - 1)}
-        onNext={() => scrollToIndex(index + 1)}
-        prevLabel="Предыдущая тема"
-        nextLabel="Следующая тема"
-      />
     </section>
   );
 }

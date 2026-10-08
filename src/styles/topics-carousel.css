@@ -12,6 +12,10 @@
     opacity: 0.3;
     cursor: default;
   }
+  /* Topic controls now sit between the heading and the mobile snap cards. */
+  .topics-controls.mobile-carousel-controls {
+    margin: 18px 0 20px;
+  }
 }
 @media (max-width: 899px) {
   .topics-grid {
