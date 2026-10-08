@@ -22,6 +22,13 @@ for (const width of [320, 390, 768, 899]) {
       const counter = page.locator('.topics-controls > span');
       await expect(cards).toHaveCount(6);
       await expect(page.locator('.topics-controls')).toBeVisible();
+      // Navigation belongs above the scrolling cards on mobile.
+      const above = await page.locator('.topics').evaluate((section) => {
+        const controls = section.querySelector('.topics-controls');
+        const track = section.querySelector('.topics-grid');
+        return controls.getBoundingClientRect().bottom <= track.getBoundingClientRect().top;
+      });
+      expect(above).toBe(true);
       await expect(counter).toContainText('01 / 06');
       const dimensions = await track.evaluate((el) => ({
         scroll: el.scrollWidth,
