@@ -293,6 +293,8 @@ export const content = {
       {
         id: 'fincifra',
         title: '«ФинЦифра» для членов НСФР',
+        titleMain: '«ФинЦифра»',
+        titleSuffix: 'для членов НСФР',
         price: '24 500 ₽',
         fixedPrice: true,
         maxTicketsPerMember: 2,
