@@ -208,3 +208,37 @@
     transition: none;
   }
 }
+
+/* Native mobile carousel retaining the existing partner cards. */
+.conference-partners-carousel { min-width: 0; }
+@media (max-width: 899px) {
+  .conference-partners-list {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 1px 0 3px;
+  }
+  .conference-partners-list::-webkit-scrollbar { display: none; }
+  .conference-partners-list:focus-visible {
+    outline: 2px solid #6bbdf5;
+    outline-offset: 3px;
+  }
+  .conference-partners-list > .sponsor-panel--partner {
+    flex: 0 0 min(88%, 460px);
+    min-width: 0;
+    max-width: none;
+    height: auto;
+    align-self: stretch;
+    scroll-snap-align: start;
+  }
+}
+@media (max-width: 599px) {
+  .conference-partners-list > .sponsor-panel--partner { flex-basis: calc(100% - 28px); }
+}
