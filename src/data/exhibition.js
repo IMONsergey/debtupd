@@ -1,0 +1,343 @@
+// Geometry measured from the supplied, unmodified SVG paths. VIP rooms are not stands.
+export const floors = [
+  {
+    id: 1,
+    width: 2780,
+    height: 1591,
+    image: 'assets/exhibition/floor-1.svg',
+    stands: [
+      {
+        number: 1,
+        x: 806.654,
+        y: 1405.65,
+        width: 83.119,
+        height: 51.47,
+      },
+      {
+        number: 2,
+        x: 984.384,
+        y: 1405.65,
+        width: 83.116,
+        height: 51.47,
+      },
+      {
+        number: 3,
+        x: 1163.14,
+        y: 1405.65,
+        width: 83.12,
+        height: 51.47,
+      },
+      {
+        number: 4,
+        x: 1336.76,
+        y: 1405.65,
+        width: 83.12,
+        height: 51.47,
+      },
+      {
+        number: 5,
+        x: 1520.65,
+        y: 1405.65,
+        width: 83.12,
+        height: 51.47,
+      },
+      {
+        number: 6,
+        x: 1698.38,
+        y: 1405.65,
+        width: 83.12,
+        height: 51.47,
+      },
+      {
+        number: 7,
+        x: 1850.43,
+        y: 1372.85,
+        width: 83.12,
+        height: 51.47,
+      },
+      {
+        number: 8,
+        x: 1961.562,
+        y: 1294.222,
+        width: 87.363,
+        height: 77.573,
+      },
+      {
+        number: 9,
+        x: 1843.24,
+        y: 930.191,
+        width: 51.47,
+        height: 83.119,
+      },
+      {
+        number: 10,
+        x: 2034.32,
+        y: 813.074,
+        width: 51.47,
+        height: 83.119,
+      },
+      {
+        number: 11,
+        x: 2020.97,
+        y: 637.277,
+        width: 83.12,
+        height: 51.471,
+      },
+      {
+        number: 12,
+        x: 2077.47,
+        y: 499.613,
+        width: 51.4,
+        height: 68.86,
+      },
+      {
+        number: 13,
+        x: 2077.47,
+        y: 424.617,
+        width: 51.4,
+        height: 68.86,
+      },
+      {
+        number: 14,
+        x: 2077.47,
+        y: 349.621,
+        width: 51.4,
+        height: 68.859,
+      },
+      {
+        number: 15,
+        x: 2020.97,
+        y: 234.561,
+        width: 83.12,
+        height: 51.47,
+      },
+      {
+        number: 16,
+        x: 1858.65,
+        y: 234.561,
+        width: 83.12,
+        height: 51.47,
+      },
+      {
+        number: 17,
+        x: 1778.52,
+        y: 281.818,
+        width: 51.39,
+        height: 75.024,
+      },
+      {
+        number: 18,
+        x: 1778.52,
+        y: 362.977,
+        width: 51.39,
+        height: 75.023,
+      },
+      {
+        number: 19,
+        x: 1778.52,
+        y: 483.176,
+        width: 51.39,
+        height: 75.023,
+      },
+      {
+        number: 20,
+        x: 1778.52,
+        y: 564.336,
+        width: 51.39,
+        height: 75.023,
+      },
+      {
+        number: 21,
+        x: 1635.72,
+        y: 564.336,
+        width: 51.39,
+        height: 75.023,
+      },
+      {
+        number: 22,
+        x: 1635.72,
+        y: 483.176,
+        width: 51.39,
+        height: 75.023,
+      },
+      {
+        number: 23,
+        x: 1635.72,
+        y: 362.977,
+        width: 51.39,
+        height: 75.023,
+      },
+      {
+        number: 24,
+        x: 1635.72,
+        y: 281.818,
+        width: 51.39,
+        height: 75.024,
+      },
+    ],
+  },
+  {
+    id: 2,
+    width: 2789,
+    height: 1591,
+    image: 'assets/exhibition/floor-2.svg',
+    stands: [
+      {
+        number: 25,
+        x: 2143.71,
+        y: 341.162,
+        width: 47.37,
+        height: 76.551,
+      },
+      {
+        number: 26,
+        x: 1999.84,
+        y: 809.438,
+        width: 76.55,
+        height: 47.373,
+      },
+      {
+        number: 27,
+        x: 1619.64,
+        y: 809.438,
+        width: 76.55,
+        height: 47.373,
+      },
+    ],
+  },
+];
+
+// Confirmed DEBT TECH 2026 exhibitors and stand assignments.
+export const exhibitors = [
+  {
+    id: 'everest-plus',
+    name: 'Эверест Плюс',
+    logo: 'assets/exhibition/logos/everest-plus.png',
+    description: 'IT-вендор «ЭВЕРЕСТ ПЛЮС»',
+    standNumbers: [3],
+  },
+  {
+    id: 'i-digital',
+    name: 'i-digital',
+    logo: 'assets/exhibition/logos/i-digital.png',
+    description: 'IT-вендор «i-Digital»',
+    standNumbers: [4],
+  },
+  {
+    id: 'vzyskator',
+    name: 'Взыскатор',
+    logo: 'assets/exhibition/logos/vzyskator.png',
+    description: 'Сервис «Взыскатор»',
+    standNumbers: [5],
+  },
+  {
+    id: 'smart-legal-data',
+    name: 'Smart Legal Data',
+    logo: 'assets/exhibition/logos/smart-legal-data.png',
+    description: 'IT-вендор «Смарт Бизнес Лаб»',
+    standNumbers: [6],
+  },
+  {
+    id: 'a-storm',
+    name: 'А.Сторм',
+    logo: 'assets/exhibition/logos/a-storm.png',
+    description: 'ПКО «А.Сторм»',
+    standNumbers: [7],
+  },
+  {
+    id: 'debtprice',
+    name: 'DEBT PRICE',
+    logo: 'assets/exhibition/logos/debtprice.png',
+    description: 'Аукцион долговых активов',
+    standNumbers: [8],
+  },
+  {
+    id: 'dekodika',
+    name: 'Декодика',
+    logo: 'assets/exhibition/logos/dekodika.png',
+    description: 'IT-вендор «Декодика»',
+    standNumbers: [9],
+  },
+  {
+    id: 'skorozvon',
+    name: 'Скорозвон',
+    logo: 'assets/exhibition/logos/skorozvon.png',
+    description: 'IT-вендор «Смартьюб»',
+    standNumbers: [10],
+  },
+  {
+    id: 'asv',
+    name: 'Агентство судебного взыскания',
+    logo: 'assets/exhibition/logos/asv.png',
+    description: 'ПКО «АСВ»',
+    standNumbers: [15],
+  },
+  {
+    id: 'legal-resources',
+    name: 'Legal Resources',
+    logo: 'assets/exhibition/logos/legal-resources.png',
+    description: 'IT-вендор «Legal Resources»',
+    standNumbers: [16],
+  },
+  {
+    id: 'best2pay',
+    name: 'best2pay',
+    logo: 'assets/exhibition/logos/best2pay.png',
+    description: 'Платежный сервис «Бест2пей»',
+    standNumbers: [20],
+  },
+];
+
+export const occupiedStandNumbers = exhibitors.flatMap((item) => item.standNumbers);
+
+export const getStandStatus = (number) =>
+  occupiedStandNumbers.includes(number) ? 'occupied' : 'free';
+
+// Exact stand silhouettes copied from the original floor SVG so reserved stands can be muted
+// without redrawing or distorting the source plan.
+export const occupiedStandArtwork = {
+  3: {
+    shape:
+      'M1176.64 1405.65H1232.76C1240.22 1405.65 1246.26 1411.69 1246.26 1419.15V1443.62C1246.26 1451.07 1240.22 1457.12 1232.76 1457.12H1176.64C1169.18 1457.12 1163.14 1451.07 1163.14 1443.62V1419.15C1163.14 1411.81 1169 1405.84 1176.29 1405.65L1176.64 1405.65Z',
+  },
+  4: {
+    shape:
+      'M1350.26 1405.65H1406.38C1413.84 1405.65 1419.88 1411.69 1419.88 1419.15V1443.62C1419.88 1451.07 1413.84 1457.12 1406.38 1457.12H1350.26C1342.8 1457.12 1336.76 1451.07 1336.76 1443.62V1419.15C1336.76 1411.81 1342.62 1405.84 1349.91 1405.65L1350.26 1405.65Z',
+  },
+  5: {
+    shape:
+      'M1534.15 1405.65H1590.27C1597.73 1405.65 1603.77 1411.69 1603.77 1419.15V1443.62C1603.77 1451.07 1597.73 1457.12 1590.27 1457.12H1534.15C1526.7 1457.12 1520.65 1451.07 1520.65 1443.62V1419.15C1520.65 1411.81 1526.51 1405.84 1533.81 1405.65L1534.15 1405.65Z',
+  },
+  6: {
+    shape:
+      'M1711.88 1405.65H1768C1775.46 1405.65 1781.5 1411.69 1781.5 1419.15V1443.62C1781.5 1451.07 1775.46 1457.12 1768 1457.12H1711.88C1704.43 1457.12 1698.38 1451.07 1698.38 1443.62V1419.15C1698.38 1411.81 1704.24 1405.84 1711.53 1405.65L1711.88 1405.65Z',
+  },
+  7: {
+    shape:
+      'M1863.93 1372.85H1920.05C1927.5 1372.85 1933.55 1378.89 1933.55 1386.35V1410.82C1933.55 1418.28 1927.5 1424.32 1920.05 1424.32H1863.93C1856.47 1424.32 1850.43 1418.28 1850.43 1410.82V1386.35C1850.43 1379.01 1856.29 1373.04 1863.58 1372.85L1863.93 1372.85Z',
+  },
+  8: {
+    shape:
+      'M1967.84 1326.28L2015.15 1296.32C2021.45 1292.33 2029.79 1294.2 2033.78 1300.5L2046.83 1321.11C2050.82 1327.41 2048.94 1335.75 2042.64 1339.74L1995.33 1369.7C1989.03 1373.69 1980.69 1371.81 1976.71 1365.51L1963.66 1344.9C1959.67 1338.6 1961.54 1330.26 1967.84 1326.28Z',
+  },
+  9: {
+    shape:
+      'M1843.24 999.811L1843.24 943.691C1843.24 936.236 1849.28 930.191 1856.74 930.191L1881.21 930.191C1888.66 930.192 1894.71 936.236 1894.71 943.691L1894.71 999.811C1894.71 1007.27 1888.66 1013.31 1881.21 1013.31L1856.74 1013.31C1849.4 1013.31 1843.43 1007.45 1843.24 1000.16L1843.24 999.811Z',
+  },
+  10: {
+    shape:
+      'M2034.32 882.693L2034.32 826.574C2034.32 819.118 2040.37 813.074 2047.82 813.074L2072.29 813.074C2079.75 813.074 2085.79 819.118 2085.79 826.574L2085.79 882.693C2085.79 890.149 2079.75 896.193 2072.29 896.193L2047.82 896.193C2040.48 896.193 2034.51 890.337 2034.33 883.042L2034.32 882.693Z',
+  },
+  15: {
+    shape:
+      'M2034.47 234.561H2090.59C2098.04 234.561 2104.09 240.605 2104.09 248.061V272.531C2104.09 279.987 2098.04 286.031 2090.59 286.031H2034.47C2027.01 286.031 2020.97 279.987 2020.97 272.531V248.061C2020.97 240.721 2026.82 234.75 2034.12 234.565L2034.47 234.561Z',
+  },
+  16: {
+    shape:
+      'M1872.15 234.561H1928.27C1935.72 234.561 1941.77 240.605 1941.77 248.061V272.531C1941.77 279.987 1935.72 286.031 1928.27 286.031H1872.15C1864.69 286.031 1858.65 279.987 1858.65 272.531V248.061C1858.65 240.721 1864.5 234.75 1871.8 234.565L1872.15 234.561Z',
+  },
+  20: {
+    shape:
+      'M1778.52 625.859L1778.52 577.837C1778.52 570.381 1784.56 564.336 1792.02 564.336L1816.41 564.336C1823.87 564.336 1829.91 570.38 1829.91 577.836L1829.91 625.859C1829.91 633.315 1823.87 639.359 1816.41 639.359L1792.02 639.359C1784.56 639.359 1778.52 633.315 1778.52 625.859Z',
+  },
+};

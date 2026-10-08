@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { ArrowUpRight, ArrowRight, Play, Info } from 'lucide-react';
 import { content } from './content.js';
 import { Supporters } from './components/Supporters.jsx';
+import { ConferencePartners } from './components/ConferencePartners.jsx';
 import { SpeakerCollection } from './components/SpeakerCollection.jsx';
+import { Exhibition } from './components/Exhibition.jsx';
 import { VenueMap } from './components/VenueMap.jsx';
 import { topics, stages, spaces, audience, partnerNames } from './data.js';
 import speakers from './speakers.json';
@@ -19,6 +21,7 @@ import { HeroScene } from './components/hero/HeroScene.jsx';
 import { DelayedTicketOffer } from './components/TicketOffer.jsx';
 import { useExperienceMotion } from './lib/useExperienceMotion.js';
 import { useAmbientMotion } from './lib/useAmbientMotion.js';
+import { getPricingPhase, getScheduledTariffs, PRICING_SWITCH_AT } from './lib/ticket-pricing.js';
 const art = (n) => assetUrl('assets/figma/' + n.replace(/\.png$/, '.webp'));
 function Picture({ name, alt = '', className = '', eager = false, ...props }) {
   return (
@@ -637,6 +640,15 @@ function Organizer() {
   );
 }
 function Tariffs({ onApply }) {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const delay = PRICING_SWITCH_AT - Date.now();
+    if (delay <= 0) return undefined;
+    const timer = setTimeout(() => setNow(Date.now()), delay + 50);
+    return () => clearTimeout(timer);
+  }, []);
+  const tariffs = getScheduledTariffs(content.tariffs, now);
+  const phase = getPricingPhase(now);
   return (
     <section className="section tariffs" id="tariffs">
       <div className="tariffs-heading">
@@ -651,7 +663,7 @@ function Tariffs({ onApply }) {
         <Picture className="tariff-astronaut decor" name="tariff-astronaut-masked.png" />
       </div>
       <div className="tariff-grid" id="tariff-plans">
-        {content.tariffs.items.map((t) => (
+        {tariffs.items.map((t) => (
           <article className={'tariff tariff--' + t.id + ' corners'} key={t.id}>
             <h3>{t.title}</h3>
             <ul>
@@ -681,7 +693,7 @@ function Tariffs({ onApply }) {
         <b>*</b>
         <span>
           Стоимость указана по тарифу ранней регистрации и действует{' '}
-          <strong>до 1 октября включительно.</strong>
+          <strong>{phase.deadlineLabel}.</strong>
         </span>
       </p>
     </section>
@@ -769,6 +781,7 @@ function Sponsor() {
           </p>
         </div>
       </div>
+      <ConferencePartners />
     </section>
   );
 }
@@ -877,8 +890,13 @@ export default function App() {
     [media, setMedia] = useState(null);
   const closeForm = useCallback(() => setForm(null), []),
     closeMedia = useCallback(() => setMedia(null), []);
-  const openForm = (kind = 'early-registration', tariff = null) => {
-    setForm({ kind, tariff });
+  const openForm = (
+    kind = 'early-registration',
+    tariff = null,
+    initialComment = '',
+    partner = false,
+  ) => {
+    setForm({ kind, tariff, initialComment, partner });
     goal('form_open', { form: kind, tariff: tariff?.id || '' });
   };
   const openMedia = (kind) => {
@@ -913,6 +931,7 @@ export default function App() {
           <Services onRegister={() => openForm()} />
           <Topics />
           <Speakers />
+          <Exhibition onApply={(comment) => openForm('stand-booking', null, comment, true)} />
           <Audience />
           <Organizer />
           <Tariffs onApply={(t) => openForm('early-registration', t)} />

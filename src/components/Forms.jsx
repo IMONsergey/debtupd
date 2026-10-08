@@ -5,6 +5,7 @@ import { ActionArrow } from './ActionArrow.jsx';
 import { submitLead, formatPhone } from '../lib/forms.js';
 import { useDialog } from '../lib/useDialog.js';
 import { MAX_CORPORATE_PARTICIPANTS } from '../lib/corporate-pricing.js';
+import { getScheduledTariffs, PRICING_SWITCH_AT } from '../lib/ticket-pricing.js';
 import { content } from '../content.js';
 const privacy = content.footer.privacyHref;
 const common = [
@@ -79,16 +80,29 @@ export function ApplicationModal({
   kind = 'early-registration',
   tariff,
   completed = false,
+  initialComment = '',
+  partner = false,
   onClose,
 }) {
   const ref = useRef(null),
     sending = useRef(false),
     abort = useRef(null);
   const [status, setStatus] = useState(completed ? 'success' : 'idle'),
-    [message, setMessage] = useState('');
+    [message, setMessage] = useState(''),
+    [now, setNow] = useState(Date.now());
   useDialog(ref, onClose);
   useEffect(() => () => abort.current?.abort(), []);
-  const stand = kind === 'stand-booking',
+  useEffect(() => {
+    const delay = PRICING_SWITCH_AT - Date.now();
+    if (delay <= 0) return undefined;
+    const timer = setTimeout(() => setNow(Date.now()), delay + 50);
+    return () => clearTimeout(timer);
+  }, []);
+  const activeTariff = tariff
+      ? getScheduledTariffs(content.tariffs, now).items.find((item) => item.id === tariff.id) ||
+        tariff
+      : null,
+    stand = kind === 'stand-booking',
     id = stand ? 'stand-booking-form' : 'early-registration-form';
   const fields = stand
     ? [
@@ -130,8 +144,12 @@ export function ApplicationModal({
           ...Object.fromEntries(data),
           form_id: id,
           consent: data.get('consent') === 'yes',
-          ...(tariff
-            ? { tariff_id: tariff.id, tariff_name: tariff.title, tariff_price: tariff.price }
+          ...(activeTariff
+            ? {
+                tariff_id: activeTariff.id,
+                tariff_name: activeTariff.title,
+                tariff_price: activeTariff.price,
+              }
             : {}),
         },
         { signal: abort.current.signal },
@@ -153,8 +171,8 @@ export function ApplicationModal({
     >
       <section
         ref={ref}
-        className={`form-dialog${tariff ? ' form-dialog--' + tariff.id : ''}`}
-        data-tariff-id={tariff?.id}
+        className={`form-dialog${activeTariff ? ' form-dialog--' + activeTariff.id : ''}`}
+        data-tariff-id={activeTariff?.id}
         role="dialog"
         aria-modal="true"
         aria-labelledby="application-title"
@@ -168,9 +186,11 @@ export function ApplicationModal({
           {kind === 'corporate-package'
             ? 'Корпоративное участие'
             : stand
-              ? 'Забронировать стенд'
-              : tariff
-                ? `Тариф «${tariff.title}»`
+              ? partner
+                ? 'Партнерское участие'
+                : 'Забронировать стенд'
+              : activeTariff
+                ? `Тариф «${activeTariff.title}»`
                 : 'Ранняя регистрация'}
         </h2>
         {status === 'success' ? (
@@ -198,11 +218,11 @@ export function ApplicationModal({
                 ? 'Расскажите о компании и желаемом формате участия. Детали размещения согласуем отдельно.'
                 : 'Оставьте контакты и укажите количество участников. Менеджер свяжется с вами и расскажет об условиях участия.'}
             </p>
-            {tariff && (
+            {activeTariff && (
               <p className="selected-tariff">
                 Участие в форуме:{' '}
                 <strong>
-                  {tariff.title} · {tariff.price}
+                  {activeTariff.title} · {activeTariff.price}
                 </strong>
               </p>
             )}
@@ -234,13 +254,22 @@ export function ApplicationModal({
                   {stand && (
                     <label className="field span-two">
                       <span>Комментарий / желаемый формат стенда</span>
-                      <textarea name="comment" rows={3} maxLength={2000} />
+                      <textarea
+                        name="comment"
+                        rows={3}
+                        maxLength={2000}
+                        defaultValue={initialComment}
+                      />
                     </label>
                   )}
                 </div>
                 <Consent id="application-consent" />
                 <button className="button" type="submit">
-                  {status === 'sending' ? 'Отправляем…' : 'Отправить заявку'}
+                  {status === 'sending'
+                    ? 'Отправляем…'
+                    : partner
+                      ? 'Стать партнером'
+                      : 'Отправить заявку'}
                   <ActionArrow />
                 </button>
               </fieldset>
@@ -264,9 +293,17 @@ export function CorporateForm({ onSuccess }) {
   const [tariffId, setTariff] = useState('full-plus'),
     [count, setCount] = useState('3'),
     [status, setStatus] = useState('idle'),
-    [message, setMessage] = useState('');
+    [message, setMessage] = useState(''),
+    [now, setNow] = useState(Date.now());
   const sending = useRef(false);
-  const tariff = content.tariffs.items.find((t) => t.id === tariffId);
+  useEffect(() => {
+    const delay = PRICING_SWITCH_AT - Date.now();
+    if (delay <= 0) return undefined;
+    const timer = setTimeout(() => setNow(Date.now()), delay + 50);
+    return () => clearTimeout(timer);
+  }, []);
+  const tariffs = getScheduledTariffs(content.tariffs, now);
+  const tariff = tariffs.items.find((t) => t.id === tariffId);
   async function send(e) {
     e.preventDefault();
     if (sending.current || !validatePhone(e.currentTarget)) return;
@@ -323,7 +360,7 @@ export function CorporateForm({ onSuccess }) {
               onChange={(e) => setTariff(e.target.value)}
               required
             >
-              {content.tariffs.items.map((t) => (
+              {tariffs.items.map((t) => (
                 <option value={t.id} key={t.id}>
                   {t.title}
                 </option>

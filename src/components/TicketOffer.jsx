@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useDialog } from '../lib/useDialog.js';
 import { assetUrl } from '../lib/assets.js';
 import { ActionArrow } from './ActionArrow.jsx';
-const DEADLINE = Date.parse('2026-10-02T00:00:00+03:00');
+import { getPricingPhase, PRICING_END_AT } from '../lib/ticket-pricing.js';
 const SEEN = 'debt2026-early-booking-dismissed';
 function alreadyDismissed() {
   try {
@@ -20,7 +20,8 @@ function TicketOfferDialog({ onClose, onBuy }) {
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
   }, []);
-  const seconds = Math.max(0, Math.floor((DEADLINE - now) / 1000));
+  const phase = getPricingPhase(now);
+  const seconds = Math.max(0, Math.floor((phase.deadline - now) / 1000));
   const values = [
     Math.floor(seconds / 86400),
     Math.floor(seconds / 3600) % 24,
@@ -78,7 +79,7 @@ function TicketOfferDialog({ onClose, onBuy }) {
         </h2>
         <span className="ticket-offer-modal__booking-title">Раннее бронирование</span>
         <p id="ticket-offer-description">
-          Успейте приобрести билеты со скидкой <strong>до 1 октября включительно</strong>
+          Успейте приобрести билеты со скидкой <strong>{phase.deadlineLabel}</strong>
         </p>
         <div className="ticket-offer-modal__countdown" aria-label="До окончания скидки">
           {values.map((value, index) => (
@@ -130,6 +131,6 @@ export function DelayedTicketOffer({ blocked = false }) {
       }),
     );
   }, [close]);
-  if (!due || dismissed || blocked || loading || Date.now() >= DEADLINE) return null;
+  if (!due || dismissed || blocked || loading || Date.now() >= PRICING_END_AT) return null;
   return <TicketOfferDialog onClose={close} onBuy={buy} />;
 }
