@@ -9,11 +9,21 @@ for (const width of [1440, 768, 390, 320]) {
 
     const cards = page.locator('.sponsor-panel--partner');
     await expect(cards).toHaveCount(7);
+    // Client-approved order: Smart Business Lab immediately precedes Intel Collect.
+    await expect(cards.locator('.conference-partner-name')).toHaveText([
+      'АО «НИРУМ»',
+      'АО «Агредатор»',
+      'Best2pay',
+      'ООО «Смарт Бизнес Лаб»',
+      'ПКО «Интел коллект»',
+      'ООО «ЭВЕРЕСТ ПЛЮС»',
+      'iD Systems',
+    ]);
     await expect(page.locator('.sponsor-panel:not(.sponsor-panel--partner)')).toHaveCount(1);
     await expect(cards.locator('.conference-partner-planet')).toHaveCount(7);
     const planetNames = [
-      'planet-gold.webp', 'planet-silver.webp', 'planet-strategic.webp',
-      'planet-diamond.webp', 'planet-special.webp',
+      'planet-gold.webp', 'planet-strategic.webp', 'planet-diamond.webp',
+      'planet-silver.webp', 'planet-special.webp',
       'planet-standard.webp', 'planet-standard.webp',
     ];
     for (const [index, planetName] of planetNames.entries()) {
