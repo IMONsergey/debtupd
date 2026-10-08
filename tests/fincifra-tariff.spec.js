@@ -55,7 +55,7 @@ for (const width of [1440, 1024, 768, 390, 320]) {
     if (width === 390) expect(compact.height).toBeLessThan(640);
     await expect(tariff.locator('.tariff-limit-note')).toContainText('Не более двух билетов');
     await expect(tariff.locator('.tariff-bottom > strong')).toHaveText('24 500 ₽');
-    await expect(tariff.locator('.tariff-bottom > span')).toHaveText('Стоимость');
+    await expect(tariff.locator('.tariff-bottom > span')).toHaveText('Стоимость*');
     await expect(tariff.locator('li')).toHaveCount(7);
     await expect(tariff.locator('.included > span')).toContainText(
       included.map((label) => label + ' — входит в тариф'),
@@ -107,6 +107,7 @@ test('NSFR ticket booking carries correct tariff, limit and price to modal', asy
   await expect(dialog.locator('#application-title')).toContainText('«ФинЦифра» для членов НСФР');
   await expect(dialog.locator('.selected-tariff')).toContainText('24 500 ₽');
   await expect(dialog.locator('.tariff-form-limit')).toContainText('Не более двух билетов');
+  await expect(dialog.locator('.tariff-form-limit svg')).toHaveCount(1);
   const count = dialog.locator('[name="participants_count"]');
   await expect(count).toHaveAttribute('min', '1');
   await expect(count).toHaveAttribute('max', '2');

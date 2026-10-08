@@ -167,9 +167,20 @@
   border-left: 2px solid #76c8e1;
   background: #1a405a52;
   color: #d7eeff;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   font:
     400 14px/1.55 'IBM Plex Sans',
     sans-serif;
+}
+
+.form-dialog .tariff-form-limit > svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  color: #7bdce4;
 }
 
 .form-dialog--fincifra {

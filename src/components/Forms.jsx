@@ -1,3 +1,4 @@
+import { AlertTriangle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
@@ -228,7 +229,7 @@ export function ApplicationModal({
               </p>
             )}
             {activeTariff?.limitNote && (
-              <p className="tariff-form-limit">{activeTariff.limitNote}</p>
+              <p className="tariff-form-limit"><AlertTriangle size={18} strokeWidth={1.8} aria-hidden="true" /><span>{activeTariff.limitNote}</span></p>
             )}
             <form id={id} onSubmit={send}>
               <Honeypot />

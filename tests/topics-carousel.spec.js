@@ -19,10 +19,10 @@ for (const width of [320, 390, 768, 899]) {
       await page.goto('/#topics', { waitUntil: 'domcontentloaded' });
       const track = page.locator('.topics-grid');
       const cards = track.locator('.topic-card');
-      const counter = page.locator('.topics-counter strong');
+      const counter = page.locator('.topics-controls > span');
       await expect(cards).toHaveCount(6);
       await expect(page.locator('.topics-controls')).toBeVisible();
-      await expect(counter).toHaveText('01');
+      await expect(counter).toContainText('01 / 06');
       const dimensions = await track.evaluate((el) => ({
         scroll: el.scrollWidth,
         client: el.clientWidth,
@@ -35,25 +35,25 @@ for (const width of [320, 390, 768, 899]) {
       const previous = page.getByRole('button', { name: 'Предыдущая тема' });
       await expect(previous).toBeDisabled();
       await next.click();
-      await expect(counter).toHaveText('02');
+      await expect(counter).toContainText('02 / 06');
       await expect
         .poll(() => track.evaluate((el) => el.scrollLeft), { timeout: 6000 })
         .toBeGreaterThan(20);
       await previous.click();
-      await expect(counter).toHaveText('01');
+      await expect(counter).toContainText('01 / 06');
       await track.focus();
       await page.keyboard.press('End');
-      await expect(counter).toHaveText('06');
+      await expect(counter).toContainText('06 / 06');
       await expect(next).toBeDisabled();
       await page.keyboard.press('Home');
-      await expect(counter).toHaveText('01');
+      await expect(counter).toContainText('01 / 06');
       await expect.poll(() => track.evaluate((el) => el.scrollLeft)).toBeLessThan(2);
 
       // A user can drag/swipe the overflow area without a button.
       await track.evaluate((el) => el.scrollTo({ left: el.scrollWidth, behavior: 'instant' }));
-      await expect(counter).toHaveText('06');
+      await expect(counter).toContainText('06 / 06');
       await track.evaluate((el) => el.scrollTo({ left: 0, behavior: 'instant' }));
-      await expect(counter).toHaveText('01');
+      await expect(counter).toContainText('01 / 06');
       expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 2)).toBe(
         false,
       );

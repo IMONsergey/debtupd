@@ -1,9 +1,25 @@
+import { MobileCarouselControls } from './MobileCarouselControls.jsx';
+import { useSnapCarousel } from '../lib/useSnapCarousel.js';
 import { assetUrl } from '../lib/assets.js';
 import { conferencePartners } from '../conferencePartners.js';
 
 export function ConferencePartners() {
+  const { trackRef, index, scrollToIndex, onScroll, onScrollEnd, onKeyDown, interrupt } =
+    useSnapCarousel(conferencePartners.length);
   return (
-    <div className="conference-partners-list" aria-label="Партнёры DEBT TECH 2026">
+    <div className="conference-partners-carousel">
+      <div
+        className="conference-partners-list"
+        ref={trackRef}
+        role="region"
+        aria-label="Партнеры DEBT TECH 2026"
+        tabIndex={0}
+        onScroll={onScroll}
+        onScrollEnd={onScrollEnd}
+        onPointerDown={interrupt}
+        onWheel={interrupt}
+        onKeyDown={onKeyDown}
+      >
       {conferencePartners.map((partner) => (
         <article className="sponsor-panel sponsor-panel--partner glass corners" key={partner.name}>
           <div className="conference-partner-visual">
@@ -22,7 +38,7 @@ export function ConferencePartners() {
                 href={partner.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`Сайт партнёра: ${partner.name}`}
+                aria-label={`Сайт партнера: ${partner.name}`}
               >
                 <img
                   src={assetUrl(`assets/partners/${partner.logo}`)}
@@ -41,6 +57,17 @@ export function ConferencePartners() {
           </div>
         </article>
       ))}
+      </div>
+      <MobileCarouselControls
+        className="conference-partners-controls"
+        label="Навигация по партнерам"
+        index={index}
+        count={conferencePartners.length}
+        onPrev={() => scrollToIndex(index - 1)}
+        onNext={() => scrollToIndex(index + 1)}
+        prevLabel="Предыдущий партнер"
+        nextLabel="Следующий партнер"
+      />
     </div>
   );
 }

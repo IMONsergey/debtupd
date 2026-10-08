@@ -86,10 +86,19 @@ for (const width of [1440, 1180, 1024, 768, 760, 390, 320]) {
         { timeout: 12000 },
       )
       .toBe(true);
-    const columns = await page
-      .locator('.conference-partners-list')
-      .evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length);
-    expect(columns).toBe(width > 1180 ? 3 : width > 760 ? 2 : 1);
+    const layout = await page.locator('.conference-partners-list').evaluate((el) => ({
+      display: getComputedStyle(el).display,
+      columns: getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length,
+      maxScroll: el.scrollWidth - el.clientWidth,
+    }));
+    if (width <= 899) {
+      expect(layout.display).toBe('flex');
+      expect(layout.maxScroll).toBeGreaterThan(0);
+      await expect(page.locator('.conference-partners-controls')).toBeVisible();
+    } else {
+      expect(layout.columns).toBe(width > 1180 ? 3 : 2);
+      await expect(page.locator('.conference-partners-controls')).toBeHidden();
+    }
 
     const geometry = await cards.first().evaluate((card) => {
       const visual = card.querySelector('.conference-partner-visual').getBoundingClientRect();
@@ -114,14 +123,29 @@ for (const width of [1440, 1180, 1024, 768, 760, 390, 320]) {
     if (width > 1180) {
       expect(topPositions[0]).toBe(topPositions[1]);
       expect(topPositions[1]).toBe(topPositions[2]);
-    } else if (width > 760) {
+    } else if (width > 899) {
       expect(topPositions[0]).toBe(topPositions[1]);
       expect(topPositions[2]).toBeGreaterThan(topPositions[1]);
     } else {
-      expect(topPositions[1]).toBeGreaterThan(topPositions[0]);
-      expect(topPositions[2]).toBeGreaterThan(topPositions[1]);
+      expect(topPositions[0]).toBe(topPositions[1]);
+      expect(topPositions[1]).toBe(topPositions[2]);
     }
-    await expect(page.locator('.conference-partners-carousel')).toHaveCount(0);
+    await expect(page.locator('.conference-partners-carousel')).toHaveCount(1);
+    const cardText = await cards.allTextContents();
+    expect(cardText.join(' ')).not.toMatch(/[ёЁ]/);
+    if (width <= 899) {
+      const nav = page.locator('.conference-partners-controls');
+      const counter = nav.locator('span').first();
+      // Previous asset checks scrolled through every card; reset before testing navigation.
+      await page
+        .locator('.conference-partners-list')
+        .evaluate((el) => el.scrollTo({ left: 0, behavior: 'instant' }));
+      await expect(counter).toContainText('01 / 07');
+      await nav.getByRole('button', { name: 'Следующий партнер' }).click();
+      await expect(counter).toContainText('02 / 07');
+      await nav.getByRole('button', { name: 'Предыдущий партнер' }).click();
+      await expect(counter).toContainText('01 / 07');
+    }
     expect(pageErrors).toEqual([]);
   });
 }
