@@ -806,6 +806,9 @@
   .partner-card:nth-child(8) {
     grid-area: 3/2;
   }
+  .partner-card:nth-child(9) {
+    grid-area: 3/3;
+  }
   .partner-card img {
     max-width: 90%;
     max-height: 120px;
