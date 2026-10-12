@@ -1216,6 +1216,9 @@ fieldset:disabled {
 .partner-card:nth-child(8) {
   grid-area: 3/3;
 }
+.partner-card:nth-child(9) {
+  grid-area: 3/4;
+}
 .partner-card img {
   max-height: 130px;
   width: auto;
