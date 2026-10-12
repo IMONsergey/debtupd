@@ -85,8 +85,8 @@ test('All 19 current speakers are present in the approved order with valid portr
   await ready(page, 1440);
   await expect(page.locator('.speaker')).toHaveCount(19);
   const names = await page.locator('.speaker h3').allTextContents();
-  expect(names[2]).toContain('Новиков');
-  expect(names[3]).toContain('Емелин');
+  expect(names[2]).toContain('Емелин');
+  expect(names[3]).toContain('Новиков');
   expect(names[4]).toContain('Золотарева');
   expect(names[13]).toContain('Уткина');
   expect(names[14]).toContain('Каюмов');
