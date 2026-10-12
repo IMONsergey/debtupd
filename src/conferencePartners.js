@@ -43,7 +43,7 @@ export const conferencePartners = [
   {
     name: 'ПКО «Интел коллект»',
     tier: 'Специальный партнер',
-    logo: 'intel-collect.webp',
+    logo: 'intel-collect-20261012.webp',
     planet: 'planet-special.webp',
     href: 'https://intelcollect.ru/',
     description: [
