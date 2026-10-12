@@ -822,7 +822,7 @@ function Sponsor() {
   );
 }
 function Partners() {
-  const positions = [1, 3, 4, 5, 6, 8, 9, 10];
+  const positions = [1, 3, 4, 5, 6, 8, 9, 10, 11];
   return (
     <section className="section partners" id="information-partners">
       <div className="section-glow partners-glow" aria-hidden="true" />
@@ -836,7 +836,7 @@ function Partners() {
         {partnerNames.map((name, i) => (
           <div className="partner-card glass corners" style={{ '--cell': positions[i] }} key={name}>
             <Picture
-              name={'partner-' + (i + 1) + ([2, 4, 8].includes(i + 1) ? '.svg' : '.png')}
+              name={'partner-' + (i + 1) + ([2, 4, 8, 9].includes(i + 1) ? '.svg' : '.png')}
               alt={name}
             />
           </div>
