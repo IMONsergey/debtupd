@@ -79,22 +79,27 @@ test('Space card labels are whole words and activity strips are uppercase', asyn
       .evaluate((node) => getComputedStyle(node).backgroundImage),
   ).toContain('gradient');
 });
-test('All 15 approved speakers are present in the requested order with 3x assets', async ({
+test('All 19 current speakers are present in the approved order with valid portraits', async ({
   page,
 }) => {
   await ready(page, 1440);
-  await expect(page.locator('.speaker')).toHaveCount(15);
+  await expect(page.locator('.speaker')).toHaveCount(19);
   const names = await page.locator('.speaker h3').allTextContents();
-  expect(names[2]).toContain('Емелин');
-  expect(names[3]).toContain('Пустовит');
+  expect(names[2]).toContain('Новиков');
+  expect(names[3]).toContain('Емелин');
+  expect(names[4]).toContain('Золотарева');
   expect(names[13]).toContain('Уткина');
   expect(names[14]).toContain('Каюмов');
+  expect(names[18]).toContain('Скворцов');
+  expect(names.join(' ')).not.toContain('Пустовит');
   const portraits = await page
     .locator('.speaker-portrait img')
     .evaluateAll((nodes) =>
       nodes.map((node) => ({ width: node.width, source: node.getAttribute('src') })),
     );
-  expect(portraits.every((item) => item.source.includes('speaker-hd-'))).toBe(true);
+  expect(portraits.every((item) => /\/assets\/figma\/speaker-.*\.webp$/.test(item.source))).toBe(
+    true,
+  );
   const speaker = page.locator('.speaker').first();
   await speaker.hover();
   expect(await speaker.evaluate((node) => getComputedStyle(node).borderTopWidth)).toBe('0px');
@@ -114,7 +119,7 @@ test('Speaker carousel moves by controls and keyboard, reaches the final profile
   await page
     .locator('.speakers-grid')
     .evaluate((node) => node.scrollTo({ left: node.scrollWidth, behavior: 'instant' }));
-  await expect(page.locator('.speakers-controls>span')).toContainText('15');
+  await expect(page.locator('.speakers-controls>span')).toContainText('19');
   await page.getByRole('button', { name: 'Показать всех спикеров' }).click();
   await expect(page.locator('.speaker-collection')).toHaveClass(/is-expanded/);
   await expect(page.getByRole('button', { name: 'Скрыть всех спикеров' })).toBeVisible();
@@ -206,7 +211,7 @@ test('Tablet speaker carousel reaches the last profile and long program words fi
     const track = page.locator('.speakers-grid');
     await track.focus();
     await page.keyboard.press('End');
-    await expect(page.locator('.speakers-controls>span')).toHaveText(/08\s*\/\s*08/);
+    await expect(page.locator('.speakers-controls>span')).toHaveText(/10\s*\/\s*10/);
     await expect(page.getByRole('button', { name: 'Следующий слайд' })).toBeDisabled();
     await expect
       .poll(() =>
@@ -247,9 +252,9 @@ test('Speaker page numbers follow the visible group at each breakpoint and on th
   const counter = page.locator('.speakers-controls>span');
   const track = page.locator('.speakers-grid');
   for (const [width, count] of [
-    [1440, '05'],
-    [768, '08'],
-    [390, '15'],
+    [1440, '07'],
+    [768, '10'],
+    [390, '19'],
   ]) {
     await page.setViewportSize({ width, height: 900 });
     await track.focus();
