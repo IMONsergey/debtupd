@@ -1,0 +1,35 @@
+name: Fincifra sandbox QA
+
+on:
+  push:
+    branches:
+      - sandbox/new-block-20261013
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fincifra:
+    name: Build and browser checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: FinCifra responsive and registration flow
+        run: npx playwright test tests/fincifra-seminar.spec.js tests/info-partner-probankrotstvo.spec.js --reporter=line
+      - name: Upload browser diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fincifra-browser-diagnostics
+          path: test-results/
+          retention-days: 5
