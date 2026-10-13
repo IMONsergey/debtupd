@@ -5,7 +5,13 @@ import { ExhibitionLegend } from './ExhibitionLegend.jsx';
 import { ExhibitorCarousel } from './ExhibitorCarousel.jsx';
 import { ActionArrow } from './ActionArrow.jsx';
 import { assetUrl } from '../lib/assets.js';
-import { floors, exhibitors, getStandStatus, occupiedStandArtwork } from '../data/exhibition.js';
+import {
+  floors,
+  exhibitors,
+  getStandStatus,
+  occupiedStandArtwork,
+  availableStandCount,
+} from '../data/exhibition.js';
 
 const benefits = [
   ['01', 'Чек-бейджи', 'Механика приводит участников на ваш стенд'],
@@ -149,7 +155,7 @@ export function Exhibition({ onApply }) {
           <h3>Схема площадки</h3>
         </div>
         <div className="exhibition-availability glass corners">
-          <strong className="exhibition-availability__count">15</strong>
+          <strong className="exhibition-availability__count">{availableStandCount}</strong>
           <div>
             <p className="exhibition-availability__eyebrow">В Планетарии осталось</p>
             <strong className="exhibition-availability__label">мест под стенды</strong>

@@ -210,6 +210,13 @@ export const floors = [
 // Confirmed DEBT TECH 2026 exhibitors and stand assignments.
 export const exhibitors = [
   {
+    id: 'torgi-rossii',
+    name: 'Торги России',
+    logo: 'assets/exhibition/logos/torgi-rossii.png',
+    description: 'Электронная торговая площадка продажи имущества',
+    standNumbers: [2],
+  },
+  {
     id: 'everest-plus',
     name: 'Эверест Плюс',
     logo: 'assets/exhibition/logos/everest-plus.png',
@@ -266,6 +273,27 @@ export const exhibitors = [
     standNumbers: [10],
   },
   {
+    id: 'id-systems',
+    name: 'Id Systems',
+    logo: 'assets/exhibition/logos/id-systems.png',
+    description: 'IT-вендор «АйДиСистемс»',
+    standNumbers: [11],
+  },
+  {
+    id: 'intell-collect',
+    name: 'Интелл коллект',
+    logo: 'assets/exhibition/logos/intell-collect.png',
+    description: 'ПКО «Интелл коллект»',
+    standNumbers: [13],
+  },
+  {
+    id: 'autosled',
+    name: 'Автослед',
+    logo: 'assets/exhibition/logos/autosled.png',
+    description: 'Вендор «АВТОСЛЕД ЕМ ГРУПП»',
+    standNumbers: [14],
+  },
+  {
     id: 'asv',
     name: 'Агентство судебного взыскания',
     logo: 'assets/exhibition/logos/asv.png',
@@ -293,9 +321,19 @@ export const occupiedStandNumbers = exhibitors.flatMap((item) => item.standNumbe
 export const getStandStatus = (number) =>
   occupiedStandNumbers.includes(number) ? 'occupied' : 'free';
 
+export const availableStandCount = floors.reduce(
+  (count, floor) =>
+    count + floor.stands.filter((stand) => getStandStatus(stand.number) === 'free').length,
+  0,
+);
+
 // Exact stand silhouettes copied from the original floor SVG so reserved stands can be muted
 // without redrawing or distorting the source plan.
 export const occupiedStandArtwork = {
+  2: {
+    shape:
+      'M997.884 1405.65H1054C1061.46 1405.65 1067.5 1411.69 1067.5 1419.15V1443.62C1067.5 1451.07 1061.46 1457.12 1054 1457.12H997.884C990.428 1457.12 984.384 1451.07 984.384 1443.62V1419.15C984.384 1411.81 990.24 1405.84 997.535 1405.65L997.884 1405.65Z',
+  },
   3: {
     shape:
       'M1176.64 1405.65H1232.76C1240.22 1405.65 1246.26 1411.69 1246.26 1419.15V1443.62C1246.26 1451.07 1240.22 1457.12 1232.76 1457.12H1176.64C1169.18 1457.12 1163.14 1451.07 1163.14 1443.62V1419.15C1163.14 1411.81 1169 1405.84 1176.29 1405.65L1176.64 1405.65Z',
@@ -327,6 +365,18 @@ export const occupiedStandArtwork = {
   10: {
     shape:
       'M2034.32 882.693L2034.32 826.574C2034.32 819.118 2040.37 813.074 2047.82 813.074L2072.29 813.074C2079.75 813.074 2085.79 819.118 2085.79 826.574L2085.79 882.693C2085.79 890.149 2079.75 896.193 2072.29 896.193L2047.82 896.193C2040.48 896.193 2034.51 890.337 2034.33 883.042L2034.32 882.693Z',
+  },
+  11: {
+    shape:
+      'M2034.47 637.277H2090.59C2098.04 637.277 2104.09 643.321 2104.09 650.777V675.248C2104.09 682.704 2098.04 688.748 2090.59 688.748H2034.47C2027.01 688.748 2020.97 682.704 2020.97 675.248V650.777C2020.97 643.438 2026.82 637.467 2034.12 637.282L2034.47 637.277Z',
+  },
+  13: {
+    shape:
+      'M2077.47 479.977L2077.47 438.117C2077.47 430.662 2083.52 424.617 2090.97 424.617L2115.37 424.617C2122.82 424.617 2128.86 430.662 2128.87 438.117L2128.87 479.977C2128.87 487.432 2122.82 493.476 2115.37 493.477L2090.97 493.477C2083.51 493.477 2077.47 487.432 2077.47 479.977Z',
+  },
+  14: {
+    shape:
+      'M2077.47 404.98L2077.47 363.121C2077.47 355.665 2083.52 349.621 2090.97 349.621L2115.37 349.621C2122.82 349.621 2128.86 355.666 2128.87 363.121L2128.87 404.98C2128.87 412.436 2122.82 418.48 2115.37 418.48L2090.97 418.48C2083.51 418.48 2077.47 412.436 2077.47 404.98Z',
   },
   15: {
     shape:
