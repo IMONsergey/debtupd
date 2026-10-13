@@ -26,6 +26,13 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: FinCifra responsive and registration flow
         run: npx playwright test tests/fincifra-seminar.spec.js tests/info-partner-probankrotstvo.spec.js --reporter=line
+      - name: Upload design review previews
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fincifra-previews
+          path: test-results/fincifra-preview-*.png
+          retention-days: 7
       - name: Upload browser diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v4
