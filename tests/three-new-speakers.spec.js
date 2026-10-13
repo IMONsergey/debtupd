@@ -32,7 +32,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
       page.on('pageerror', (error) => errors.push(error.message));
       await page.goto('/#speakers', { waitUntil: 'domcontentloaded' });
       const speakers = page.locator('.speakers-grid .speaker');
-      await expect(speakers).toHaveCount(19);
+      await expect(speakers).toHaveCount(24);
 
       for (const [name, role, asset] of additions) {
         const card = speakers.filter({
@@ -66,6 +66,6 @@ test('mobile speaker carousel can navigate to the final new speaker', async ({ p
   const track = page.locator('.speakers-grid');
   await track.focus();
   await page.keyboard.press('End');
-  await expect(page.locator('.speakers-controls > span')).toHaveText(/19\s*\/\s*19/);
-  await expect(page.locator('.speakers-grid .speaker').last()).toContainText('Илья');
+  await expect(page.locator('.speakers-controls > span')).toHaveText(/24\s*\/\s*24/);
+  await expect(page.locator('.speakers-grid .speaker').last()).toContainText('Анна');
 });

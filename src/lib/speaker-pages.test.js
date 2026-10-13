@@ -14,15 +14,15 @@ test('Speaker pagination counts visible groups, including a partially filled las
   assert.deepEqual(speakerPageStarts(0, 3), []);
 });
 
-test('all 22 speakers remain reachable on desktop, tablet and phone', () => {
-  assert.deepEqual(speakerPageStarts(22, 3), [0, 3, 6, 9, 12, 15, 18, 19]);
+test('all 24 speakers remain reachable on desktop, tablet and phone', () => {
+  assert.deepEqual(speakerPageStarts(24, 3), [0, 3, 6, 9, 12, 15, 18, 21]);
   assert.deepEqual(
-    speakerPageStarts(22, 2),
-    Array.from({ length: 11 }, (_, i) => i * 2),
+    speakerPageStarts(24, 2),
+    Array.from({ length: 12 }, (_, i) => i * 2),
   );
   assert.deepEqual(
-    speakerPageStarts(22, 1),
-    Array.from({ length: 22 }, (_, i) => i),
+    speakerPageStarts(24, 1),
+    Array.from({ length: 24 }, (_, i) => i),
   );
 });
 
@@ -44,11 +44,21 @@ test('new speakers preserve approved names, roles and loadable portraits', () =>
       'Генеральный директор ПКО «Интел Коллект»',
       'speaker-alexey-velizhanin.webp',
     ],
+    [
+      'Роман Спотарь',
+      'Руководитель службы сопровождения и развития дистанционного урегулирования',
+      'speaker-roman-spotar.webp',
+    ],
+    [
+      'Анна Белоцерковская',
+      'Президент Ассоциации ПАУ «Гарант»',
+      'speaker-anna-belotserkovskaya.webp',
+    ],
   ];
-  assert.equal(speakers.length, 22);
+  assert.equal(speakers.length, 24);
   assert.equal(new Set(speakers.map((speaker) => speaker.name)).size, speakers.length);
   assert.deepEqual(
-    speakers.slice(-3).map(({ name, role, image }) => [name, role, image]),
+    speakers.slice(-expected.length).map(({ name, role, image }) => [name, role, image]),
     expected,
   );
   for (const [, , image] of expected) {

@@ -108,5 +108,15 @@
     "image": "speaker-alexey-velizhanin.webp",
     "name": "Алексей Велижанин",
     "role": "Генеральный директор ПКО «Интел Коллект»"
+  },
+  {
+    "image": "speaker-roman-spotar.webp",
+    "name": "Роман Спотарь",
+    "role": "Руководитель службы сопровождения и развития дистанционного урегулирования"
+  },
+  {
+    "image": "speaker-anna-belotserkovskaya.webp",
+    "name": "Анна Белоцерковская",
+    "role": "Президент Ассоциации ПАУ «Гарант»"
   }
 ]
