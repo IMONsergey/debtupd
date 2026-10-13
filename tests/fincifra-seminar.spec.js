@@ -29,7 +29,13 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
       ['Иван Зимин', 'fincifra-ivan-zimin.webp'],
     ]) {
       const portrait = seminar.locator('.fincifra-seminar__portrait img[alt="' + name + '"]');
-      await expect(portrait).toHaveAttribute('src', new RegExp('/assets/speakers/' + filename + '
+      const src = await portrait.getAttribute('src');
+      expect(src).toContain('/assets/speakers/' + filename);
+      await expect.poll(
+        () => portrait.evaluate((img) => img.complete && img.naturalWidth >= 350),
+        { timeout: 10000 },
+      ).toBe(true);
+    }
     await expect(seminar).toContainText('Андрей Емелин');
     await expect(seminar).toContainText('Иван Зимин');
     await expect(seminar).toContainText('12:30');
