@@ -1,0 +1,51 @@
+name: Prepare verified Fincifra portraits
+on:
+  push:
+    branches: [sandbox/new-block-20261013]
+    paths: ['.github/workflows/fincifra-portraits.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  portraits:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Prepare original photographic portraits
+        run: |
+          python -m pip install Pillow
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image, ImageOps
+          from io import BytesIO
+          import urllib.request
+          root=Path('public/assets/speakers')
+          root.mkdir(parents=True, exist_ok=True)
+          sources=[
+              ('fincifra-andrey-emelin.webp','https://www.probankrotstvo.ru/storage/files/persons/2022_09_16-4883_ca501b1dd96f1bcfb63a1b6e02532352.jpg'),
+              ('fincifra-ivan-zimin.webp','https://cdn-5.vedomosti.ru/image/2019/2l/10avoy/big-1b1q.gif'),
+          ]
+          for filename,url in sources:
+              request=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'})
+              with urllib.request.urlopen(request,timeout=25) as response:
+                  data=response.read()
+              image=Image.open(BytesIO(data)).convert('RGB')
+              image=ImageOps.fit(image,(400,400),method=Image.Resampling.LANCZOS)
+              image.save(root/filename,'WEBP',quality=86,method=6)
+              print(filename,(root/filename).stat().st_size,'bytes')
+          PY
+      - name: Commit image assets to sandbox branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/assets/speakers/fincifra-andrey-emelin.webp public/assets/speakers/fincifra-ivan-zimin.webp
+          if git diff --cached --quiet; then
+            echo "Already up to date"
+          else
+            git commit -m "assets: add original Fincifra speaker portraits"
+            git push origin HEAD:sandbox/new-block-20261013
+          fi
