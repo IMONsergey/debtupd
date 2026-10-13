@@ -28,12 +28,12 @@ npm run test:e2e
 VITE_METRIKA_HOSTS=debtupd-sandbox.176.98.177.253.sslip.io npm run build
 ```
 
-Архив содержит только `dist`, `server`, `deploy`, `package.json`. Никаких `.env`, SSH-ключей, webhook URL или токенов.
+Архив содержит только `dist`, `server`, `deploy`, `package.json` и `src/lib/ticket-pricing.js` (его импортирует обработчик форм). Никаких `.env`, SSH-ключей, webhook URL или токенов.
 
 ```sh
 release="$(date -u +%Y%m%dT%H%M%SZ)-$(git rev-parse --short HEAD)"
 mkdir -p test-results/deploy
-COPYFILE_DISABLE=1 tar --no-xattrs -czf "test-results/deploy/$release.tgz" dist server deploy package.json
+COPYFILE_DISABLE=1 tar --no-xattrs -czf "test-results/deploy/$release.tgz" dist server deploy package.json src/lib/ticket-pricing.js
 ssh debt-2026-lite "mkdir -p /srv/imon/projects/debtupd-sandbox/releases/$release"
 scp "test-results/deploy/$release.tgz" "debt-2026-lite:/srv/imon/projects/debtupd-sandbox/releases/$release/release.tgz"
 ssh debt-2026-lite "cd /srv/imon/projects/debtupd-sandbox/releases/$release && tar -xzf release.tgz && bash deploy/install-sandbox.sh $release"
