@@ -45,6 +45,14 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
       expect(response.ok()).toBe(true);
     }
 
+    if (width === 390 || width === 1440) {
+      await page.evaluate(() => document.fonts.ready);
+      await seminar.screenshot({
+        path: 'test-results/fincifra-preview-' + width + '.png',
+        animations: 'disabled',
+      });
+    }
+
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 2);
     expect(overflow).toBe(false);
     expect(errors).toEqual([]);
