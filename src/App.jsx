@@ -3,6 +3,7 @@ import { ArrowUpRight, ArrowRight, Play, Info } from 'lucide-react';
 import { content } from './content.js';
 import { Supporters } from './components/Supporters.jsx';
 import { ConferencePartners } from './components/ConferencePartners.jsx';
+import { FincifraSeminar } from './components/FincifraSeminar.jsx';
 import { MobileCarouselControls } from './components/MobileCarouselControls.jsx';
 import { useSnapCarousel } from './lib/useSnapCarousel.js';
 import { SpeakerCollection } from './components/SpeakerCollection.jsx';
@@ -966,6 +967,10 @@ export default function App() {
           <Participants />
           <Services onRegister={() => openForm()} />
           <Topics />
+          <FincifraSeminar
+            tariff={content.tariffs.items.find((item) => item.id === 'fincifra')}
+            onRegister={(tariff) => openForm('early-registration', tariff)}
+          />
           <Speakers />
           <Exhibition onApply={(comment) => openForm('stand-booking', null, comment, true)} />
           <Audience />
