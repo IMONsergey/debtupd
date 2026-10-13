@@ -50,6 +50,7 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
       await seminar.screenshot({
         path: 'test-results/fincifra-preview-' + width + '.png',
         animations: 'disabled',
+        style: '.space-navigation--mobile, .skip-link { visibility: hidden !important; }',
       });
     }
 
