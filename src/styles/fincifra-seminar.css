@@ -213,7 +213,7 @@
 }
 
 .fincifra-seminar__brand-logos img:first-child {
-  width: clamp(100px, 13cqi, 157px);
+  width: clamp(125px, 16cqi, 185px);
 }
 
 .fincifra-seminar__brand-logos img:last-child {
