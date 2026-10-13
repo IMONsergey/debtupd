@@ -14,7 +14,7 @@
   container: fincifra / inline-size;
   min-width: 0;
   overflow: hidden;
-  padding: clamp(18px, 2.3vw, 30px);
+  padding: clamp(16px, 2.3vw, 30px);
   border: 1px solid #5d9dd044;
   background:
     radial-gradient(ellipse at 98% 2%, #08798430, transparent 44%),
@@ -488,6 +488,12 @@
     font-size: 14px;
     letter-spacing: 0;
   }
+  .fincifra-seminar__header { margin-bottom: 11px; }
+  .fincifra-seminar__brands { padding-block: 7px; }
+  .fincifra-seminar__programme { margin-top: 12px; }
+  .fincifra-seminar__footer { margin-top: 8px; }
+  .fincifra-seminar__host-list { gap: 7px; }
+  .fincifra-seminar__offer { padding: 10px; }
   .fincifra-seminar__partners {
     grid-template-columns: 92px 100px;
   }
