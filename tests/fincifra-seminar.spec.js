@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 for (const width of [320, 390, 768, 1024, 1440, 1920]) {
-  test('FinCifra seminar is readable and integrated at ' + width + 'px', async ({ page }) => {
+  test('Compact FinCifra integrates with existing site at ' + width + 'px', async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
@@ -18,10 +18,11 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     await page.locator('#site-preloader').waitFor({ state: 'detached', timeout: 25000 });
 
     const seminar = page.locator('#fincifra-seminar');
+    const topics = seminar.locator('.fincifra-seminar__topic');
     await expect(seminar.getByRole('heading', { level: 2 })).toContainText('ФинЦифра');
     await expect(seminar.getByText('IX Практический семинар')).toBeVisible();
-    await expect(seminar.locator('.fincifra-seminar__agenda-row')).toHaveCount(2);
-    await expect(seminar.locator('.fincifra-seminar__agenda-row li')).toHaveCount(6);
+    await expect(topics).toHaveCount(2);
+    await expect(topics.locator('li')).toHaveCount(6);
     await expect(seminar.locator('.fincifra-seminar__host')).toHaveCount(2);
     await expect(seminar).toContainText('Андрей Емелин');
     await expect(seminar).toContainText('Иван Зимин');
@@ -45,6 +46,27 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
       expect(response.ok()).toBe(true);
     }
 
+    if (width < 900) {
+      await expect(topics.first()).not.toHaveAttribute('open');
+      await topics.first().locator('summary').click();
+      await expect(topics.first()).toHaveAttribute('open', '');
+      await expect(topics.first().locator('li')).toHaveCount(3);
+      await topics.first().locator('summary').click();
+      await expect(topics.first()).not.toHaveAttribute('open');
+    } else {
+      await expect(topics.first()).toHaveAttribute('open', '');
+      await expect(topics.last()).toHaveAttribute('open', '');
+    }
+
+    const geometry = await seminar.evaluate((node) => ({
+      height: node.getBoundingClientRect().height,
+      width: node.getBoundingClientRect().width,
+      contentOverflows: [...node.querySelectorAll('.fincifra-seminar__panel, .fincifra-seminar__topic, .fincifra-seminar__host, .fincifra-seminar__offer')]
+        .some((element) => element.scrollWidth > element.clientWidth + 2),
+    }));
+    expect(geometry.contentOverflows).toBe(false);
+    expect(geometry.height).toBeLessThan(width < 900 ? 850 : 690);
+
     if (width === 390 || width === 1440) {
       await page.evaluate(() => document.fonts.ready);
       await seminar.screenshot({
@@ -54,8 +76,7 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
       });
     }
 
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 2);
-    expect(overflow).toBe(false);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 2)).toBe(false);
     expect(errors).toEqual([]);
 
     await seminar.getByRole('button', { name: 'Зарегистрироваться' }).click();
