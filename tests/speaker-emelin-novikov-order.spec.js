@@ -20,7 +20,7 @@ for (const width of [390, 768, 1024, 1440]) {
       page.on('pageerror', (error) => errors.push(error.message));
       await page.goto('/#speakers', { waitUntil: 'domcontentloaded' });
       const cards = page.locator('.speakers-grid .speaker');
-      await expect(cards).toHaveCount(19);
+      await expect(cards).toHaveCount(22);
       const names = await cards.evaluateAll((nodes) =>
         nodes.slice(0, 4).map((n) => n.querySelector('.speaker-portrait img').alt),
       );
@@ -40,7 +40,7 @@ for (const width of [390, 768, 1024, 1440]) {
         'Руководитель Департамента финансового урегулирования, вице-президент ВТБ',
       );
       await expect(page.locator('.speaker-portrait img[alt="Александр Пустовит"]')).toHaveCount(0);
-      const pageCount = width >= 900 ? 7 : width >= 600 ? 10 : 19;
+      const pageCount = width >= 900 ? 8 : width >= 600 ? 11 : 22;
       await expect(page.locator('.speakers-controls > span')).toContainText(
         '/ ' + String(pageCount).padStart(2, '0'),
       );
@@ -57,15 +57,15 @@ test('desktop first two slides contain the correct three speakers', async ({ pag
   await page.goto('/#speakers', { waitUntil: 'domcontentloaded' });
   await page.locator('#site-preloader').waitFor({ state: 'detached', timeout: 20000 });
   const counter = page.locator('.speakers-controls > span');
-  await expect(counter).toContainText('01 / 07');
+  await expect(counter).toContainText('01 / 08');
   await expect(page.locator('.speakers-grid .speaker').nth(2)).toHaveAttribute(
     'aria-label',
-    '3 из 19: Андрей Емелин',
+    '3 из 22: Андрей Емелин',
   );
   await page.getByRole('button', { name: 'Следующий слайд' }).click();
-  await expect(counter).toContainText('02 / 07');
+  await expect(counter).toContainText('02 / 08');
   await expect(page.locator('.speakers-grid .speaker').nth(3)).toHaveAttribute(
     'aria-label',
-    '4 из 19: Евгений Новиков',
+    '4 из 22: Евгений Новиков',
   );
 });

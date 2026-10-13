@@ -79,11 +79,11 @@ test('Space card labels are whole words and activity strips are uppercase', asyn
       .evaluate((node) => getComputedStyle(node).backgroundImage),
   ).toContain('gradient');
 });
-test('All 19 current speakers are present in the approved order with valid portraits', async ({
+test('All 22 current speakers are present in the approved order with valid portraits', async ({
   page,
 }) => {
   await ready(page, 1440);
-  await expect(page.locator('.speaker')).toHaveCount(19);
+  await expect(page.locator('.speaker')).toHaveCount(22);
   const names = await page.locator('.speaker h3').allTextContents();
   expect(names[2]).toContain('Емелин');
   expect(names[3]).toContain('Новиков');
@@ -119,7 +119,7 @@ test('Speaker carousel moves by controls and keyboard, reaches the final profile
   await page
     .locator('.speakers-grid')
     .evaluate((node) => node.scrollTo({ left: node.scrollWidth, behavior: 'instant' }));
-  await expect(page.locator('.speakers-controls>span')).toContainText('19');
+  await expect(page.locator('.speakers-controls>span')).toContainText('22');
   await page.getByRole('button', { name: 'Показать всех спикеров' }).click();
   await expect(page.locator('.speaker-collection')).toHaveClass(/is-expanded/);
   await expect(page.getByRole('button', { name: 'Скрыть всех спикеров' })).toBeVisible();
@@ -252,9 +252,9 @@ test('Speaker page numbers follow the visible group at each breakpoint and on th
   const counter = page.locator('.speakers-controls>span');
   const track = page.locator('.speakers-grid');
   for (const [width, count] of [
-    [1440, '07'],
-    [768, '10'],
-    [390, '19'],
+    [1440, '08'],
+    [768, '11'],
+    [390, '22'],
   ]) {
     await page.setViewportSize({ width, height: 900 });
     await track.focus();
