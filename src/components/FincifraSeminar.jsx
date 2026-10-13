@@ -24,11 +24,15 @@ const programme = [
 ];
 
 const hosts = [
-  { initials: 'АЕ', name: 'Андрей Емелин', role: 'Председатель НСФР' },
   {
-    initials: 'ИЗ',
+    name: 'Андрей Емелин',
+    role: 'Председатель НСФР',
+    portrait: 'assets/speakers/fincifra-andrey-emelin.webp',
+  },
+  {
     name: 'Иван Зимин',
     role: 'Вице-президент по внедрению инновационных государственных технологий и сервисов АО «ТБанк», председатель Комитета НСФР по финтеху',
+    portrait: 'assets/speakers/fincifra-ivan-zimin.webp',
   },
 ];
 
@@ -106,13 +110,19 @@ export function FincifraSeminar({ tariff, onRegister }) {
             <div className="fincifra-seminar__host-list">
               {hosts.map((host) => (
                 <div className="fincifra-seminar__host" key={host.name}>
-                  <span className="fincifra-seminar__portrait"
-                    role="img" aria-label={'Место для фотографии: ' + host.name}>
-                    {host.initials}
+                  <span className="fincifra-seminar__portrait">
+                    <img
+                      src={assetUrl(host.portrait)}
+                      alt={host.name}
+                      width="400"
+                      height="400"
+                      loading="eager"
+                      decoding="async"
+                    />
                   </span>
                   <span className="fincifra-seminar__host-copy">
                     <strong>{host.name}</strong>
-                    <small>{host.role}</small>
+                    <small title={host.role}>{host.role}</small>
                   </span>
                 </div>
               ))}
@@ -125,11 +135,14 @@ export function FincifraSeminar({ tariff, onRegister }) {
               <strong>{tariff?.price || '24 500 ₽'}</strong>
               <small>Деловая часть форума + семинар</small>
             </div>
-            <button type="button" className="button fincifra-seminar__register"
-              onClick={() => onRegister(tariff)}>
-              <span className="button-label">Зарегистрироваться</span>
-              <ActionArrow />
-            </button>
+            <div className="fincifra-seminar__action">
+              <button type="button" className="button fincifra-seminar__register"
+                onClick={() => onRegister(tariff)}>
+                <span className="button-label">Зарегистрироваться</span>
+                <ActionArrow />
+              </button>
+              {tariff?.limitNote && <small>{tariff.limitNote}</small>}
+            </div>
           </div>
         </div>
       </div>
