@@ -212,8 +212,8 @@ export const exhibitors = [
   {
     id: 'torgi-rossii',
     name: 'Торги России',
-    logo: 'assets/exhibition/logos/torgi-rossii.png',
-    description: 'Электронная торговая площадка продажи имущества',
+    logo: 'assets/exhibition/logos/torgi-rossii-wordmark.png',
+    description: 'Маркетплейс по торгам в РФ',
     standNumbers: [2],
   },
   {
