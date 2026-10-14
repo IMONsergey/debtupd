@@ -34,7 +34,7 @@ export function ConferencePartners() {
             <div className="sponsor-brand conference-partner-brand">
               <h3 className="conference-partner-name">{partner.name}</h3>
               <a
-                className="conference-partner-logo"
+                className={'conference-partner-logo' + (partner.logoShape === 'vertical' ? ' conference-partner-logo--vertical' : '')}
                 href={partner.href}
                 target="_blank"
                 rel="noopener noreferrer"

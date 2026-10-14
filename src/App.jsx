@@ -3,6 +3,7 @@ import { ArrowUpRight, ArrowRight, Play, Info } from 'lucide-react';
 import { content } from './content.js';
 import { Supporters } from './components/Supporters.jsx';
 import { ConferencePartners } from './components/ConferencePartners.jsx';
+import { featuredConferencePartner } from './conferencePartners.js';
 import { MobileCarouselControls } from './components/MobileCarouselControls.jsx';
 import { useSnapCarousel } from './lib/useSnapCarousel.js';
 import { SpeakerCollection } from './components/SpeakerCollection.jsx';
@@ -817,6 +818,39 @@ function Sponsor() {
           </p>
         </div>
       </div>
+      <article className="sponsor-panel sponsor-panel--featured-partner glass corners">
+        <div className="sponsor-brand featured-partner-brand">
+          <img
+            className="sponsor-planet featured-partner-planet"
+            src={assetUrl('assets/partners/planets/' + featuredConferencePartner.planet)}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
+          />
+          <h3>{featuredConferencePartner.name}</h3>
+          <a
+            className="featured-partner-logo"
+            href={featuredConferencePartner.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={'Сайт партнера: ' + featuredConferencePartner.name}
+          >
+            <img
+              src={assetUrl('assets/partners/' + featuredConferencePartner.logo)}
+              alt={featuredConferencePartner.name}
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
+          <h4>{featuredConferencePartner.tier}</h4>
+        </div>
+        <div className="sponsor-copy featured-partner-copy">
+          {featuredConferencePartner.description.map((paragraph, index) => (
+            <p key={index}>{paragraph}</p>
+          ))}
+        </div>
+      </article>
       <ConferencePartners />
     </section>
   );
