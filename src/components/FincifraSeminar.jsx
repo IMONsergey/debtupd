@@ -53,78 +53,44 @@ export function FincifraSeminar({ tariff, onRegister }) {
       aria-labelledby="fincifra-seminar-title"
     >
       <header className="fincifra-seminar__masthead">
-        <div>
-          <p className="fincifra-seminar__eyebrow">
-            IX практический семинар <span aria-hidden="true">/</span> DEBT TECH 2026
-          </p>
+        <div className="fincifra-seminar__masthead-copy">
+          <span className="fincifra-seminar__overline">
+            IX Практический семинар / DEBT TECH 2026
+          </span>
           <h2 id="fincifra-seminar-title" className="fincifra-seminar__title">
-            «ФинЦифра–2026»
+            «ФинЦифра<span>–2026</span>»
           </h2>
         </div>
-        <div
-          className="fincifra-seminar__datetime"
-          aria-label="13 ноября, Москва, с 12:30 до 16:30"
-        >
-          <span>13 ноября · Москва</span>
+        <div className="fincifra-seminar__datetime">
+          <span>13 ноября 2026 · Москва</span>
           <strong>12:30–16:30</strong>
         </div>
       </header>
 
-      <div className="fincifra-seminar__panel glass corners">
-        <div className="fincifra-seminar__programme">
-          <h3>Программа семинара</h3>
-          <div className="fincifra-seminar__topics">
-            {programme.map((topic) => (
-              <details className="fincifra-seminar__topic" key={topic.number} open={!compact}>
-                <summary>
-                  <span className="fincifra-seminar__number">{topic.number}</span>
-                  <strong>{topic.title}</strong>
-                  <span className="fincifra-seminar__toggle" aria-hidden="true" />
-                </summary>
-                <ul>
-                  {topic.points.map((point) => (
-                    <li key={point}>{point}</li>
-                  ))}
-                </ul>
-              </details>
-            ))}
+      <div className="fincifra-seminar__surface corners">
+        <div className="fincifra-seminar__showcase">
+          <div className="fincifra-seminar__programme">
+            <h3>Программа семинара</h3>
+            <div className="fincifra-seminar__topics">
+              {programme.map((topic) => (
+                <details className="fincifra-seminar__topic" key={topic.number} open={!compact}>
+                  <summary>
+                    <span className="fincifra-seminar__number">{topic.number}</span>
+                    <strong>{topic.title}</strong>
+                    <span className="fincifra-seminar__toggle" aria-hidden="true" />
+                  </summary>
+                  <ul>
+                    {topic.points.map((point) => (
+                      <li key={point}>{point}</li>
+                    ))}
+                  </ul>
+                </details>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className="fincifra-seminar__brands" aria-label="Организатор и партнёры семинара">
-          <div className="fincifra-seminar__organizer">
-            <span className="fincifra-seminar__label">Организатор</span>
-            <img
-              src={assetUrl('assets/figma/review/support-nsfr.svg')}
-              alt="Логотип НСФР"
-              width="35"
-              height="35"
-              loading="lazy"
-            />
-            <span>Ассоциация «Национальный совет финансового рынка» (НСФР)</span>
-          </div>
-          <div className="fincifra-seminar__partners">
-            <span className="fincifra-seminar__label">При поддержке</span>
-            <img
-              src={assetUrl('assets/images/organizer/rvz-logo.svg')}
-              alt="СМИ «Рынок Взыскания»"
-              width="306"
-              height="55"
-              loading="lazy"
-            />
-            <img
-              src={assetUrl('assets/figma/debtprice-logo.svg')}
-              alt="ЭТП DEBTPRICE"
-              width="317"
-              height="72"
-              loading="lazy"
-            />
-          </div>
-        </div>
-
-        <div className="fincifra-seminar__bottom">
           <div className="fincifra-seminar__hosts">
-            <h3>Ведущие</h3>
+            <h3>Ведущие семинара</h3>
             <div className="fincifra-seminar__host-list">
               {hosts.map((host) => (
                 <article className="fincifra-seminar__host" key={host.name}>
@@ -146,24 +112,61 @@ export function FincifraSeminar({ tariff, onRegister }) {
               ))}
             </div>
           </div>
+        </div>
+
+        <footer className="fincifra-seminar__footer">
+          <div className="fincifra-seminar__brands" aria-label="Организатор и партнеры семинара">
+            <div className="fincifra-seminar__organizer">
+              <span className="fincifra-seminar__label">Организатор</span>
+              <img
+                src={assetUrl('assets/figma/review/support-nsfr.svg')}
+                alt="Логотип НСФР"
+                width="36"
+                height="36"
+                loading="lazy"
+              />
+              <span>Ассоциация «Национальный совет финансового рынка» (НСФР)</span>
+            </div>
+            <div className="fincifra-seminar__partners">
+              <span className="fincifra-seminar__label">При поддержке</span>
+              <img
+                src={assetUrl('assets/images/organizer/rvz-logo.svg')}
+                alt="СМИ «Рынок Взыскания»"
+                width="306"
+                height="55"
+                loading="lazy"
+              />
+              <img
+                src={assetUrl('assets/figma/debtprice-logo.svg')}
+                alt="ЭТП DEBTPRICE"
+                width="317"
+                height="72"
+                loading="lazy"
+              />
+            </div>
+          </div>
 
           <div className="fincifra-seminar__offer">
-            <span className="fincifra-seminar__label">Спецтариф для членов НСФР</span>
-            <strong className="fincifra-seminar__price">{tariff?.price || '24 500 ₽'}</strong>
-            <p>Деловая часть форума и семинар «ФинЦифра»</p>
-            <button
-              type="button"
-              className="button fincifra-seminar__register"
-              onClick={() => onRegister(tariff)}
-            >
-              <span className="button-label">Зарегистрироваться</span>
-              <ActionArrow />
-            </button>
-            {tariff?.limitNote && (
-              <small className="fincifra-seminar__limit">{tariff.limitNote}</small>
-            )}
+            <div className="fincifra-seminar__offer-copy">
+              <span className="fincifra-seminar__label">Спецтариф для членов НСФР</span>
+              <strong className="fincifra-seminar__price">{tariff?.price || '24 500 ₽'}</strong>
+              <p>Деловая часть форума и семинар «ФинЦифра»</p>
+            </div>
+            <div className="fincifra-seminar__offer-action">
+              <button
+                type="button"
+                className="button fincifra-seminar__register"
+                onClick={() => onRegister(tariff)}
+              >
+                <span className="button-label">Зарегистрироваться</span>
+                <ActionArrow />
+              </button>
+              {tariff?.limitNote && (
+                <small className="fincifra-seminar__limit">{tariff.limitNote}</small>
+              )}
+            </div>
           </div>
-        </div>
+        </footer>
       </div>
     </section>
   );
