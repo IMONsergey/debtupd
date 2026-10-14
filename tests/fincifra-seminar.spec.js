@@ -23,8 +23,8 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     await expect(topics.locator('li')).toHaveCount(6);
     await expect(seminar.locator('.fincifra-seminar__host')).toHaveCount(2);
     for (const [name, filename] of [
-      ['Андрей Емелин', 'assets/figma/speaker-hd-03.webp'],
-      ['Иван Зимин', 'assets/speakers/fincifra-ivan-zimin-astronaut.webp'],
+      ['Андрей Емелин', 'assets/speakers/fincifra-andrey-emelin.webp'],
+      ['Иван Зимин', 'assets/speakers/fincifra-ivan-zimin.webp'],
     ]) {
       const portrait = seminar.locator('.fincifra-seminar__portrait img[alt="' + name + '"]');
       const src = await portrait.getAttribute('src');
@@ -39,6 +39,21 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     await expect(seminar).toContainText('Иван Зимин');
     await expect(seminar).toContainText('12:30');
     await expect(seminar).toContainText('16:30');
+    await expect(seminar).toContainText('(в рамках Форума DEBT TECH 2026)');
+    await expect(seminar).toContainText('13 ноября 2026');
+    await expect(seminar).toContainText('Москва');
+
+    // The approved tariff text must remain verbatim, with a real in-page link.
+    const specialTariff = seminar.locator('.fincifra-seminar__offer-text');
+    const tariffText = (await specialTariff.innerText()).replace(/\s+/g, ' ').trim();
+    expect(tariffText).toBe(
+      'Доступен спецтариф для членов НСФР: включает посещение деловой части форума и семинара «ФинЦифра»',
+    );
+    await expect(specialTariff.getByRole('link', { name: 'спецтариф' })).toHaveAttribute(
+      'href',
+      '#tariff-plans',
+    );
+    await expect(page.locator('#tariff-plans')).toHaveCount(1);
 
     const order = await page
       .locator('main > .section')
@@ -79,7 +94,9 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
       ].some((element) => element.scrollWidth > element.clientWidth + 2),
     }));
     expect(geometry.contentOverflows).toBe(false);
-    expect(geometry.height).toBeLessThan(width < 900 ? 850 : 690);
+    // Accommodate the approved full copy, larger partner logos and portrait photos.
+    // Guard against runaway section growth without shrinking readable text.
+    expect(geometry.height).toBeLessThan(width < 600 ? 970 : width < 1080 ? 850 : 815);
 
     if (width === 390 || width === 1440) {
       await page.evaluate(() => document.fonts.ready);
@@ -95,7 +112,15 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     );
     expect(errors).toEqual([]);
 
-    await seminar.getByRole('button', { name: 'Зарегистрироваться' }).click();
+    const registerButton = seminar.getByRole('button', { name: 'Зарегистрироваться' });
+    await expect(registerButton).toHaveClass(/\bbutton\b/);
+    if (width >= 1080) {
+      const labelHeight = await registerButton
+        .locator('.button-label')
+        .evaluate((node) => Math.round(node.getBoundingClientRect().height));
+      expect(labelHeight).toBeLessThanOrEqual(25);
+    }
+    await registerButton.click();
     const modal = page.locator('.form-dialog[data-tariff-id="fincifra"]');
     await expect(modal).toBeVisible();
     await expect(modal.locator('[name="participants_count"]')).toHaveAttribute('max', '2');
