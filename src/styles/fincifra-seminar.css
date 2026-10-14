@@ -613,7 +613,7 @@
     letter-spacing: 0;
   }
   .fincifra-seminar__programme {
-    padding: 12px 12px 10px;
+    padding: 10px 11px 9px;
   }
   .fincifra-seminar__topic summary {
     grid-template-columns: 30px minmax(0, 1fr) 14px;
@@ -639,5 +639,32 @@
   .fincifra-seminar__eyebrow {
     font-size: 10px;
     letter-spacing: 0.06em;
+  }
+  .fincifra-seminar__masthead {
+    margin-bottom: 8px;
+  }
+  .fincifra-seminar__programme-heading {
+    margin-bottom: 7px;
+  }
+  .fincifra-seminar__topic {
+    padding-block: 7px;
+  }
+  .fincifra-seminar__brands {
+    padding-top: 5px;
+  }
+  .fincifra-seminar__aside {
+    gap: 4px;
+  }
+  .fincifra-seminar__hosts h3 {
+    margin-bottom: 4px;
+  }
+  .fincifra-seminar__host-list {
+    gap: 4px;
+  }
+  .fincifra-seminar__offer {
+    padding: 9px;
+  }
+  .fincifra-seminar__register.button {
+    margin-top: 4px;
   }
 }
