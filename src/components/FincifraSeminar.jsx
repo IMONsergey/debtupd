@@ -52,27 +52,28 @@ export function FincifraSeminar({ tariff, onRegister }) {
       id="fincifra-seminar"
       aria-labelledby="fincifra-seminar-title"
     >
-      <header className="fincifra-seminar__masthead">
-        <div className="fincifra-seminar__heading">
-          <p className="fincifra-seminar__eyebrow">IX Практический семинар</p>
-          <h2 id="fincifra-seminar-title" className="fincifra-seminar__title">
-            «ФинЦифра–2026»
-          </h2>
-          <p className="fincifra-seminar__context">(в рамках Форума DEBT TECH 2026)</p>
-        </div>
-        <div
-          className="fincifra-seminar__schedule"
-          aria-label="13 ноября 2026, Москва, 12:30–16:30"
-        >
-          <div className="fincifra-seminar__schedule-location">
-            <span>13 ноября 2026</span>
-            <strong>Москва</strong>
-          </div>
-          <time className="fincifra-seminar__hours">12:30–16:30</time>
-        </div>
-      </header>
-
       <div className="fincifra-seminar__surface corners">
+        <header className="fincifra-seminar__masthead">
+          <div className="fincifra-seminar__heading">
+            <p className="fincifra-seminar__eyebrow">IX Практический семинар</p>
+            <h2 id="fincifra-seminar-title" className="fincifra-seminar__title">
+              «ФинЦифра–2026»
+            </h2>
+            <p className="fincifra-seminar__context">(в рамках Форума DEBT TECH 2026)</p>
+          </div>
+
+          <div
+            className="fincifra-seminar__schedule"
+            aria-label="13 ноября 2026, Москва, 12:30–16:30"
+          >
+            <div className="fincifra-seminar__schedule-location">
+              <span>13 ноября 2026</span>
+              <strong>Москва</strong>
+            </div>
+            <time className="fincifra-seminar__hours">12:30–16:30</time>
+          </div>
+        </header>
+
         <div className="fincifra-seminar__body">
           <div className="fincifra-seminar__programme">
             <h3>Программа семинара</h3>
