@@ -1,727 +1,571 @@
-/* DEBT TECH / FinCifra: one atmospheric stage, two speaker portraits, one tariff.
-   Deliberately reuses Bounded, IBM Plex, native button and site corner marks. */
+/* FinCifra uses the existing DEBT TECH editorial grid and speaker-card vocabulary. */
 .topics:has(+ .fincifra-seminar) {
-  margin-bottom: clamp(72px, 7vw, 112px);
+  margin-bottom: clamp(76px, 7vw, 116px);
 }
-
 .fincifra-seminar {
   container: fincifra / inline-size;
-  margin-bottom: clamp(110px, 10vw, 165px);
+  margin-bottom: clamp(115px, 10vw, 170px);
 }
-
 .fincifra-seminar__masthead {
   display: flex;
-  justify-content: space-between;
   align-items: end;
+  justify-content: space-between;
   gap: 20px;
-  margin-bottom: clamp(22px, 3cqi, 36px);
+  margin-bottom: clamp(28px, 3cqi, 40px);
 }
-
 .fincifra-seminar__masthead-copy {
   min-width: 0;
 }
-
 .fincifra-seminar__overline,
 .fincifra-seminar__label {
   display: block;
+  color: #9dbcd9;
   font:
     500 11px/1.4 'IBM Plex Sans',
     sans-serif;
   text-transform: uppercase;
-  letter-spacing: 0.115em;
-  color: #a3c5e3;
+  letter-spacing: 0.1em;
 }
-
 .fincifra-seminar__title {
   margin-top: 12px;
-  color: #f4f8ff;
+  color: #f3f8ff;
   font:
-    465 clamp(28px, 3.5cqi, 45px)/1.22 Bounded,
+    467 clamp(28px, 3.4cqi, 44px)/1.25 Bounded,
     sans-serif;
-  letter-spacing: 0.065em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  text-wrap: balance;
 }
-
 .fincifra-seminar__title span {
-  color: #73b8f6;
+  color: inherit;
 }
-
 .fincifra-seminar__datetime {
   flex: none;
   display: grid;
   justify-items: end;
   gap: 2px;
-  padding-bottom: 4px;
+  padding-bottom: 5px;
 }
-
 .fincifra-seminar__datetime > span {
-  color: #bdd0e3;
+  color: #b8cce0;
   font:
-    400 12px/1.35 'IBM Plex Sans',
+    400 12px/1.3 'IBM Plex Sans',
     sans-serif;
 }
-
 .fincifra-seminar__datetime strong {
+  color: #6ab8f4;
   font:
-    400 clamp(30px, 4cqi, 52px)/1.03 'Bebas Neue',
+    400 clamp(31px, 3.7cqi, 49px)/1 'Bebas Neue',
     sans-serif;
-  color: #87c4ff;
   font-variant-numeric: tabular-nums;
 }
 
 .fincifra-seminar__surface {
-  isolation: isolate;
-  overflow: hidden;
-  border: 1px solid #3388d16d;
-  background: #04152f;
+  position: relative;
+  overflow: visible;
+  border: 0;
+  background: none;
 }
-
+.fincifra-seminar__surface.corners::after {
+  content: none;
+}
 .fincifra-seminar__showcase {
   display: grid;
-  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  gap: clamp(15px, 2cqi, 26px);
   align-items: stretch;
-  min-width: 0;
-  background:
-    radial-gradient(ellipse at 0 0, #096db8a6, transparent 53%),
-    linear-gradient(140deg, #0b3c6d 0%, #061f45 40%, #04112b 88%);
+  background: none;
 }
-
 .fincifra-seminar__programme {
-  padding: clamp(21px, 2.7cqi, 32px);
   min-width: 0;
+  padding: clamp(20px, 2cqi, 25px);
+  border: 1px solid #3687cf7d;
+  background: linear-gradient(145deg, #085b9b 0%, #08274d 27%, #04132d 79%, #0d3e68 100%);
+  position: relative;
 }
-
+.fincifra-seminar__programme::after {
+  position: absolute;
+  content: '';
+  pointer-events: none;
+  inset: 0;
+  background:
+    linear-gradient(#66b9ed, #66b9ed) left top/18px 2px no-repeat,
+    linear-gradient(#66b9ed, #66b9ed) left top/2px 18px no-repeat,
+    linear-gradient(#66b9ed, #66b9ed) right bottom/18px 2px no-repeat,
+    linear-gradient(#66b9ed, #66b9ed) right bottom/2px 18px no-repeat;
+}
 .fincifra-seminar__programme h3,
 .fincifra-seminar__hosts h3 {
   font:
-    470 clamp(18px, 2cqi, 26px)/1.3 Bounded,
+    467 clamp(18px, 1.9cqi, 23px)/1.34 Bounded,
     sans-serif;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.065em;
   text-transform: uppercase;
   color: #fff;
 }
-
 .fincifra-seminar__topics {
   display: grid;
-  gap: clamp(14px, 1.45cqi, 17px);
-  margin-top: clamp(16px, 1.8cqi, 22px);
+  gap: clamp(16px, 1.6cqi, 22px);
+  margin-top: clamp(18px, 2cqi, 25px);
 }
-
 .fincifra-seminar__topic {
   min-width: 0;
 }
-
 .fincifra-seminar__topic + .fincifra-seminar__topic {
-  padding-top: clamp(13px, 1.6cqi, 19px);
-  border-top: 1px solid #8bbbe041;
+  border: 0;
+  padding: 0;
 }
-
 .fincifra-seminar__topic summary {
   display: grid;
-  grid-template-columns: 37px minmax(0, 1fr) 12px;
+  grid-template-columns: 42px minmax(0, 1fr) 12px;
+  gap: 13px;
   align-items: start;
-  gap: 12px;
-  list-style: none;
   cursor: pointer;
+  list-style: none;
 }
-
 .fincifra-seminar__topic summary::-webkit-details-marker {
   display: none;
 }
-
 .fincifra-seminar__topic summary:focus-visible {
-  outline: 2px solid #82c5ff;
+  outline: 2px solid #8dd3ff;
   outline-offset: 5px;
 }
-
 .fincifra-seminar__number {
+  color: #6dbdff;
   font:
-    400 39px/1 'Bebas Neue',
+    400 43px/1 'Bebas Neue',
     sans-serif;
-  color: #84c6ff;
 }
-
 .fincifra-seminar__topic summary strong {
-  padding-top: 3px;
-  color: #f4f9ff;
+  color: white;
+  padding-top: 4px;
   font:
-    478 clamp(13px, 1.4cqi, 17px)/1.35 Bounded,
+    475 clamp(14px, 1.42cqi, 18px)/1.36 Bounded,
     sans-serif;
   text-transform: uppercase;
-  text-wrap: pretty;
 }
-
 .fincifra-seminar__toggle {
-  position: relative;
   display: none;
+  position: relative;
   width: 12px;
   height: 12px;
-  margin-top: 10px;
+  margin-top: 8px;
 }
-
 .fincifra-seminar__toggle::before,
 .fincifra-seminar__toggle::after {
   content: '';
   position: absolute;
-  background: #8bcaff;
+  background: #73bef5;
 }
-
 .fincifra-seminar__toggle::before {
   top: 5px;
   width: 12px;
   height: 1px;
 }
-
 .fincifra-seminar__toggle::after {
   left: 5px;
-  height: 12px;
   width: 1px;
+  height: 12px;
 }
-
 .fincifra-seminar__topic[open] .fincifra-seminar__toggle::after {
   opacity: 0;
 }
-
 .fincifra-seminar__topic ul {
   display: grid;
   gap: 8px;
-  margin: 11px 0 0 49px;
+  margin: 10px 0 0 55px;
 }
-
 .fincifra-seminar__topic li {
   position: relative;
-  padding-left: 17px;
-  color: #d1e2f2;
+  padding-left: 18px;
+  color: #d1deed;
   font:
-    400 clamp(12px, 1.2cqi, 14px)/1.48 'IBM Plex Sans',
+    400 clamp(12px, 1.18cqi, 14px)/1.5 'IBM Plex Sans',
     sans-serif;
   text-wrap: pretty;
 }
-
 .fincifra-seminar__topic li::before {
   content: '///';
   position: absolute;
   left: 0;
-  top: 0.1em;
-  color: #71bfff;
+  top: 0.15em;
+  color: #68b7fa;
   font:
-    500 10px/1.45 'IBM Plex Sans',
+    500 10px/1.4 'IBM Plex Sans',
     sans-serif;
 }
 
 .fincifra-seminar__hosts {
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  min-width: 0;
-  padding-top: clamp(21px, 2.7cqi, 32px);
-  border-left: 1px solid #5d9aca55;
-  background: #03112a8a;
+  padding: 0;
+  background: none;
+  border: 0;
 }
-
 .fincifra-seminar__hosts h3 {
-  margin: 0 clamp(15px, 2.2cqi, 26px) clamp(12px, 1.6cqi, 17px);
+  margin: 1px 0 clamp(16px, 1.7cqi, 22px);
 }
-
 .fincifra-seminar__host-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  flex: 1;
+  gap: clamp(10px, 1.4cqi, 17px);
+  flex: 0 0 auto;
   min-width: 0;
 }
-
 .fincifra-seminar__host {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  border: 0;
+  border-radius: 12px;
   overflow: hidden;
+  background: #04132d;
 }
-
 .fincifra-seminar__host + .fincifra-seminar__host {
-  border-left: 1px solid #6699c75c;
+  border: 0;
 }
-
 .fincifra-seminar__portrait {
-  position: relative;
+  height: clamp(147px, 16.3cqi, 205px);
   width: 100%;
-  height: clamp(165px, 18.3cqi, 205px);
+  background: #04132d;
   overflow: hidden;
-  background: #03132d;
 }
-
 .fincifra-seminar__portrait img {
-  display: block;
   width: 100%;
   height: 100%;
-  max-width: none;
   object-fit: cover;
-  object-position: 42% 43%;
+  object-position: 44% 36%;
 }
-
 .fincifra-seminar__host:nth-child(2) .fincifra-seminar__portrait img {
-  object-position: 43% 43%;
+  object-position: 44% 36%;
 }
-
 .fincifra-seminar__host-copy {
   flex: 1;
-  position: relative;
   min-width: 0;
-  min-height: 111px;
-  padding: clamp(12px, 1.4cqi, 17px) clamp(12px, 1.5cqi, 18px);
-  background:
-    linear-gradient(125deg, transparent 73%, #1460aa55 73%, #1460aa55 87%, transparent 87%),
-    linear-gradient(140deg, #0c3a6e, #061732 84%);
+  min-height: 105px;
+  padding: clamp(14px, 1.55cqi, 19px);
+  background: linear-gradient(120deg, #073e6f 0%, #061c3c 65%, #073b75 100%);
 }
-
 .fincifra-seminar__host-copy h4 {
-  margin-bottom: 7px;
   color: #fff;
+  margin-bottom: 9px;
   font:
-    475 clamp(14px, 1.5cqi, 18px)/1.3 Bounded,
+    475 clamp(14px, 1.45cqi, 18px)/1.3 Bounded,
     sans-serif;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.055em;
   text-transform: uppercase;
 }
-
 .fincifra-seminar__host-copy p {
-  color: #c4d7ea;
+  color: #bfd2e5;
   font:
-    400 clamp(10.5px, 1.05cqi, 12px)/1.41 'IBM Plex Sans',
+    400 clamp(11px, 1.08cqi, 13px)/1.46 'IBM Plex Sans',
     sans-serif;
   text-wrap: pretty;
 }
 
 .fincifra-seminar__footer {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(345px, 0.85fr);
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  gap: clamp(22px, 3cqi, 40px);
   align-items: center;
-  gap: clamp(18px, 2.5cqi, 30px);
   min-width: 0;
-  padding: clamp(18px, 2.4cqi, 29px) clamp(22px, 3cqi, 38px);
-  border-top: 1px solid #70b4de57;
-  background:
-    radial-gradient(ellipse at 100% 50%, #0c696c70, transparent 58%),
-    linear-gradient(105deg, #061c3a, #052341);
+  margin-top: clamp(19px, 2.5cqi, 30px);
+  padding: clamp(18px, 2.2cqi, 26px) 0 0;
+  border-top: 1px solid #5d91bd63;
+  background: none;
 }
-
 .fincifra-seminar__brands {
   display: grid;
-  align-content: center;
-  gap: 11px;
+  gap: 13px;
   min-width: 0;
 }
-
 .fincifra-seminar__organizer,
 .fincifra-seminar__partners {
   display: flex;
   align-items: center;
+  gap: 12px;
   min-width: 0;
-  gap: 10px;
 }
-
 .fincifra-seminar__label {
   flex: none;
-  color: #a9c6dc;
   font-size: 10px;
+  white-space: nowrap;
 }
-
 .fincifra-seminar__organizer img {
-  flex: 0 0 32px;
-  width: 32px;
-  height: 32px;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
 }
-
 .fincifra-seminar__organizer > span:last-child {
-  max-width: 355px;
-  color: #d1dfec;
+  color: #b7cadd;
   font:
-    400 11px/1.38 'IBM Plex Sans',
+    400 11px/1.35 'IBM Plex Sans',
     sans-serif;
+  max-width: 340px;
 }
-
 .fincifra-seminar__partners img {
   flex: none;
   width: auto;
-  height: 24px;
-  max-width: 135px;
+  height: 23px;
+  max-width: 130px;
   object-fit: contain;
 }
-
 .fincifra-seminar__partners img:last-child {
-  max-width: 124px;
+  max-width: 116px;
 }
-
 .fincifra-seminar__offer {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(145px, 0.87fr);
+  grid-template-columns: minmax(0, 1fr) minmax(145px, 0.85fr);
+  gap: 15px;
   align-items: center;
-  gap: 8px 15px;
   min-width: 0;
 }
-
-.fincifra-seminar__offer-copy {
-  min-width: 0;
-}
-
 .fincifra-seminar__price {
   display: block;
+  color: #fff;
   margin: 5px 0;
   font:
-    475 clamp(22px, 2.4cqi, 32px)/1.1 Bounded,
+    475 clamp(23px, 2.55cqi, 34px)/1.15 Bounded,
     sans-serif;
-  color: #f5ffff;
   white-space: nowrap;
 }
-
 .fincifra-seminar__offer-copy p,
 .fincifra-seminar__limit {
-  color: #b8d7df;
+  color: #acc4d7;
   font:
-    400 10px/1.42 'IBM Plex Sans',
+    400 10px/1.44 'IBM Plex Sans',
     sans-serif;
 }
-
-.fincifra-seminar__offer-action {
-  min-width: 0;
-}
-
 .fincifra-seminar__register.button {
   width: 100%;
   min-height: 48px;
-  padding: 12px 14px;
-  gap: 8px;
-  font-size: 11px;
   justify-content: space-between;
+  padding: 11px 11px;
+  font-size: 11px;
+  white-space: nowrap;
 }
-
 .fincifra-seminar__limit {
   display: block;
-  margin-top: 8px;
+  margin-top: 7px;
 }
 
 @container fincifra (max-width: 960px) {
   .fincifra-seminar__showcase {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .fincifra-seminar__programme {
-    padding: 24px 24px 25px;
-  }
-
-  .fincifra-seminar__topics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
   }
-
-  .fincifra-seminar__topic + .fincifra-seminar__topic {
-    padding-top: 0;
-    padding-left: 24px;
-    border-top: 0;
-    border-left: 1px solid #8bbbe041;
+  .fincifra-seminar__programme {
+    padding: 24px;
   }
-
-  .fincifra-seminar__hosts {
-    border-left: 0;
-    border-top: 1px solid #5d9aca55;
-    padding-top: 16px;
-  }
-
-  .fincifra-seminar__host-list {
+  .fincifra-seminar__topics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
   }
-
+  .fincifra-seminar__topic + .fincifra-seminar__topic {
+    border-left: 1px solid #8bbbe041;
+    padding-left: 22px;
+  }
+  .fincifra-seminar__hosts h3 {
+    margin-bottom: 16px;
+  }
   .fincifra-seminar__portrait {
-    height: clamp(170px, 28cqi, 202px);
+    height: clamp(150px, 28cqi, 205px);
   }
-
-  .fincifra-seminar__portrait img,
-  .fincifra-seminar__host:nth-child(2) .fincifra-seminar__portrait img {
-    object-position: 42% 18%;
-  }
-
-  .fincifra-seminar__host-copy {
-    min-height: 84px;
-  }
-
   .fincifra-seminar__footer {
     grid-template-columns: minmax(0, 1fr);
-    gap: 19px;
   }
-
   .fincifra-seminar__brands {
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: center;
   }
-
   .fincifra-seminar__partners {
     gap: 7px;
   }
-
   .fincifra-seminar__partners img {
-    max-width: 106px;
-    height: 19px;
+    height: 20px;
+    max-width: 95px;
   }
-
-  .fincifra-seminar__partners img:last-child {
-    max-width: 99px;
-  }
-
   .fincifra-seminar__offer {
-    border-top: 1px solid #70b4de57;
-    padding-top: 17px;
+    border-top: 1px solid #5d91bd63;
+    padding-top: 15px;
   }
 }
-
 @container fincifra (max-width: 600px) {
   .fincifra-seminar__masthead {
-    flex-direction: column;
-    align-items: start;
-    gap: 10px;
-    margin-bottom: 9px;
+    display: block;
+    margin-bottom: 14px;
   }
-
   .fincifra-seminar__title {
-    font-size: clamp(22px, 6.5cqi, 31px);
     margin-top: 8px;
-    letter-spacing: 0.02em;
+    font-size: clamp(22px, 6.6cqi, 31px);
+    letter-spacing: 0.025em;
   }
-
-  .fincifra-seminar__overline {
-    font-size: 10px;
-  }
-
   .fincifra-seminar__datetime {
     display: flex;
-    width: 100%;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
   }
-
   .fincifra-seminar__datetime strong {
     font-size: 28px;
   }
-
   .fincifra-seminar__programme {
-    padding: 15px 17px;
+    padding: 18px 16px;
   }
-
   .fincifra-seminar__programme h3,
   .fincifra-seminar__hosts h3 {
-    font-size: 17px;
+    font-size: 16px;
   }
-
   .fincifra-seminar__topics {
+    display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
-    margin-top: 12px;
+    margin-top: 14px;
   }
-
   .fincifra-seminar__topic {
-    padding: 11px 0;
+    padding: 10px 0;
     border-top: 1px solid #8bbbe041;
   }
-
   .fincifra-seminar__topic + .fincifra-seminar__topic {
+    border-left: 0;
     border-top: 1px solid #8bbbe041;
-    border-left: none;
-    padding: 11px 0;
+    padding: 10px 0;
   }
-
   .fincifra-seminar__topic summary {
     grid-template-columns: 32px minmax(0, 1fr) 12px;
-    gap: 10px;
+    gap: 7px;
   }
-
-  .fincifra-seminar__number {
-    font-size: 31px;
-  }
-
   .fincifra-seminar__topic summary strong {
-    padding-top: 1px;
     font-size: 13px;
+    padding-top: 2px;
   }
-
+  .fincifra-seminar__number {
+    font-size: 33px;
+  }
   .fincifra-seminar__toggle {
     display: block;
   }
-
   .fincifra-seminar__topic ul {
     margin: 9px 0 0 42px;
   }
-
-  .fincifra-seminar__hosts {
-    padding-top: 10px;
-  }
-
   .fincifra-seminar__hosts h3 {
-    margin-inline: 17px;
-    margin-bottom: 6px;
+    margin-bottom: 9px;
   }
-
   .fincifra-seminar__host-list {
     grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
   }
-
   .fincifra-seminar__host {
     display: grid;
-    grid-template-columns: clamp(88px, 28cqi, 110px) minmax(0, 1fr);
-    min-height: 99px;
+    grid-template-columns: clamp(83px, 27cqi, 105px) minmax(0, 1fr);
+    border-radius: 9px;
   }
-
-  .fincifra-seminar__host + .fincifra-seminar__host {
-    border-left: 0;
-    border-top: 1px solid #6699c75c;
-  }
-
   .fincifra-seminar__portrait {
     height: 100%;
-    min-height: 99px;
+    min-height: 100px;
   }
-
   .fincifra-seminar__host-copy {
+    min-height: 100px;
+    padding: 10px 12px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 8px 13px;
-    min-height: 99px;
   }
-
   .fincifra-seminar__host-copy h4 {
     font-size: 13px;
-    margin-bottom: 5px;
+    letter-spacing: 0.015em;
+    margin-bottom: 6px;
   }
-
   .fincifra-seminar__host-copy p {
-    font-size: 10.5px;
-    line-height: 1.35;
+    font-size: 10.8px;
+    line-height: 1.36;
   }
-
   .fincifra-seminar__footer {
-    padding: 12px 17px;
-    gap: 12px;
+    padding-top: 12px;
+    gap: 8px;
   }
-
   .fincifra-seminar__brands {
     grid-template-columns: minmax(0, 1fr);
-    gap: 7px;
+    gap: 10px;
   }
-
   .fincifra-seminar__organizer > span:last-child {
     font-size: 10px;
   }
-
   .fincifra-seminar__partners {
     flex-wrap: wrap;
   }
-
   .fincifra-seminar__partners .fincifra-seminar__label {
-    flex-basis: 100%;
+    flex-basis: auto;
   }
-
   .fincifra-seminar__partners img {
     height: 20px;
-    max-width: 112px;
+    max-width: 92px;
   }
-
   .fincifra-seminar__offer {
     grid-template-columns: minmax(0, 1fr);
-    gap: 9px;
-    padding-top: 11px;
+    gap: 6px;
   }
-
   .fincifra-seminar__price {
-    font-size: 23px;
+    font-size: 26px;
   }
-
   .fincifra-seminar__register.button {
-    min-height: 43px;
-    font-size: 11px;
-    padding-inline: 12px;
-  }
-
-  .fincifra-seminar__limit {
-    margin-top: 5px;
+    min-height: 42px;
   }
 }
-
 @container fincifra (max-width: 340px) {
   .fincifra-seminar__programme {
-    padding: 15px 12px;
+    padding: 11px 10px;
   }
-
   .fincifra-seminar__programme h3 {
-    font-size: 15px;
+    font-size: 14px;
   }
-
   .fincifra-seminar__title {
     font-size: 20px;
   }
-
   .fincifra-seminar__topic summary {
-    gap: 7px;
     grid-template-columns: 29px minmax(0, 1fr) 11px;
+    gap: 7px;
   }
-
   .fincifra-seminar__topic summary strong {
     font-size: 12px;
   }
-
   .fincifra-seminar__host {
-    grid-template-columns: 78px minmax(0, 1fr);
-    min-height: 100px;
+    grid-template-columns: 77px minmax(0, 1fr);
+    min-height: 85px;
   }
-
   .fincifra-seminar__portrait,
   .fincifra-seminar__host-copy {
-    min-height: 100px;
+    min-height: 85px;
   }
-
   .fincifra-seminar__host-copy {
-    padding: 7px 9px;
+    padding: 7px 10px;
   }
-
   .fincifra-seminar__host-copy p {
     font-size: 10px;
-    line-height: 1.34;
   }
-
-  .fincifra-seminar__hosts h3 {
-    margin-bottom: 7px;
-  }
-
   .fincifra-seminar__footer {
-    padding: 11px 12px;
-    gap: 8px;
-  }
-
-  .fincifra-seminar__offer {
-    gap: 6px;
-    padding-top: 9px;
-  }
-
-  .fincifra-seminar__showcase .fincifra-seminar__hosts {
+    gap: 5px;
+    margin-top: 12px;
     padding-top: 10px;
   }
-
-  .fincifra-seminar__programme {
-    padding: 13px 12px;
+  .fincifra-seminar__masthead {
+    margin-bottom: 12px;
   }
-
+  .fincifra-seminar__topics {
+    margin-top: 10px;
+  }
   .fincifra-seminar__topic {
     padding-block: 8px;
   }
-
-  .fincifra-seminar__topic + .fincifra-seminar__topic {
-    padding-block: 8px;
-  }
-
-  .fincifra-seminar__masthead {
-    gap: 6px;
-    margin-bottom: 11px;
-  }
-
-  .fincifra-seminar__brands {
+  .fincifra-seminar__host-list {
     gap: 5px;
+  }
+  .fincifra-seminar__offer {
+    gap: 5px;
+    padding-top: 9px;
+  }
+  .fincifra-seminar__register.button {
+    min-height: 42px;
   }
 }
