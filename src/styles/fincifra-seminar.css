@@ -566,7 +566,7 @@
   .fincifra-seminar__host {
     display: grid;
     grid-template-columns: clamp(88px, 28cqi, 110px) minmax(0, 1fr);
-    min-height: 110px;
+    min-height: 99px;
   }
 
   .fincifra-seminar__host + .fincifra-seminar__host {
@@ -576,15 +576,15 @@
 
   .fincifra-seminar__portrait {
     height: 100%;
-    min-height: 110px;
+    min-height: 99px;
   }
 
   .fincifra-seminar__host-copy {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 10px 13px;
-    min-height: 110px;
+    padding: 8px 13px;
+    min-height: 99px;
   }
 
   .fincifra-seminar__host-copy h4 {
