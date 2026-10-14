@@ -27,12 +27,12 @@ const hosts = [
   {
     name: 'Андрей Емелин',
     role: 'Председатель НСФР',
-    portrait: 'assets/speakers/fincifra-andrey-emelin.webp',
+    portrait: 'assets/speakers/fincifra-andrey-emelin-client.webp',
   },
   {
     name: 'Иван Зимин',
     role: 'Вице-президент по внедрению инновационных государственных технологий и сервисов АО «ТБанк», председатель Комитета НСФР по финтеху',
-    portrait: 'assets/speakers/fincifra-ivan-zimin.webp',
+    portrait: 'assets/speakers/fincifra-ivan-zimin-client.webp',
   },
 ];
 
@@ -52,28 +52,27 @@ export function FincifraSeminar({ tariff, onRegister }) {
       id="fincifra-seminar"
       aria-labelledby="fincifra-seminar-title"
     >
-      <div className="fincifra-seminar__surface corners">
-        <header className="fincifra-seminar__masthead">
-          <div className="fincifra-seminar__heading">
-            <p className="fincifra-seminar__eyebrow">IX Практический семинар</p>
-            <h2 id="fincifra-seminar-title" className="fincifra-seminar__title">
-              «ФинЦифра–2026»
-            </h2>
-            <p className="fincifra-seminar__context">(в рамках Форума DEBT TECH 2026)</p>
+      <header className="fincifra-seminar__masthead">
+        <div className="fincifra-seminar__heading">
+          <p className="fincifra-seminar__eyebrow">IX Практический семинар</p>
+          <h2 className="fincifra-seminar__title" id="fincifra-seminar-title">
+            «ФинЦифра–2026»
+          </h2>
+          <p className="fincifra-seminar__context">(в рамках Форума DEBT TECH 2026)</p>
+        </div>
+        <div
+          className="fincifra-seminar__schedule"
+          aria-label="13 ноября 2026, Москва, 12:30–16:30"
+        >
+          <div className="fincifra-seminar__schedule-location">
+            <span>13 ноября 2026</span>
+            <strong>Москва</strong>
           </div>
+          <time className="fincifra-seminar__hours">12:30–16:30</time>
+        </div>
+      </header>
 
-          <div
-            className="fincifra-seminar__schedule"
-            aria-label="13 ноября 2026, Москва, 12:30–16:30"
-          >
-            <div className="fincifra-seminar__schedule-location">
-              <span>13 ноября 2026</span>
-              <strong>Москва</strong>
-            </div>
-            <time className="fincifra-seminar__hours">12:30–16:30</time>
-          </div>
-        </header>
-
+      <div className="fincifra-seminar__surface">
         <div className="fincifra-seminar__body">
           <div className="fincifra-seminar__programme">
             <h3>Программа семинара</h3>
@@ -104,8 +103,8 @@ export function FincifraSeminar({ tariff, onRegister }) {
                     <img
                       src={assetUrl(host.portrait)}
                       alt={host.name}
-                      width="400"
-                      height="400"
+                      width="320"
+                      height="320"
                       loading="eager"
                       decoding="async"
                     />
@@ -128,8 +127,8 @@ export function FincifraSeminar({ tariff, onRegister }) {
                 <img
                   src={assetUrl('assets/figma/review/support-nsfr.svg')}
                   alt="Логотип НСФР"
-                  width="46"
-                  height="46"
+                  width="42"
+                  height="42"
                   loading="lazy"
                 />
                 <span>Ассоциация «Национальный совет финансового рынка» (НСФР)</span>
@@ -155,7 +154,6 @@ export function FincifraSeminar({ tariff, onRegister }) {
               </div>
             </div>
           </div>
-
           <div className="fincifra-seminar__offer">
             <p className="fincifra-seminar__offer-text">
               Доступен <a href="#tariff-plans">спецтариф</a> для членов НСФР: включает посещение

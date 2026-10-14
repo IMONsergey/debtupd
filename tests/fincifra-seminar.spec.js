@@ -23,14 +23,14 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     await expect(topics.locator('li')).toHaveCount(6);
     await expect(seminar.locator('.fincifra-seminar__host')).toHaveCount(2);
     for (const [name, filename] of [
-      ['Андрей Емелин', 'assets/speakers/fincifra-andrey-emelin.webp'],
-      ['Иван Зимин', 'assets/speakers/fincifra-ivan-zimin.webp'],
+      ['Андрей Емелин', 'assets/speakers/fincifra-andrey-emelin-client.webp'],
+      ['Иван Зимин', 'assets/speakers/fincifra-ivan-zimin-client.webp'],
     ]) {
       const portrait = seminar.locator('.fincifra-seminar__portrait img[alt="' + name + '"]');
       const src = await portrait.getAttribute('src');
       expect(src).toContain('/' + filename);
       await expect
-        .poll(() => portrait.evaluate((img) => img.complete && img.naturalWidth >= 350), {
+        .poll(() => portrait.evaluate((img) => img.complete && img.naturalWidth >= 250), {
           timeout: 10000,
         })
         .toBe(true);
@@ -94,6 +94,16 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
       ].some((element) => element.scrollWidth > element.clientWidth + 2),
     }));
     expect(geometry.contentOverflows).toBe(false);
+    // The new editorial section belongs on the existing star field, not
+    // inside a solid oversized cobalt panel.
+    const surfaceBackground = await seminar
+      .locator('.fincifra-seminar__surface')
+      .evaluate((element) => {
+        const style = getComputedStyle(element);
+        return { color: style.backgroundColor, image: style.backgroundImage };
+      });
+    expect(surfaceBackground.color).toBe('rgba(0, 0, 0, 0)');
+    expect(surfaceBackground.image).toBe('none');
     // Accommodate the approved full copy, larger partner logos and portrait photos.
     // Guard against runaway section growth without shrinking readable text.
     expect(geometry.height).toBeLessThan(width < 600 ? 970 : width < 1080 ? 850 : 815);
@@ -114,12 +124,10 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
 
     const registerButton = seminar.getByRole('button', { name: 'Зарегистрироваться' });
     await expect(registerButton).toHaveClass(/\bbutton\b/);
-    if (width >= 1080) {
-      const labelHeight = await registerButton
-        .locator('.button-label')
-        .evaluate((node) => Math.round(node.getBoundingClientRect().height));
-      expect(labelHeight).toBeLessThanOrEqual(25);
-    }
+    const labelHeight = await registerButton
+      .locator('.button-label')
+      .evaluate((node) => Math.round(node.getBoundingClientRect().height));
+    expect(labelHeight).toBeLessThanOrEqual(25);
     await registerButton.click();
     const modal = page.locator('.form-dialog[data-tariff-id="fincifra"]');
     await expect(modal).toBeVisible();
