@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { ActionArrow } from './ActionArrow.jsx';
 import { assetUrl } from '../lib/assets.js';
 
@@ -37,15 +36,6 @@ const hosts = [
 ];
 
 export function FincifraSeminar({ tariff, onRegister }) {
-  const [compact, setCompact] = useState(() => matchMedia('(max-width: 899px)').matches);
-
-  useEffect(() => {
-    const media = matchMedia('(max-width: 899px)');
-    const sync = () => setCompact(media.matches);
-    media.addEventListener('change', sync);
-    return () => media.removeEventListener('change', sync);
-  }, []);
-
   return (
     <section
       className="section fincifra-seminar"
@@ -78,18 +68,19 @@ export function FincifraSeminar({ tariff, onRegister }) {
             <h3>Программа семинара</h3>
             <div className="fincifra-seminar__topics">
               {programme.map((topic) => (
-                <details className="fincifra-seminar__topic" key={topic.number} open={!compact}>
-                  <summary>
-                    <span className="fincifra-seminar__number">{topic.number}</span>
-                    <strong>{topic.title}</strong>
-                    <span className="fincifra-seminar__toggle" aria-hidden="true" />
-                  </summary>
+                <article className="fincifra-seminar__topic" key={topic.number}>
+                  <div className="fincifra-seminar__topic-heading">
+                    <span className="fincifra-seminar__number" aria-hidden="true">
+                      {topic.number}
+                    </span>
+                    <h4>{topic.title}</h4>
+                  </div>
                   <ul>
                     {topic.points.map((point) => (
                       <li key={point}>{point}</li>
                     ))}
                   </ul>
-                </details>
+                </article>
               ))}
             </div>
           </div>
@@ -155,24 +146,21 @@ export function FincifraSeminar({ tariff, onRegister }) {
             </div>
           </div>
           <div className="fincifra-seminar__offer">
+            <button
+              type="button"
+              className="button fincifra-seminar__register"
+              onClick={() => onRegister(tariff)}
+            >
+              <span className="button-label">Зарегистрироваться</span>
+              <ActionArrow />
+            </button>
             <p className="fincifra-seminar__offer-text">
               Доступен <a href="#tariff-plans">спецтариф</a> для членов НСФР: включает посещение
               деловой части форума и семинара «ФинЦифра»
             </p>
-            <div className="fincifra-seminar__offer-action">
-              {tariff?.price && <strong className="fincifra-seminar__price">{tariff.price}</strong>}
-              <button
-                type="button"
-                className="button fincifra-seminar__register"
-                onClick={() => onRegister(tariff)}
-              >
-                <span className="button-label">Зарегистрироваться</span>
-                <ActionArrow />
-              </button>
-              {tariff?.limitNote && (
-                <small className="fincifra-seminar__limit">{tariff.limitNote}</small>
-              )}
-            </div>
+            {tariff?.limitNote && (
+              <small className="fincifra-seminar__limit">{tariff.limitNote}</small>
+            )}
           </div>
         </div>
       </div>

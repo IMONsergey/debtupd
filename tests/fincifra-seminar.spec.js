@@ -21,6 +21,12 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     await expect(seminar.getByText('IX Практический семинар')).toBeVisible();
     await expect(topics).toHaveCount(2);
     await expect(topics.locator('li')).toHaveCount(6);
+    // Programme points must be visible immediately even on narrow screens.
+    await expect(seminar.locator('details, .fincifra-seminar__toggle')).toHaveCount(0);
+    for (const topic of await topics.all()) {
+      await expect(topic.locator('li')).toHaveCount(3);
+      await expect(topic.locator('li').first()).toBeVisible();
+    }
     await expect(seminar.locator('.fincifra-seminar__host')).toHaveCount(2);
     for (const [name, filename] of [
       ['Андрей Емелин', 'assets/speakers/fincifra-andrey-emelin-client.webp'],
@@ -72,18 +78,6 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
       expect(response.ok()).toBe(true);
     }
 
-    if (width < 900) {
-      await expect(topics.first()).not.toHaveAttribute('open');
-      await topics.first().locator('summary').click();
-      await expect(topics.first()).toHaveAttribute('open', '');
-      await expect(topics.first().locator('li')).toHaveCount(3);
-      await topics.first().locator('summary').click();
-      await expect(topics.first()).not.toHaveAttribute('open');
-    } else {
-      await expect(topics.first()).toHaveAttribute('open', '');
-      await expect(topics.last()).toHaveAttribute('open', '');
-    }
-
     const geometry = await seminar.evaluate((node) => ({
       height: node.getBoundingClientRect().height,
       width: node.getBoundingClientRect().width,
@@ -106,7 +100,8 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     expect(surfaceBackground.image).toBe('none');
     // Accommodate the approved full copy, larger partner logos and portrait photos.
     // Guard against runaway section growth without shrinking readable text.
-    expect(geometry.height).toBeLessThan(width < 600 ? 970 : width < 1080 ? 850 : 815);
+    // The full six programme points are permanently expanded (including at 320px).
+    expect(geometry.height).toBeLessThan(width < 600 ? 1270 : width < 1080 ? 950 : 815);
 
     if (width === 390 || width === 1440) {
       await page.evaluate(() => document.fonts.ready);
@@ -121,6 +116,15 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
       false,
     );
     expect(errors).toEqual([]);
+
+    // No duplicated price inside the event section. Price remains in the actual tariff.
+    await expect(seminar.locator('.fincifra-seminar__price')).toHaveCount(0);
+    await expect(seminar).not.toContainText('24 500 ₽');
+    await expect(
+      seminar.locator(
+        '.fincifra-seminar__offer > .fincifra-seminar__register + .fincifra-seminar__offer-text',
+      ),
+    ).toHaveCount(1);
 
     const registerButton = seminar.getByRole('button', { name: 'Зарегистрироваться' });
     await expect(registerButton).toHaveClass(/\bbutton\b/);

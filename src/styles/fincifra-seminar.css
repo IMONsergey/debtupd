@@ -5,8 +5,6 @@
 }
 
 .fincifra-seminar {
-  --fin-accent: #78ced7;
-  --fin-muted: #aec6dd;
   container: fincifra / inline-size;
   margin-bottom: clamp(100px, 9vw, 155px);
 }
@@ -55,7 +53,7 @@
   align-items: center;
   gap: clamp(18px, 2cqi, 26px);
   padding: 2px 0 3px clamp(16px, 1.7cqi, 23px);
-  border-left: 2px solid var(--fin-accent);
+  border-left: 2px solid #65baff;
 }
 
 .fincifra-seminar__schedule-location {
@@ -81,7 +79,7 @@
 }
 
 .fincifra-seminar__hours {
-  color: #86d1dc;
+  color: #f4f8ff;
   font:
     400 clamp(31px, 3.6cqi, 46px)/1 'Bebas Neue',
     sans-serif;
@@ -152,32 +150,21 @@
   min-width: 0;
 }
 
-.fincifra-seminar__topic summary {
+.fincifra-seminar__topic-heading {
   display: grid;
-  grid-template-columns: 38px minmax(0, 1fr) 12px;
+  grid-template-columns: 38px minmax(0, 1fr);
   align-items: start;
   gap: 11px;
-  list-style: none;
-  cursor: pointer;
-}
-
-.fincifra-seminar__topic summary::-webkit-details-marker {
-  display: none;
-}
-
-.fincifra-seminar__topic summary:focus-visible {
-  outline: 2px solid #a1deff;
-  outline-offset: 5px;
 }
 
 .fincifra-seminar__number {
-  color: #75c1e8;
+  color: #65baff;
   font:
     400 40px/1 'Bebas Neue',
     sans-serif;
 }
 
-.fincifra-seminar__topic summary strong {
+.fincifra-seminar__topic-heading h4 {
   padding-top: 3px;
   color: #f8fcff;
   font:
@@ -185,37 +172,6 @@
     sans-serif;
   text-transform: uppercase;
   text-wrap: pretty;
-}
-
-.fincifra-seminar__toggle {
-  position: relative;
-  display: none;
-  width: 12px;
-  height: 12px;
-  margin-top: 8px;
-}
-
-.fincifra-seminar__toggle::before,
-.fincifra-seminar__toggle::after {
-  content: '';
-  position: absolute;
-  background: #8ccedd;
-}
-
-.fincifra-seminar__toggle::before {
-  top: 5px;
-  width: 12px;
-  height: 1px;
-}
-
-.fincifra-seminar__toggle::after {
-  left: 5px;
-  width: 1px;
-  height: 12px;
-}
-
-.fincifra-seminar__topic[open] .fincifra-seminar__toggle::after {
-  opacity: 0;
 }
 
 .fincifra-seminar__topic ul {
@@ -239,7 +195,7 @@
   content: '///';
   top: 0.16em;
   left: 0;
-  color: #77c7dc;
+  color: #65baff;
   font:
     500 10px/1.4 'IBM Plex Sans',
     sans-serif;
@@ -365,16 +321,18 @@
 }
 
 .fincifra-seminar__offer {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(250px, 0.95fr);
-  gap: 12px;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
   min-width: 0;
   padding-left: clamp(13px, 1.5cqi, 19px);
   border-left: 1px solid #5288b65e;
 }
 
 .fincifra-seminar__offer-text {
+  max-width: 480px;
+  margin-top: 12px;
   color: #e1eff8;
   font:
     400 clamp(12px, 1.18cqi, 14px)/1.48 'IBM Plex Sans',
@@ -393,22 +351,8 @@
   color: #a8e1ff;
 }
 
-.fincifra-seminar__offer-action {
-  min-width: 0;
-}
-
-.fincifra-seminar__price {
-  display: block;
-  margin-bottom: 9px;
-  color: #fff;
-  font:
-    475 clamp(23px, 2.45cqi, 32px)/1.1 Bounded,
-    sans-serif;
-  white-space: nowrap;
-}
-
 .fincifra-seminar__register.button {
-  width: 100%;
+  width: min(100%, 338px);
 }
 
 .fincifra-seminar__limit {
@@ -426,7 +370,6 @@
     gap: 18px;
   }
   .fincifra-seminar__offer {
-    grid-template-columns: minmax(0, 1fr) minmax(230px, 0.8fr);
     padding: 17px 0 0;
     border-left: 0;
     border-top: 1px solid #5288b65e;
@@ -494,19 +437,16 @@
     padding: 9px 0;
     border-top: 1px solid #6c9bbb45;
   }
-  .fincifra-seminar__topic summary {
-    grid-template-columns: 29px minmax(0, 1fr) 12px;
+  .fincifra-seminar__topic-heading {
+    grid-template-columns: 29px minmax(0, 1fr);
     gap: 8px;
   }
   .fincifra-seminar__number {
     font-size: 32px;
   }
-  .fincifra-seminar__topic summary strong {
+  .fincifra-seminar__topic-heading h4 {
     font-size: 12.5px;
     padding-top: 2px;
-  }
-  .fincifra-seminar__toggle {
-    display: block;
   }
   .fincifra-seminar__topic ul {
     margin: 9px 0 0 39px;
@@ -553,16 +493,13 @@
     height: 31px;
   }
   .fincifra-seminar__offer {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
     padding-top: 12px;
+  }
+  .fincifra-seminar__register.button {
+    width: 100%;
   }
   .fincifra-seminar__offer-text {
     font-size: 12px;
-  }
-  .fincifra-seminar__price {
-    font-size: 25px;
-    margin-bottom: 8px;
   }
 }
 
