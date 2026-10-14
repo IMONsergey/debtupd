@@ -13,6 +13,7 @@ import {
 const additions = [
   [2, 'Торги России', 'Маркетплейс по торгам в РФ'],
   [11, 'Id Systems', 'IT-вендор «АйДиСистемс»'],
+  [12, 'Info: Logistics', 'Автоматизация обработки судебной документации'],
   [13, 'Интелл коллект', 'ПКО «Интелл коллект»'],
   [14, 'Автослед', 'Вендор «АВТОСЛЕД ЕМ ГРУПП»'],
 ];
@@ -47,6 +48,6 @@ test('availability reflects both floors and all confirmed exhibitors', () => {
     .flatMap((floor) => floor.stands)
     .filter((stand) => getStandStatus(stand.number) === 'free');
   assert.equal(availableStandCount, free.length);
-  assert.equal(availableStandCount, 12);
-  for (const number of [1, 12, 17, 25, 26, 27]) assert.equal(getStandStatus(number), 'free');
+  assert.equal(availableStandCount, 11);
+  for (const number of [1, 17, 25, 26, 27]) assert.equal(getStandStatus(number), 'free');
 });
