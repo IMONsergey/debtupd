@@ -86,6 +86,36 @@
 .space-route__stop.is-active .space-route__label {
   color: #83c8f2;
 }
+/* Featured seminar destination: restrained accent in the existing route system.
+   The marker remains distinct even when another section is active. */
+.space-route__stop--featured .space-route__label {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 26px;
+  margin-left: -8px;
+  padding: 4px 8px;
+  border: 1px solid #589fd48a;
+  border-radius: 3px;
+  background: linear-gradient(95deg, #18538e99, #11385f5c);
+  box-shadow: inset 2px 0 0 #69baff;
+  color: #e1f3ff;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+}
+
+.space-route__stop--featured .space-planet {
+  background: radial-gradient(circle at 28% 26%, #d4f1ff, #5ba6d8 29%, #245c91 61%, #091f41);
+  box-shadow: inset -3px -2px 5px #01091888, 0 0 9px #238cdd55;
+}
+
+.space-route__stop--featured:hover .space-route__label,
+.space-route__stop--featured.is-active .space-route__label {
+  border-color: #91d7ff;
+  background: linear-gradient(95deg, #2174b9ba, #15508780);
+  color: #fff;
+}
+
 .space-planet {
   position: absolute;
   left: 34px;
