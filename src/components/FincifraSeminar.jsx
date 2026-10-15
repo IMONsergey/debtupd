@@ -49,6 +49,7 @@ export function FincifraSeminar({ tariff, onRegister }) {
             «ФинЦифра–2026»
           </h2>
           <p className="fincifra-seminar__context">(в рамках Форума DEBT TECH 2026)</p>
+          <p className="fincifra-seminar__session">Малая сцена, Сессии 2 и 3</p>
         </div>
         <div
           className="fincifra-seminar__schedule"
