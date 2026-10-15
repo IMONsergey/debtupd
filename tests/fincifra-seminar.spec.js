@@ -46,6 +46,7 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     await expect(seminar).toContainText('12:30');
     await expect(seminar).toContainText('16:30');
     await expect(seminar).toContainText('(в рамках Форума DEBT TECH 2026)');
+    await expect(seminar).toContainText('Малая сцена, Сессии 2 и 3');
     await expect(seminar).toContainText('13 ноября 2026');
     await expect(seminar).toContainText('Москва');
 
