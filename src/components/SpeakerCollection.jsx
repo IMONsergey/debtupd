@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, Pause, Play } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { assetUrl } from '../lib/assets.js';
 import { ActionArrow } from './ActionArrow.jsx';
 import { speakerPageStarts } from '../lib/speaker-pages.js';
@@ -33,8 +33,7 @@ export function SpeakerCollection({ speakers }) {
     });
   const [index, setIndex] = useState(0),
     [pageStarts, setPageStarts] = useState(pages.current),
-    [expanded, setExpanded] = useState(false),
-    [autoplayPaused, setAutoplayPaused] = useState(false);
+    [expanded, setExpanded] = useState(false);
   const clamp = (value) => Math.max(0, Math.min(pages.current.length - 1, value));
   const measure = () => {
     const node = track.current;
@@ -120,7 +119,6 @@ export function SpeakerCollection({ speakers }) {
     };
     const canRun = () =>
       !expanded &&
-      !autoplayPaused &&
       !motion.matches &&
       !document.hidden &&
       state.visible &&
@@ -209,7 +207,7 @@ export function SpeakerCollection({ speakers }) {
       state.start = null;
       state.stop = null;
     };
-  }, [expanded, autoplayPaused, speakers.length]);
+  }, [expanded, speakers.length]);
 
   const postponeAutoplay = (duration = MANUAL_PAUSE_MS) => {
     const state = auto.current;
@@ -248,16 +246,6 @@ export function SpeakerCollection({ speakers }) {
           {String(index + 1).padStart(2, '0')} <i>/ {String(pageStarts.length).padStart(2, '0')}</i>
         </span>
         <div>
-          <button
-            type="button"
-            className="ui-icon-button speaker-autoplay-toggle"
-            aria-label={autoplayPaused ? 'Возобновить автопрокрутку спикеров' : 'Остановить автопрокрутку спикеров'}
-            aria-pressed={autoplayPaused}
-            title={autoplayPaused ? 'Включить движение' : 'Остановить движение'}
-            onClick={() => setAutoplayPaused((wasPaused) => !wasPaused)}
-          >
-            {autoplayPaused ? <Play size={18} /> : <Pause size={18} />}
-          </button>
           <button
             type="button"
             className="ui-icon-button"

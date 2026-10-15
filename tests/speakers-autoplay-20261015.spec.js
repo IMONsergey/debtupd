@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
 const position = (track) => track.evaluate(node => node.scrollLeft);
 
 for (const width of [390, 768, 1440]) {
-  test(`speaker carousel moves on its own and the pause control works at ${width}px`, async ({ page }) => {
+  test(`speaker carousel moves on its own without a pause button at ${width}px`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/#speakers');
@@ -20,17 +20,11 @@ for (const width of [390, 768, 1440]) {
     const start = await position(track);
     await expect.poll(async () => (await position(track)) - start, { timeout: 5000, intervals: [500] }).toBeGreaterThan(48);
 
-    const pause = page.getByRole('button', { name: 'Остановить автопрокрутку спикеров' });
-    await pause.click();
-    await expect(page.getByRole('button', { name: 'Возобновить автопрокрутку спикеров' })).toBeVisible();
-    const stoppedAt = await position(track);
-    await page.waitForTimeout(900);
-    expect(Math.abs((await position(track)) - stoppedAt)).toBeLessThan(2);
-
-    await page.getByRole('button', { name: 'Возобновить автопрокрутку спикеров' }).click();
-    await page.mouse.move(0, 0);
-    const resumedAt = await position(track);
-    await expect.poll(async () => (await position(track)) - resumedAt, { timeout: 5000, intervals: [500] }).toBeGreaterThan(45);
+    await expect(page.locator('.speakers-controls .ui-icon-button')).toHaveCount(2);
+    await expect(page.locator('.speakers-controls .speaker-autoplay-toggle')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Остановить автопрокрутку спикеров' })).toHaveCount(0);
+    const previousAt = await position(track);
+    await expect.poll(async () => (await position(track)) - previousAt, { timeout: 5000, intervals: [500] }).toBeGreaterThan(40);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 2);
   });
 }
