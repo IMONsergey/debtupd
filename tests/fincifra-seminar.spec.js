@@ -29,8 +29,8 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     }
     await expect(seminar.locator('.fincifra-seminar__host')).toHaveCount(2);
     for (const [name, filename] of [
-      ['Андрей Емелин', 'assets/speakers/fincifra-andrey-emelin-cutout.webp'],
-      ['Иван Зимин', 'assets/speakers/fincifra-ivan-zimin-cutout.webp'],
+      ['Андрей Емелин', 'assets/speakers/fincifra-andrey-emelin-photoroom.webp'],
+      ['Иван Зимин', 'assets/speakers/fincifra-ivan-zimin-photoroom.webp'],
     ]) {
       const portrait = seminar.locator('.fincifra-seminar__portrait img[alt="' + name + '"]');
       const src = await portrait.getAttribute('src');
@@ -40,21 +40,31 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
           timeout: 10000,
         })
         .toBe(true);
-      // Both portraits must be true cutouts, without a baked-in blue field
-      // or a CSS background behind their transparent pixels.
-      const imageTransparency = await portrait.evaluate((img) => {
+      // The user's original portrait includes its intended blue background.
+      // Never cut it out or add an independent CSS background underneath it.
+      const imagePresentation = await portrait.evaluate((img) => {
         const canvas = document.createElement('canvas');
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
         const context = canvas.getContext('2d');
         context.drawImage(img, 0, 0);
+        const [red, green, blue, alpha] = context.getImageData(1, 1, 1, 1).data;
+        const wrapperStyle = getComputedStyle(img.closest('.fincifra-seminar__portrait'));
         return {
-          cornerAlpha: context.getImageData(0, 0, 1, 1).data[3],
-          background: getComputedStyle(img.closest('.fincifra-seminar__portrait')).backgroundColor,
+          red,
+          green,
+          blue,
+          alpha,
+          background: wrapperStyle.backgroundColor,
+          backgroundImage: wrapperStyle.backgroundImage,
         };
       });
-      expect(imageTransparency.cornerAlpha).toBe(0);
-      expect(imageTransparency.background).toBe('rgba(0, 0, 0, 0)');
+      expect(imagePresentation.alpha).toBe(255);
+      expect(imagePresentation.red).toBeLessThan(12);
+      expect(imagePresentation.green).toBeGreaterThan(85);
+      expect(imagePresentation.blue).toBeGreaterThan(235);
+      expect(imagePresentation.background).toBe('rgba(0, 0, 0, 0)');
+      expect(imagePresentation.backgroundImage).toBe('none');
     }
     await expect(seminar).toContainText('Андрей Емелин');
     await expect(seminar).toContainText('Иван Зимин');
@@ -64,6 +74,47 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     await expect(seminar).toContainText('Малая сцена, Сессии 2 и 3');
     await expect(seminar).toContainText('13 ноября 2026');
     await expect(seminar).toContainText('Москва');
+
+    // Every text shade is neutral white / cool grey, never turquoise or green.
+    // Decorative separators, the teal programme surface and CTA are excluded.
+    const textColorSamples = await seminar.evaluate((el) => {
+      const selectors = [
+        '.fincifra-seminar__eyebrow',
+        '.fincifra-seminar__title',
+        '.fincifra-seminar__context',
+        '.fincifra-seminar__session',
+        '.fincifra-seminar__schedule-location span',
+        '.fincifra-seminar__schedule-location strong',
+        '.fincifra-seminar__hours',
+        '.fincifra-seminar__programme h3',
+        '.fincifra-seminar__topic-heading h4',
+        '.fincifra-seminar__number',
+        '.fincifra-seminar__topic li',
+        '.fincifra-seminar__hosts h3',
+        '.fincifra-seminar__host-copy h4',
+        '.fincifra-seminar__host-copy p',
+        '.fincifra-seminar__label',
+        '.fincifra-seminar__organizer-info span',
+        '.fincifra-seminar__register .button-label',
+        '.fincifra-seminar__offer-text',
+        '.fincifra-seminar__offer-text a',
+        '.fincifra-seminar__limit',
+      ];
+      return selectors.map((selector) => ({
+        selector,
+        color: getComputedStyle(el.querySelector(selector)).color,
+      }));
+    });
+    for (const { selector, color } of textColorSamples) {
+      const rgb = color.match(/\d+/g).map(Number);
+      expect(
+        rgb.slice(0, 3).every((channel) => channel >= 175),
+        selector,
+      ).toBe(true);
+      // A white or cool-neutral shade may be slightly blue, but never greener than red.
+      expect(rgb[1] - rgb[0], selector).toBeLessThanOrEqual(18);
+      expect(rgb[2], selector).toBeGreaterThanOrEqual(rgb[1]);
+    }
 
     // The approved tariff text must remain verbatim, with a real in-page link.
     const specialTariff = seminar.locator('.fincifra-seminar__offer-text');

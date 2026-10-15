@@ -24,7 +24,7 @@
 
 .fincifra-seminar__eyebrow,
 .fincifra-seminar__label {
-  color: #91cfcc;
+  color: #dbe3ef;
   font:
     500 11px/1.4 'IBM Plex Sans',
     sans-serif;
@@ -34,7 +34,7 @@
 
 .fincifra-seminar__title {
   margin: 8px 0 7px;
-  color: #f4f8ff;
+  color: #ffffff;
   font:
     480 clamp(26px, 3.2cqi, 42px)/1.23 Bounded,
     sans-serif;
@@ -43,7 +43,7 @@
 }
 
 .fincifra-seminar__context {
-  color: #bad9db;
+  color: #d4dce8;
   font:
     400 clamp(12px, 1.12cqi, 14px)/1.45 'IBM Plex Sans',
     sans-serif;
@@ -51,7 +51,7 @@
 
 .fincifra-seminar__session {
   margin-top: 4px;
-  color: #b4ece1;
+  color: #f0f2f6;
   font:
     500 clamp(12px, 1.12cqi, 14px)/1.45 'IBM Plex Sans',
     sans-serif;
@@ -72,7 +72,7 @@
 }
 
 .fincifra-seminar__schedule-location span {
-  color: #afd7d5;
+  color: #d6deeb;
   font:
     400 12px/1.3 'IBM Plex Sans',
     sans-serif;
@@ -80,7 +80,7 @@
 }
 
 .fincifra-seminar__schedule-location strong {
-  color: #ecf8ff;
+  color: #ffffff;
   font:
     475 clamp(15px, 1.5cqi, 19px)/1.24 Bounded,
     sans-serif;
@@ -88,7 +88,7 @@
 }
 
 .fincifra-seminar__hours {
-  color: #caffef;
+  color: #ffffff;
   font:
     400 clamp(31px, 3.6cqi, 46px)/1 'Bebas Neue',
     sans-serif;
@@ -237,7 +237,8 @@
   width: 100%;
   aspect-ratio: 1;
   border-radius: 0;
-  background: transparent;
+  /* The delivered portrait files already have their intended background. */
+  background: none;
 }
 
 .fincifra-seminar__portrait img {
@@ -262,7 +263,7 @@
 }
 
 .fincifra-seminar__host-copy p {
-  color: #b5d4d7;
+  color: #c8d2e1;
   font:
     400 clamp(11px, 1.1cqi, 13px)/1.47 'IBM Plex Sans',
     sans-serif;
@@ -311,7 +312,7 @@
 }
 
 .fincifra-seminar__organizer-info span {
-  color: #c3dede;
+  color: #d8e0eb;
   font:
     400 clamp(12px, 1.1cqi, 13px)/1.4 'IBM Plex Sans',
     sans-serif;
@@ -346,7 +347,7 @@
 .fincifra-seminar__offer-text {
   max-width: 480px;
   margin-top: 12px;
-  color: #cce5e4;
+  color: #dce4ef;
   font:
     400 clamp(12px, 1.18cqi, 14px)/1.48 'IBM Plex Sans',
     sans-serif;
@@ -354,14 +355,14 @@
 }
 
 .fincifra-seminar__offer-text a {
-  color: #aaf1db;
+  color: #ffffff;
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
 .fincifra-seminar__offer-text a:hover {
-  color: #d0fff2;
+  color: #ffffff;
 }
 
 /* Only the seminar CTA receives the turquoise tariff accent; native button
@@ -382,7 +383,7 @@
 .fincifra-seminar__limit {
   display: block;
   margin-top: 7px;
-  color: #a4caca;
+  color: #becada;
   font:
     400 10px/1.43 'IBM Plex Sans',
     sans-serif;
