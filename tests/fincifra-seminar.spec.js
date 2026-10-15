@@ -29,8 +29,8 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     }
     await expect(seminar.locator('.fincifra-seminar__host')).toHaveCount(2);
     for (const [name, filename] of [
-      ['Андрей Емелин', 'assets/speakers/fincifra-andrey-emelin-photoroom.webp'],
-      ['Иван Зимин', 'assets/speakers/fincifra-ivan-zimin-photoroom.webp'],
+      ['Андрей Емелин', 'assets/speakers/fincifra-andrey-emelin-cutout.webp'],
+      ['Иван Зимин', 'assets/speakers/fincifra-ivan-zimin-cutout.webp'],
     ]) {
       const portrait = seminar.locator('.fincifra-seminar__portrait img[alt="' + name + '"]');
       const src = await portrait.getAttribute('src');
@@ -40,6 +40,21 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
           timeout: 10000,
         })
         .toBe(true);
+      // Both portraits must be true cutouts, without a baked-in blue field
+      // or a CSS background behind their transparent pixels.
+      const imageTransparency = await portrait.evaluate((img) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const context = canvas.getContext('2d');
+        context.drawImage(img, 0, 0);
+        return {
+          cornerAlpha: context.getImageData(0, 0, 1, 1).data[3],
+          background: getComputedStyle(img.closest('.fincifra-seminar__portrait')).backgroundColor,
+        };
+      });
+      expect(imageTransparency.cornerAlpha).toBe(0);
+      expect(imageTransparency.background).toBe('rgba(0, 0, 0, 0)');
     }
     await expect(seminar).toContainText('Андрей Емелин');
     await expect(seminar).toContainText('Иван Зимин');

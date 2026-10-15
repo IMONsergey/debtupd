@@ -236,8 +236,8 @@
   overflow: hidden;
   width: 100%;
   aspect-ratio: 1;
-  border-radius: 11px;
-  background: #006bff;
+  border-radius: 0;
+  background: transparent;
 }
 
 .fincifra-seminar__portrait img {
