@@ -148,7 +148,7 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
 
     const registerButton = seminar.getByRole('button', { name: 'Зарегистрироваться' });
     await expect(registerButton).toHaveClass(/\bbutton\b/);
-    // Scope the green tariff accent to this CTA: keep the global buttons blue.
+    // Scope the turquoise tariff accent to this CTA: keep the global buttons blue.
     const registrationTheme = await registerButton.evaluate((button) => {
       const css = getComputedStyle(button);
       const arrow = button.querySelector('.action-arrow');
@@ -158,8 +158,8 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
         arrowWidth: Math.round(arrow.getBoundingClientRect().width),
       };
     });
-    expect(registrationTheme.background).toContain('rgb(12, 137, 93)');
-    expect(registrationTheme.background).toContain('rgb(5, 105, 72)');
+    expect(registrationTheme.background).toContain('rgb(8, 127, 137)');
+    expect(registrationTheme.background).toContain('rgb(12, 154, 162)');
     expect(registrationTheme.color).toBe('rgb(255, 255, 255)');
     expect(registrationTheme.arrowWidth).toBe(16);
     const labelHeight = await registerButton
