@@ -363,8 +363,19 @@
   color: #d0fff2;
 }
 
+/* Only the seminar CTA receives the green tariff accent; native button
+   typography, arrow, geometry and click behavior remain unchanged. */
 .fincifra-seminar__register.button {
+  --button-primary: linear-gradient(100deg, #0c895d, #056948);
   width: min(100%, 338px);
+}
+
+.fincifra-seminar__register.button:hover {
+  box-shadow: 0 5px 22px #18c48c45;
+}
+
+.fincifra-seminar__register.button:focus-visible {
+  outline-color: #8ef8ca;
 }
 
 .fincifra-seminar__limit {
