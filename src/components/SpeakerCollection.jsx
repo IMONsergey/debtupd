@@ -132,7 +132,9 @@ export function SpeakerCollection({ speakers }) {
     const tick = (now) => {
       state.frame = 0;
       if (!canRun()) return;
-      const elapsed = state.last ? Math.min(64, now - state.last) : 0;
+      // Account for dropped frames on the animation-heavy production page.
+      // A small cap made 48px/s look like 10-15px/s when frames were throttled.
+      const elapsed = state.last ? Math.min(500, now - state.last) : 0;
       state.last = now;
       const max = node.scrollWidth - node.clientWidth;
       const next = node.scrollLeft + (elapsed / 1000) * AUTO_SPEED * state.direction;
