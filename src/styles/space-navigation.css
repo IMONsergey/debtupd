@@ -86,34 +86,57 @@
 .space-route__stop.is-active .space-route__label {
   color: #83c8f2;
 }
-/* Featured seminar destination: restrained accent in the existing route system.
-   The marker remains distinct even when another section is active. */
-.space-route__stop--featured .space-route__label {
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-  min-height: 26px;
-  margin-left: -8px;
-  padding: 4px 8px;
-  border: 1px solid #589fd48a;
-  border-radius: 3px;
-  background: linear-gradient(95deg, #18538e99, #11385f5c);
-  box-shadow: inset 2px 0 0 #69baff;
-  color: #e1f3ff;
-  font-weight: 600;
-  letter-spacing: 0.015em;
-}
-
+/* FinCifra is indicated only by its emerald planet.
+   The label deliberately inherits the exact styling of every other route. */
 .space-route__stop--featured .space-planet {
-  background: radial-gradient(circle at 28% 26%, #d4f1ff, #5ba6d8 29%, #245c91 61%, #091f41);
-  box-shadow: inset -3px -2px 5px #01091888, 0 0 9px #238cdd55;
+  background: radial-gradient(
+    circle at 28% 24%,
+    #e2fff2 0%,
+    #83ffd0 14%,
+    #3ff2a6 34%,
+    #10ae82 59%,
+    #09635c 81%,
+    #032439 100%
+  );
+  box-shadow:
+    inset -3px -3px 5px #012d2980,
+    0 0 9px #31eea366;
 }
 
-.space-route__stop--featured:hover .space-route__label,
-.space-route__stop--featured.is-active .space-route__label {
-  border-color: #91d7ff;
-  background: linear-gradient(95deg, #2174b9ba, #15508780);
-  color: #fff;
+.space-route__stop--featured .space-planet::before {
+  opacity: 0.38;
+  background: radial-gradient(circle, #40f7ae8c 0 13%, #27c38b46 30%, transparent 68%);
+  transform: scale(0.82);
+}
+
+.space-route__stop--featured .space-planet::after {
+  background:
+    linear-gradient(112deg, transparent 24%, #c3ffe375 30%, transparent 42%),
+    radial-gradient(ellipse at 39% 72%, #065c498a 0 17%, transparent 26%);
+}
+
+.space-route__stop--featured .space-planet__surface {
+  background: radial-gradient(
+    circle at 27% 27%,
+    #edfff2,
+    #76f4bb 24%,
+    #29cc94 52%,
+    #087366 78%,
+    #033449
+  );
+  box-shadow: 0 0 11px #39e5a466;
+}
+
+.space-route__stop--featured:hover .space-planet,
+.space-route__stop--featured.is-active .space-planet {
+  box-shadow:
+    inset -3px -3px 5px #012d2980,
+    0 0 13px #3bf4a1aa;
+}
+
+.space-route__stop--featured:hover .space-planet::before,
+.space-route__stop--featured.is-active .space-planet::before {
+  opacity: 0.9;
 }
 
 .space-planet {

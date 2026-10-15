@@ -99,6 +99,25 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
       });
     expect(surfaceBackground.color).toBe('rgba(0, 0, 0, 0)');
     expect(surfaceBackground.image).toBe('none');
+
+    // Match the existing FinCifra tariff visual language, not the topics palette.
+    const theme = await seminar.locator('.fincifra-seminar__programme').evaluate((node) => {
+      const s = getComputedStyle(node);
+      const benefit = getComputedStyle(node.querySelector('.fincifra-seminar__topic li'));
+      return {
+        gradient: s.backgroundImage,
+        feature: benefit.backgroundColor,
+      };
+    });
+    const tariffTheme = await page.locator('.tariff--fincifra').evaluate((node) => {
+      const s = getComputedStyle(node);
+      return {
+        gradient: s.backgroundImage,
+        feature: getComputedStyle(node.querySelector('li')).backgroundColor,
+      };
+    });
+    expect(theme.gradient).toBe(tariffTheme.gradient);
+    expect(theme.feature).toBe(tariffTheme.feature);
     // Accommodate the approved full copy, larger partner logos and portrait photos.
     // Guard against runaway section growth without shrinking readable text.
     // The full six programme points are permanently expanded (including at 320px).
