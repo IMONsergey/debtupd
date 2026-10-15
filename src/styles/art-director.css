@@ -99,6 +99,11 @@
 .speakers-grid::-webkit-scrollbar {
   display: none;
 }
+/* Allow continuous native scroll without repeatedly snapping to card boundaries. */
+.speaker-collection:not(.is-expanded) .speakers-grid {
+  scroll-snap-type: none;
+}
+
 .speakers-grid > .speaker {
   flex: 0 0 var(--speaker-card-width);
   width: var(--speaker-card-width);

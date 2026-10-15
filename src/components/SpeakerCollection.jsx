@@ -1,10 +1,13 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Pause, Play } from 'lucide-react';
 import { assetUrl } from '../lib/assets.js';
 import { ActionArrow } from './ActionArrow.jsx';
 import { speakerPageStarts } from '../lib/speaker-pages.js';
 
 // One roster: three-up desktop carousel, two-up tablet, one-up phone, or the full grid.
+const AUTO_SPEED = 48; // Match the exhibitors' marquee (pixels per second).
+const MANUAL_PAUSE_MS = 3000;
+
 export function SpeakerCollection({ speakers }) {
   const track = useRef(null),
     position = useRef(0),
@@ -13,10 +16,25 @@ export function SpeakerCollection({ speakers }) {
     settle = useRef(0),
     metrics = useRef([]),
     pages = useRef(speakerPageStarts(speakers.length, 1)),
-    restoreScroll = useRef(null);
+    restoreScroll = useRef(null),
+    auto = useRef({
+      frame: 0,
+      timer: 0,
+      last: 0,
+      lastCounter: 0,
+      direction: 1,
+      visible: false,
+      hovered: false,
+      focused: false,
+      pressing: false,
+      resumeAt: 0,
+      start: null,
+      stop: null,
+    });
   const [index, setIndex] = useState(0),
     [pageStarts, setPageStarts] = useState(pages.current),
-    [expanded, setExpanded] = useState(false);
+    [expanded, setExpanded] = useState(false),
+    [autoplayPaused, setAutoplayPaused] = useState(false);
   const clamp = (value) => Math.max(0, Math.min(pages.current.length - 1, value));
   const measure = () => {
     const node = track.current;
@@ -46,6 +64,8 @@ export function SpeakerCollection({ speakers }) {
       0,
     );
   const update = () => {
+    // Autoplay owns the counter; skip scroll-settle timers on every animation frame.
+    if (auto.current.frame && target.current === null) return;
     if (frame.current || expanded) return;
     frame.current = requestAnimationFrame(() => {
       frame.current = 0;
@@ -85,6 +105,117 @@ export function SpeakerCollection({ speakers }) {
       frame.current = 0;
     };
   }, [expanded, speakers.length]);
+  // Native horizontal scrolling remains interactive; animate only while visible and unattended.
+  // Reverse at the edges rather than jumping abruptly from the final speaker to the first.
+  useEffect(() => {
+    const node = track.current;
+    const state = auto.current;
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const stop = () => {
+      cancelAnimationFrame(state.frame);
+      clearTimeout(state.timer);
+      state.frame = 0;
+      state.timer = 0;
+      state.last = 0;
+    };
+    const canRun = () =>
+      !expanded &&
+      !autoplayPaused &&
+      !motion.matches &&
+      !document.hidden &&
+      state.visible &&
+      !state.hovered &&
+      !state.focused &&
+      !state.pressing &&
+      node.scrollWidth > node.clientWidth + 2;
+
+    const tick = (now) => {
+      state.frame = 0;
+      if (!canRun()) return;
+      const elapsed = state.last ? Math.min(64, now - state.last) : 0;
+      state.last = now;
+      const max = node.scrollWidth - node.clientWidth;
+      const next = node.scrollLeft + (elapsed / 1000) * AUTO_SPEED * state.direction;
+      if (next >= max) {
+        node.scrollLeft = max;
+        state.direction = -1;
+      } else if (next <= 0) {
+        node.scrollLeft = 0;
+        state.direction = 1;
+      } else {
+        node.scrollLeft = next;
+      }
+      if (now - state.lastCounter >= 160) {
+        const current = clamp(nearest());
+        if (current !== position.current) select(current);
+        state.lastCounter = now;
+      }
+      state.frame = requestAnimationFrame(tick);
+    };
+    const start = () => {
+      if (!canRun()) return;
+      const wait = state.resumeAt - performance.now();
+      if (wait > 0) {
+        clearTimeout(state.timer);
+        state.timer = setTimeout(() => {
+          state.timer = 0;
+          start();
+        }, wait);
+        return;
+      }
+      clearTimeout(state.timer);
+      state.timer = 0;
+      if (state.frame) return;
+      state.last = 0;
+      state.frame = requestAnimationFrame(tick);
+    };
+    state.start = start;
+    state.stop = stop;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        state.visible = entry.isIntersecting;
+        if (state.visible) start();
+        else stop();
+      },
+      { threshold: 0.12 },
+    );
+    observer.observe(node);
+    // The pointer may be released outside the carousel after a drag.
+    const releasePointer = () => {
+      if (!state.pressing) return;
+      state.pressing = false;
+      state.resumeAt = performance.now() + MANUAL_PAUSE_MS;
+      stop();
+      start();
+    };
+    window.addEventListener('pointerup', releasePointer);
+    window.addEventListener('pointercancel', releasePointer);
+    const sync = () => {
+      if (document.hidden || motion.matches) stop();
+      else start();
+    };
+    document.addEventListener('visibilitychange', sync);
+    motion.addEventListener?.('change', sync);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('pointerup', releasePointer);
+      window.removeEventListener('pointercancel', releasePointer);
+      document.removeEventListener('visibilitychange', sync);
+      motion.removeEventListener?.('change', sync);
+      stop();
+      state.start = null;
+      state.stop = null;
+    };
+  }, [expanded, autoplayPaused, speakers.length]);
+
+  const postponeAutoplay = (duration = MANUAL_PAUSE_MS) => {
+    const state = auto.current;
+    state.resumeAt = performance.now() + duration;
+    state.stop?.();
+    state.start?.();
+  };
+
   useLayoutEffect(() => {
     if (restoreScroll.current === null) return;
     const top = track.current.getBoundingClientRect().top + scrollY - 80;
@@ -94,6 +225,7 @@ export function SpeakerCollection({ speakers }) {
     restoreScroll.current = null;
   }, [expanded]);
   const moveTo = (value) => {
+    postponeAutoplay();
     const next = clamp(value);
     target.current = next;
     select(next);
@@ -105,6 +237,7 @@ export function SpeakerCollection({ speakers }) {
   const interrupt = () => {
     target.current = null;
     clearTimeout(settle.current);
+    postponeAutoplay();
   };
   return (
     <div className={`speaker-collection${expanded ? ' is-expanded' : ''}`}>
@@ -113,6 +246,16 @@ export function SpeakerCollection({ speakers }) {
           {String(index + 1).padStart(2, '0')} <i>/ {String(pageStarts.length).padStart(2, '0')}</i>
         </span>
         <div>
+          <button
+            type="button"
+            className="ui-icon-button speaker-autoplay-toggle"
+            aria-label={autoplayPaused ? 'Возобновить автопрокрутку спикеров' : 'Остановить автопрокрутку спикеров'}
+            aria-pressed={autoplayPaused}
+            title={autoplayPaused ? 'Включить движение' : 'Остановить движение'}
+            onClick={() => setAutoplayPaused((wasPaused) => !wasPaused)}
+          >
+            {autoplayPaused ? <Play size={18} /> : <Pause size={18} />}
+          </button>
           <button
             type="button"
             className="ui-icon-button"
@@ -137,8 +280,41 @@ export function SpeakerCollection({ speakers }) {
         className="speakers-grid"
         ref={track}
         onScroll={update}
-        onPointerDown={interrupt}
+        onPointerEnter={(event) => {
+          if (event.pointerType === 'mouse') {
+            auto.current.hovered = true;
+            auto.current.stop?.();
+          }
+        }}
+        onPointerLeave={(event) => {
+          if (event.pointerType === 'mouse') {
+            auto.current.hovered = false;
+            auto.current.start?.();
+          }
+        }}
+        onPointerDown={() => {
+          auto.current.pressing = true;
+          interrupt();
+        }}
+        onPointerUp={() => {
+          auto.current.pressing = false;
+          postponeAutoplay();
+        }}
+        onPointerCancel={() => {
+          auto.current.pressing = false;
+          postponeAutoplay();
+        }}
         onWheel={interrupt}
+        onFocusCapture={() => {
+          auto.current.focused = true;
+          auto.current.stop?.();
+        }}
+        onBlurCapture={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) {
+            auto.current.focused = false;
+            auto.current.start?.();
+          }
+        }}
         aria-label="Спикеры форума"
         tabIndex={0}
         onKeyDown={(event) => {
