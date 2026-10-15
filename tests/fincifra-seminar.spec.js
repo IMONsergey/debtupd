@@ -29,8 +29,8 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     }
     await expect(seminar.locator('.fincifra-seminar__host')).toHaveCount(2);
     for (const [name, filename] of [
-      ['Андрей Емелин', 'assets/speakers/fincifra-andrey-emelin-client.webp'],
-      ['Иван Зимин', 'assets/speakers/fincifra-ivan-zimin-client.webp'],
+      ['Андрей Емелин', 'assets/speakers/fincifra-andrey-emelin-photoroom.webp'],
+      ['Иван Зимин', 'assets/speakers/fincifra-ivan-zimin-photoroom.webp'],
     ]) {
       const portrait = seminar.locator('.fincifra-seminar__portrait img[alt="' + name + '"]');
       const src = await portrait.getAttribute('src');
@@ -109,6 +109,21 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
         feature: benefit.backgroundColor,
       };
     });
+    // Requested white programme typography and white diamond bullets.
+    const programmeWhite = await seminar
+      .locator('.fincifra-seminar__programme')
+      .evaluate((node) => {
+        const firstRow = node.querySelector('.fincifra-seminar__topic li');
+        return {
+          heading: getComputedStyle(node.querySelector('h3')).color,
+          topic: getComputedStyle(node.querySelector('h4')).color,
+          row: getComputedStyle(firstRow).color,
+          number: getComputedStyle(node.querySelector('.fincifra-seminar__number')).color,
+          diamond: getComputedStyle(firstRow, '::before').backgroundColor,
+        };
+      });
+    expect(Object.values(programmeWhite)).toEqual(Array(5).fill('rgb(255, 255, 255)'));
+
     const tariffTheme = await page.locator('.tariff--fincifra').evaluate((node) => {
       const s = getComputedStyle(node);
       return {

@@ -26,12 +26,12 @@ const hosts = [
   {
     name: 'Андрей Емелин',
     role: 'Председатель НСФР',
-    portrait: 'assets/speakers/fincifra-andrey-emelin-client.webp',
+    portrait: 'assets/speakers/fincifra-andrey-emelin-photoroom.webp',
   },
   {
     name: 'Иван Зимин',
     role: 'Вице-президент по внедрению инновационных государственных технологий и сервисов АО «ТБанк», председатель Комитета НСФР по финтеху',
-    portrait: 'assets/speakers/fincifra-ivan-zimin-client.webp',
+    portrait: 'assets/speakers/fincifra-ivan-zimin-photoroom.webp',
   },
 ];
 

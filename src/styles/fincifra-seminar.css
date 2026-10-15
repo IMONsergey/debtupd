@@ -109,6 +109,7 @@
 }
 
 .fincifra-seminar__programme {
+  color: #fff;
   min-width: 0;
   position: relative;
   padding: clamp(18px, 1.9cqi, 24px);
@@ -141,7 +142,7 @@
 
 .fincifra-seminar__programme h3,
 .fincifra-seminar__hosts h3 {
-  color: #f5f9ff;
+  color: #fff;
   font:
     480 clamp(17px, 1.8cqi, 22px)/1.33 Bounded,
     sans-serif;
@@ -167,7 +168,7 @@
 }
 
 .fincifra-seminar__number {
-  color: #91ebd8;
+  color: #fff;
   font:
     400 40px/1 'Bebas Neue',
     sans-serif;
@@ -175,7 +176,7 @@
 
 .fincifra-seminar__topic-heading h4 {
   padding-top: 3px;
-  color: #f8fcff;
+  color: #fff;
   font:
     480 clamp(13px, 1.25cqi, 16px)/1.38 Bounded,
     sans-serif;
@@ -194,7 +195,7 @@
   padding: 5px 9px 5px 24px;
   border-radius: 3px;
   background: rgba(42, 195, 190, 0.09);
-  color: #dbf3f0;
+  color: #fff;
   font:
     400 clamp(12px, 1.15cqi, 14px)/1.48 'IBM Plex Sans',
     sans-serif;
@@ -210,7 +211,7 @@
   left: 9px;
   transform: rotate(45deg);
   border-radius: 1px;
-  background: #84e9d1;
+  background: #fff;
 }
 
 .fincifra-seminar__hosts {
@@ -236,7 +237,7 @@
   width: 100%;
   aspect-ratio: 1;
   border-radius: 11px;
-  background: #063440;
+  background: #006bff;
 }
 
 .fincifra-seminar__portrait img {
