@@ -32,7 +32,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
       page.on('pageerror', (error) => errors.push(error.message));
       await page.goto('/#speakers', { waitUntil: 'domcontentloaded' });
       const speakers = page.locator('.speakers-grid .speaker');
-      await expect(speakers).toHaveCount(24);
+      await expect(speakers).toHaveCount(29);
 
       for (const [name, role, asset] of additions) {
         const card = speakers.filter({
@@ -59,13 +59,13 @@ for (const width of [320, 390, 768, 1024, 1440]) {
   );
 }
 
-test('mobile speaker carousel can navigate to the final new speaker', async ({ page }) => {
+test('mobile speaker carousel reaches the final speaker in the expanded roster', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/#speakers', { waitUntil: 'domcontentloaded' });
   await page.locator('#site-preloader').waitFor({ state: 'detached', timeout: 20000 });
   const track = page.locator('.speakers-grid');
   await track.focus();
   await page.keyboard.press('End');
-  await expect(page.locator('.speakers-controls > span')).toHaveText(/24\s*\/\s*24/);
-  await expect(page.locator('.speakers-grid .speaker').last()).toContainText('Анна');
+  await expect(page.locator('.speakers-controls > span')).toHaveText(/29\s*\/\s*29/);
+  await expect(page.locator('.speakers-grid .speaker').last()).toContainText('Александр');
 });

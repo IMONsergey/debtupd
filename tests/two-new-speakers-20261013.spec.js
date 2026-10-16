@@ -13,7 +13,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     page.on('pageerror', error => errors.push(error.message));
     await page.goto('/#speakers', { waitUntil: 'domcontentloaded' });
     const speakers = page.locator('.speakers-grid .speaker');
-    await expect(speakers).toHaveCount(24);
+    await expect(speakers).toHaveCount(29);
     for (const [name, role, filename] of additions) {
       const card = speakers.filter({ has: page.locator('.speaker-portrait img[alt="' + name + '"]') });
       await expect(card).toHaveCount(1);
@@ -29,7 +29,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
   });
 }
 
-test('new final speaker is reachable with the mobile carousel', async ({ page }) => {
+test('expanded roster final speaker is reachable with the mobile carousel', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.addInitScript(() => sessionStorage.setItem('debt2026-early-booking-dismissed', '1'));
   await page.goto('/#speakers', { waitUntil: 'domcontentloaded' });
@@ -37,9 +37,9 @@ test('new final speaker is reachable with the mobile carousel', async ({ page })
   const track = page.locator('.speakers-grid');
   await track.focus();
   await page.keyboard.press('End');
-  await expect(page.locator('.speakers-controls > span')).toHaveText(/24\s*\/\s*24/);
-  await expect(track.locator('.speaker').last()).toContainText('Анна');
+  await expect(page.locator('.speakers-controls > span')).toHaveText(/29\s*\/\s*29/);
+  await expect(track.locator('.speaker').last()).toContainText('Александр');
   await page.getByRole('button', { name: 'Показать всех спикеров' }).click();
   await expect(page.locator('.speaker-collection')).toHaveClass(/is-expanded/);
-  await expect(track.locator('.speaker')).toHaveCount(24);
+  await expect(track.locator('.speaker')).toHaveCount(29);
 });

@@ -118,5 +118,30 @@
     "image": "speaker-anna-belotserkovskaya.webp",
     "name": "Анна Белоцерковская",
     "role": "Президент Ассоциации ПАУ «Гарант»"
+  },
+  {
+    "image": "speaker-evgeniy-dorodnikov.webp",
+    "name": "Евгений Дородников",
+    "role": "Генеральный директор ООО «Автослед ЕМ групп»"
+  },
+  {
+    "image": "speaker-viktor-kislitsyn.webp",
+    "name": "Виктор Кислицын",
+    "role": "Руководитель коммерческого департамента i-Digital"
+  },
+  {
+    "image": "speaker-konstantin-yuriev.webp",
+    "name": "Константин Юрьев",
+    "role": "Генеральный директор АО «Агредатор»"
+  },
+  {
+    "image": "speaker-vasiliy-epifanov.webp",
+    "name": "Василий Епифанов",
+    "role": "Руководитель Дирекции дистанционного урегулирования «Альфа-банка»"
+  },
+  {
+    "image": "speaker-aleksandr-mitrokhin.webp",
+    "name": "Александр Митрохин",
+    "role": "Руководитель развития процессов урегулирования «Альфа-банка»"
   }
 ]
