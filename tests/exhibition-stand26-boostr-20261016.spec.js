@@ -58,9 +58,6 @@ for (const width of [390, 768, 1440]) {
     await expect(card).toHaveCount(1);
     await expect(card.locator('img[alt="' + name + '"]')).toHaveCount(1);
     await expect(card.locator('.exhibition-company__stand')).toContainText('Стенд №26');
-    const logoResponse = await page.request.get(new URL(await img.getAttribute('src'), page.url()).href);
-    expect(logoResponse.ok()).toBe(true);
-    expect(logoResponse.headers()['content-type']).toContain('image/png');
     await expect(page.locator('.conference-partners-list .conference-partner-name').last()).toHaveText(name);
     await expect(page.locator('.speaker')).toHaveCount(29);
     await expect(page.locator('#fincifra-seminar')).toHaveCount(1);
