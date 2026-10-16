@@ -29,8 +29,8 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     }
     await expect(seminar.locator('.fincifra-seminar__host')).toHaveCount(2);
     for (const [name, filename] of [
-      ['Андрей Емелин', 'assets/speakers/fincifra-andrey-emelin-photoroom.webp'],
-      ['Иван Зимин', 'assets/speakers/fincifra-ivan-zimin-photoroom.webp'],
+      ['Андрей Емелин', 'assets/speakers/fincifra-andrey-emelin-cutout.webp'],
+      ['Иван Зимин', 'assets/speakers/fincifra-ivan-zimin-cutout.webp'],
     ]) {
       const portrait = seminar.locator('.fincifra-seminar__portrait img[alt="' + name + '"]');
       const src = await portrait.getAttribute('src');
@@ -40,31 +40,37 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
           timeout: 10000,
         })
         .toBe(true);
-      // The user's original portrait includes its intended blue background.
-      // Never cut it out or add an independent CSS background underneath it.
+      // Never serve a portrait with a baked-in blue field. The image must have
+      // transparent corners, visible face pixels, and no CSS background layer.
       const imagePresentation = await portrait.evaluate((img) => {
         const canvas = document.createElement('canvas');
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
         const context = canvas.getContext('2d');
         context.drawImage(img, 0, 0);
-        const [red, green, blue, alpha] = context.getImageData(1, 1, 1, 1).data;
+        const alphaAt = (x, y) => context.getImageData(x, y, 1, 1).data[3];
         const wrapperStyle = getComputedStyle(img.closest('.fincifra-seminar__portrait'));
+        const imageStyle = getComputedStyle(img);
         return {
-          red,
-          green,
-          blue,
-          alpha,
-          background: wrapperStyle.backgroundColor,
-          backgroundImage: wrapperStyle.backgroundImage,
+          cornerAlphas: [
+            alphaAt(1, 1),
+            alphaAt(img.naturalWidth - 2, 1),
+            alphaAt(1, img.naturalHeight - 2),
+            alphaAt(img.naturalWidth - 2, img.naturalHeight - 2),
+          ],
+          faceAlpha: alphaAt(Math.floor(img.naturalWidth / 2), Math.floor(img.naturalHeight / 2)),
+          wrapperBackground: wrapperStyle.backgroundColor,
+          wrapperBackgroundImage: wrapperStyle.backgroundImage,
+          imageBackground: imageStyle.backgroundColor,
+          imageBackgroundImage: imageStyle.backgroundImage,
         };
       });
-      expect(imagePresentation.alpha).toBe(255);
-      expect(imagePresentation.red).toBeLessThan(12);
-      expect(imagePresentation.green).toBeGreaterThan(85);
-      expect(imagePresentation.blue).toBeGreaterThan(235);
-      expect(imagePresentation.background).toBe('rgba(0, 0, 0, 0)');
-      expect(imagePresentation.backgroundImage).toBe('none');
+      expect(imagePresentation.cornerAlphas).toEqual([0, 0, 0, 0]);
+      expect(imagePresentation.faceAlpha).toBeGreaterThan(240);
+      expect(imagePresentation.wrapperBackground).toBe('rgba(0, 0, 0, 0)');
+      expect(imagePresentation.wrapperBackgroundImage).toBe('none');
+      expect(imagePresentation.imageBackground).toBe('rgba(0, 0, 0, 0)');
+      expect(imagePresentation.imageBackgroundImage).toBe('none');
     }
     await expect(seminar).toContainText('Андрей Емелин');
     await expect(seminar).toContainText('Иван Зимин');
