@@ -5,6 +5,7 @@ export const destinations = [
   { id: 'participants', label: 'Программа и форматы' },
   { id: 'services', label: 'Услуги участникам' },
   { id: 'topics', label: 'Ключевые темы' },
+  { id: 'fincifra-seminar', label: 'ФИНЦИФРА-2026', featured: true },
   { id: 'speakers', label: 'Спикеры' },
   { id: 'exhibition', label: 'Партнерское участие' },
   { id: 'tariffs', label: 'Тарифы' },

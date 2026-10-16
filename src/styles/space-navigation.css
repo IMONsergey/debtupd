@@ -86,6 +86,59 @@
 .space-route__stop.is-active .space-route__label {
   color: #83c8f2;
 }
+/* FinCifra is indicated only by its emerald planet.
+   The label deliberately inherits the exact styling of every other route. */
+.space-route__stop--featured .space-planet {
+  background: radial-gradient(
+    circle at 28% 24%,
+    #e2fff2 0%,
+    #83ffd0 14%,
+    #3ff2a6 34%,
+    #10ae82 59%,
+    #09635c 81%,
+    #032439 100%
+  );
+  box-shadow:
+    inset -3px -3px 5px #012d2980,
+    0 0 9px #31eea366;
+}
+
+.space-route__stop--featured .space-planet::before {
+  opacity: 0.38;
+  background: radial-gradient(circle, #40f7ae8c 0 13%, #27c38b46 30%, transparent 68%);
+  transform: scale(0.82);
+}
+
+.space-route__stop--featured .space-planet::after {
+  background:
+    linear-gradient(112deg, transparent 24%, #c3ffe375 30%, transparent 42%),
+    radial-gradient(ellipse at 39% 72%, #065c498a 0 17%, transparent 26%);
+}
+
+.space-route__stop--featured .space-planet__surface {
+  background: radial-gradient(
+    circle at 27% 27%,
+    #edfff2,
+    #76f4bb 24%,
+    #29cc94 52%,
+    #087366 78%,
+    #033449
+  );
+  box-shadow: 0 0 11px #39e5a466;
+}
+
+.space-route__stop--featured:hover .space-planet,
+.space-route__stop--featured.is-active .space-planet {
+  box-shadow:
+    inset -3px -3px 5px #012d2980,
+    0 0 13px #3bf4a1aa;
+}
+
+.space-route__stop--featured:hover .space-planet::before,
+.space-route__stop--featured.is-active .space-planet::before {
+  opacity: 0.9;
+}
+
 .space-planet {
   position: absolute;
   left: 34px;

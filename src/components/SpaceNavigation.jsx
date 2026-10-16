@@ -191,7 +191,7 @@ export function SpaceNavigation({ mobile = false, onNavigate }) {
             key={item.id}
             href={`#${item.id}`}
             data-route-id={item.id}
-            className={`space-route__stop${active === item.id ? ' is-active' : ''}`}
+            className={`space-route__stop${active === item.id ? ' is-active' : ''}${item.featured ? ' space-route__stop--featured' : ''}`}
             aria-current={active === item.id ? 'location' : undefined}
             onClick={(event) => navigate(event, item)}
           >
