@@ -45,7 +45,7 @@ test('latest ten speakers preserve approved names, roles and loadable portraits'
       'speaker-alexey-velizhanin.webp',
     ],
     [
-      'Роман Спотарь',
+      'Роман Спатарь',
       'Руководитель службы сопровождения и развития дистанционного урегулирования',
       'speaker-roman-spotar.webp',
     ],

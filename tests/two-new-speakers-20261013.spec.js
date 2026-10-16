@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 const additions = [
-  ['Роман Спотарь', 'Руководитель службы сопровождения и развития дистанционного урегулирования', 'speaker-roman-spotar.webp'],
+  ['Роман Спатарь', 'Руководитель службы сопровождения и развития дистанционного урегулирования', 'speaker-roman-spotar.webp'],
   ['Анна Белоцерковская', 'Президент Ассоциации ПАУ «Гарант»', 'speaker-anna-belotserkovskaya.webp'],
 ];
 
