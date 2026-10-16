@@ -33,7 +33,7 @@ for (const width of [390, 1440]) {
     await expect(card).toHaveCount(1);
     await expect(card.locator('.exhibition-company__stand')).toContainText('Стенд №12');
     await expect(card.locator('img[alt="Info: Logistics"]')).toHaveCount(1);
-    await expect(section.locator('.exhibition-availability__count')).toHaveText('11');
+    await expect(section.locator('.exhibition-availability__count')).toHaveText('10');
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 2);
     await detail.screenshot({ path: 'test-results/stand12-info-logistics-' + width + '.png' });
   });

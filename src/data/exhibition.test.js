@@ -16,6 +16,7 @@ const additions = [
   [12, 'Info: Logistics', 'Автоматизация обработки судебной документации'],
   [13, 'Интелл коллект', 'ПКО «Интелл коллект»'],
   [14, 'Автослед', 'Вендор «АВТОСЛЕД ЕМ ГРУПП»'],
+  [26, 'ПКО «Бустер.Ру»', 'ПКО «Бустер.Ру» (ГК IT Smart Finance)'],
 ];
 
 test('new exhibitors keep approved wording, logos and stand assignments', () => {
@@ -48,6 +49,6 @@ test('availability reflects both floors and all confirmed exhibitors', () => {
     .flatMap((floor) => floor.stands)
     .filter((stand) => getStandStatus(stand.number) === 'free');
   assert.equal(availableStandCount, free.length);
-  assert.equal(availableStandCount, 11);
-  for (const number of [1, 17, 25, 26, 27]) assert.equal(getStandStatus(number), 'free');
+  assert.equal(availableStandCount, 10);
+  for (const number of [1, 17, 25, 27]) assert.equal(getStandStatus(number), 'free');
 });
