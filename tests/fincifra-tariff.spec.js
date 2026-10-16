@@ -104,7 +104,8 @@ test('NSFR ticket booking carries correct tariff, limit and price to modal', asy
   await page.locator('.tariff--fincifra').getByRole('button', { name: 'Принять участие' }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toHaveAttribute('data-tariff-id', 'fincifra');
-  await expect(dialog.locator('#application-title')).toContainText('«ФинЦифра» для членов НСФР');
+  await expect(dialog.locator('#application-title')).toHaveText('Регистрация');
+  await expect(dialog.locator('.selected-tariff')).toContainText('«ФинЦифра» для членов НСФР');
   await expect(dialog.locator('.selected-tariff')).toContainText('24 500 ₽');
   await expect(dialog.locator('.tariff-form-limit')).toContainText('Не более двух билетов');
   await expect(dialog.locator('.tariff-form-limit svg')).toHaveCount(1);

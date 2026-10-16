@@ -209,7 +209,7 @@ export function SpaceNavigation({ mobile = false, onNavigate }) {
             href="#tariff-plans"
             onClick={(event) => navigate(event, { id: 'tariffs', anchor: 'tariff-plans' })}
           >
-            <span className="button-label">Ранняя регистрация</span>
+            <span className="button-label">Регистрация</span>
             <ActionArrow />
           </a>
         )}

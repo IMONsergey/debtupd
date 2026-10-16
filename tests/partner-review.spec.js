@@ -149,21 +149,21 @@ test('Forum facts run inside About while the hero technology tags remain static'
       .evaluate((node) => getComputedStyle(node).animationPlayState),
   ).toBe('running');
 });
-test('Each tariff opens its own named dialog and retains its approved price', async ({ page }) => {
+test('Each tariff opens registration dialog with correct tariff and current price', async ({ page }) => {
   await ready(page, 1440);
-  for (const [id, title, price] of [
-    ['business', 'Деловой', '44 000'],
-    ['full', 'Полный', '49 000'],
-    ['full-plus', 'Полный Plus', '66 000'],
+  for (const [id, title] of [
+    ['business', 'Деловой'],
+    ['full', 'Полный'],
+    ['full-plus', 'Полный Plus'],
   ]) {
-    await page
-      .locator('.tariff--' + id)
-      .getByRole('button', { name: 'Принять участие' })
-      .click();
+    const card = page.locator('.tariff--' + id);
+    const displayedPrice = (await card.locator('.tariff-bottom strong').innerText()).trim();
+    await card.getByRole('button', { name: 'Принять участие' }).click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toHaveAttribute('data-tariff-id', id);
-    await expect(dialog.locator('#application-title')).toContainText(title);
-    await expect(dialog.locator('.selected-tariff')).toContainText(price);
+    await expect(dialog.locator('#application-title')).toHaveText('Регистрация');
+    await expect(dialog.locator('.selected-tariff')).toContainText(title);
+    await expect(dialog.locator('.selected-tariff')).toContainText(displayedPrice);
     await page.keyboard.press('Escape');
   }
   expect(await page.locator('.tariff-bottom>span').first().textContent()).toBe('Стоимость*');

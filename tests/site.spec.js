@@ -68,7 +68,7 @@ test('Production mobile menu closes on Escape, outside click and navigation', as
   await trigger.click();
   await expect(menu).toBeVisible();
   await expect(menu.getByRole('link')).toHaveCount(11);
-  await expect(menu.getByRole('link', { name: 'Ранняя регистрация' })).toHaveAttribute(
+  await expect(menu.getByRole('link', { name: 'Регистрация' })).toHaveAttribute(
     'href',
     '#tariff-plans',
   );
@@ -191,7 +191,7 @@ test('Corporate success opens the shared dialog and preserves the form without c
   await expect(form.getByRole('button', { name: 'Рассчитать стоимость' })).toBeEnabled();
 });
 
-test('Early registration links land on tariff cards instead of the astronaut', async ({ page }) => {
+test('Registration links land on tariff cards instead of the astronaut', async ({ page }) => {
   for (const width of [390, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/');
@@ -215,7 +215,7 @@ test('Early registration links land on tariff cards instead of the astronaut', a
       await page.getByRole('button', { name: 'Открыть меню' }).click();
       await page
         .getByRole('navigation', { name: 'Разделы сайта' })
-        .getByRole('link', { name: 'Ранняя регистрация' })
+        .getByRole('link', { name: 'Регистрация' })
         .click();
       await expect(page.getByRole('navigation', { name: 'Разделы сайта' })).toBeHidden();
       await expect

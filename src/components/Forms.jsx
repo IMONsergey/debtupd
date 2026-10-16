@@ -191,9 +191,7 @@ export function ApplicationModal({
               ? partner
                 ? 'Партнерское участие'
                 : 'Забронировать стенд'
-              : activeTariff
-                ? `Тариф «${activeTariff.title}»`
-                : 'Ранняя регистрация'}
+              : 'Регистрация'}
         </h2>
         {status === 'success' ? (
           <div className="form-success" role="status">
