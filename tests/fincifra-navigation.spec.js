@@ -68,7 +68,7 @@ for (const width of [320, 390, 1280, 1440]) {
       await link.click();
       await expect(page).toHaveURL(/#fincifra-seminar$/);
       await expect(page.locator('.fincifra-seminar__session')).toHaveText(
-        'Малая сцена, Сессии 2 и 3',
+        'МАЛАЯ СЦЕНА, СЕССИИ 2 И 3',
       );
       await expect(link).toHaveAttribute('aria-current', 'location');
       if (width < 1181) {

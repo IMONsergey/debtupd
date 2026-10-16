@@ -53,8 +53,10 @@
   margin-top: 4px;
   color: #f0f2f6;
   font:
-    500 clamp(12px, 1.12cqi, 14px)/1.45 'IBM Plex Sans',
+    500 clamp(14px, 1.35cqi, 16px)/1.45 'IBM Plex Sans',
     sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .fincifra-seminar__schedule {

@@ -81,7 +81,16 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     await expect(seminar).toContainText('12:30');
     await expect(seminar).toContainText('16:30');
     await expect(seminar).toContainText('(в рамках Форума DEBT TECH 2026)');
-    await expect(seminar).toContainText('Малая сцена, Сессии 2 и 3');
+    await expect(seminar).toContainText('МАЛАЯ СЦЕНА, СЕССИИ 2 И 3');
+    const sessionTypography = await seminar.locator('.fincifra-seminar__session').evaluate((node) => ({
+      fontSize: parseFloat(getComputedStyle(node).fontSize),
+      transform: getComputedStyle(node).textTransform,
+      overflows: node.scrollWidth > node.clientWidth + 2,
+    }));
+    expect(sessionTypography.fontSize).toBeGreaterThanOrEqual(14);
+    expect(sessionTypography.fontSize).toBeLessThanOrEqual(16);
+    expect(sessionTypography.transform).toBe('uppercase');
+    expect(sessionTypography.overflows).toBe(false);
     await expect(seminar).toContainText('13 ноября 2026');
     await expect(seminar).toContainText('Москва');
 
