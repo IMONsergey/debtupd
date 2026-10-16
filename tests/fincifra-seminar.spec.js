@@ -29,8 +29,8 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
     }
     await expect(seminar.locator('.fincifra-seminar__host')).toHaveCount(2);
     for (const [name, filename] of [
-      ['Андрей Емелин', 'assets/speakers/fincifra-andrey-emelin-cutout.webp'],
-      ['Иван Зимин', 'assets/speakers/fincifra-ivan-zimin-cutout.webp'],
+      ['Андрей Емелин', 'assets/speakers/fincifra-andrey-emelin-prepared.png'],
+      ['Иван Зимин', 'assets/speakers/fincifra-ivan-zimin-prepared.png'],
     ]) {
       const portrait = seminar.locator('.fincifra-seminar__portrait img[alt="' + name + '"]');
       const src = await portrait.getAttribute('src');
@@ -40,8 +40,9 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
           timeout: 10000,
         })
         .toBe(true);
-      // Never serve a portrait with a baked-in blue field. The image must have
-      // transparent corners, visible face pixels, and no CSS background layer.
+      // Preserve the original PNG image (including its intentionally semi-transparent
+      // blue 31/255 background). Never replace that alpha with an opaque or cutout
+      // version and never add an independent background layer in CSS.
       const imagePresentation = await portrait.evaluate((img) => {
         const canvas = document.createElement('canvas');
         canvas.width = img.naturalWidth;
@@ -59,6 +60,7 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
             alphaAt(img.naturalWidth - 2, img.naturalHeight - 2),
           ],
           faceAlpha: alphaAt(Math.floor(img.naturalWidth / 2), Math.floor(img.naturalHeight / 2)),
+          preparedBackgroundAlpha: alphaAt(16, Math.floor(img.naturalHeight / 2)),
           wrapperBackground: wrapperStyle.backgroundColor,
           wrapperBackgroundImage: wrapperStyle.backgroundImage,
           imageBackground: imageStyle.backgroundColor,
@@ -67,6 +69,8 @@ for (const width of [320, 390, 768, 1024, 1440, 1920]) {
       });
       expect(imagePresentation.cornerAlphas).toEqual([0, 0, 0, 0]);
       expect(imagePresentation.faceAlpha).toBeGreaterThan(240);
+      expect(imagePresentation.preparedBackgroundAlpha).toBeGreaterThanOrEqual(28);
+      expect(imagePresentation.preparedBackgroundAlpha).toBeLessThanOrEqual(34);
       expect(imagePresentation.wrapperBackground).toBe('rgba(0, 0, 0, 0)');
       expect(imagePresentation.wrapperBackgroundImage).toBe('none');
       expect(imagePresentation.imageBackground).toBe('rgba(0, 0, 0, 0)');

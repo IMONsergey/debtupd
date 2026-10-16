@@ -237,8 +237,8 @@
   width: 100%;
   aspect-ratio: 1;
   border-radius: 0;
-  /* The delivered portrait files already have their intended background. */
-  background: none;
+  /* No generated backing field: preserve the delivered PNG alpha as-is. */
+  background: transparent;
 }
 
 .fincifra-seminar__portrait img {
