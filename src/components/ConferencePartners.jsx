@@ -3,6 +3,30 @@ import { useSnapCarousel } from '../lib/useSnapCarousel.js';
 import { assetUrl } from '../lib/assets.js';
 import { conferencePartners } from '../conferencePartners.js';
 
+function PartnerLogo({ partner }) {
+  const LogoWrapper = partner.href ? 'a' : 'div';
+  return (
+    <LogoWrapper
+      className={'conference-partner-logo' + (partner.logoShape === 'vertical' ? ' conference-partner-logo--vertical' : '')}
+      {...(partner.href
+        ? {
+            href: partner.href,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            'aria-label': `Сайт партнера: ${partner.name}`,
+          }
+        : {})}
+    >
+      <img
+        src={assetUrl(`assets/partners/${partner.logo}`)}
+        alt={partner.name}
+        loading="lazy"
+        decoding="async"
+      />
+    </LogoWrapper>
+  );
+}
+
 export function ConferencePartners() {
   const { trackRef, index, scrollToIndex, onScroll, onScrollEnd, onKeyDown, interrupt } =
     useSnapCarousel(conferencePartners.length);
@@ -33,20 +57,7 @@ export function ConferencePartners() {
             />
             <div className="sponsor-brand conference-partner-brand">
               <h3 className="conference-partner-name">{partner.name}</h3>
-              <a
-                className={'conference-partner-logo' + (partner.logoShape === 'vertical' ? ' conference-partner-logo--vertical' : '')}
-                href={partner.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Сайт партнера: ${partner.name}`}
-              >
-                <img
-                  src={assetUrl(`assets/partners/${partner.logo}`)}
-                  alt={partner.name}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </a>
+              <PartnerLogo partner={partner} />
               <h4 className="conference-partner-tier">{partner.tier}</h4>
             </div>
           </div>

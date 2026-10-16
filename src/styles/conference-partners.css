@@ -106,8 +106,8 @@
   transition: opacity 180ms ease;
 }
 
-.sponsor-panel--partner .conference-partner-logo:hover img,
-.sponsor-panel--partner .conference-partner-logo:focus-visible img {
+.sponsor-panel--partner a.conference-partner-logo:hover img,
+.sponsor-panel--partner a.conference-partner-logo:focus-visible img {
   opacity: 0.8;
 }
 
