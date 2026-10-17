@@ -114,7 +114,7 @@ function InfoBlock({ onVideo, onStand, sidebar = false }) {
             height="30"
           />
         </div>
-        {sidebar && <ArrowButton href="#tariff-plans">Регистрация</ArrowButton>}
+        {sidebar && <ArrowButton href="#tariff-plans">Зарегистрироваться</ArrowButton>}
         {sidebar && (
           <ArrowButton className="secondary" onClick={onStand}>
             Забронировать стенд
@@ -175,7 +175,7 @@ function Hero({ onStand }) {
           </p>
           <div className="hero-actions">
             <ArrowButton href="#tariff-plans" className="hero-register">
-              Регистрация
+              Зарегистрироваться
             </ArrowButton>
             <ArrowButton onClick={onStand} className="hero-stand secondary">
               Забронировать стенд

@@ -9,21 +9,21 @@ test.beforeEach(async ({ page }) => {
 });
 
 for (const width of [390, 768, 1440]) {
-  test('registration naming and tariff form are consistent at ' + width + 'px', async ({ page }) => {
+  test('register CTA labels and tariff form are consistent at ' + width + 'px', async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 20000 });
     const hero = page.locator('.hero-register');
-    await expect(hero).toHaveText('Регистрация');
+    await expect(hero).toHaveText('Зарегистрироваться');
 
     if (width >= 1181) {
       const cta = page.locator('.fixed-menu__cta[href="#tariff-plans"]');
-      await expect(cta).toHaveText('Регистрация');
+      await expect(cta).toHaveText('Зарегистрироваться');
       await expect(cta).toHaveAttribute('href', '#tariff-plans');
     } else {
       await page.getByRole('button', { name: 'Открыть меню' }).click();
       const cta = page.locator('.space-navigation--mobile .space-route__register');
-      await expect(cta).toContainText('Регистрация');
+      await expect(cta).toContainText('Зарегистрироваться');
       await expect(cta).toHaveAttribute('href', '#tariff-plans');
       await cta.click();
       await expect(page.locator('.space-navigation--mobile')).not.toHaveClass(/is-open/);

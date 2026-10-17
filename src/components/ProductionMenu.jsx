@@ -77,7 +77,7 @@ export function ProductionMenu({ onVideo, onGallery, onStand }) {
             <img src={assetUrl('assets/icons/organizers.svg')} alt="Рынок взыскания и DEBTPRICE" />
           </div>
           <a className="fixed-menu__cta" href="#tariff-plans">
-            <span>Регистрация</span>
+            <span>Зарегистрироваться</span>
             <img
               className="fixed-menu__cta-icon"
               src={assetUrl('assets/icons/arrow-up.svg')}

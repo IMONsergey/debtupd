@@ -68,7 +68,7 @@ test('Production mobile menu closes on Escape, outside click and navigation', as
   await trigger.click();
   await expect(menu).toBeVisible();
   await expect(menu.getByRole('link')).toHaveCount(11);
-  await expect(menu.getByRole('link', { name: 'Регистрация' })).toHaveAttribute(
+  await expect(menu.getByRole('link', { name: 'Зарегистрироваться' })).toHaveAttribute(
     'href',
     '#tariff-plans',
   );
@@ -215,7 +215,7 @@ test('Registration links land on tariff cards instead of the astronaut', async (
       await page.getByRole('button', { name: 'Открыть меню' }).click();
       await page
         .getByRole('navigation', { name: 'Разделы сайта' })
-        .getByRole('link', { name: 'Регистрация' })
+        .getByRole('link', { name: 'Зарегистрироваться' })
         .click();
       await expect(page.getByRole('navigation', { name: 'Разделы сайта' })).toBeHidden();
       await expect

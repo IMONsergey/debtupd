@@ -32,7 +32,7 @@ export const content = {
   menu: {
     groups: [],
     cta: {
-      label: 'Регистрация',
+      label: 'Зарегистрироваться',
       href: '#tariffs',
     },
     secondaryCta: {
