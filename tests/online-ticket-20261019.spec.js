@@ -70,7 +70,7 @@ for (const width of [320, 390, 600, 768, 899, 900, 1024, 1180, 1181, 1440, 1920]
           priceTopAligned: Math.abs(price.top - benefits.top) <= 2,
           imageRightOfPrice: image.left >= price.right - 2,
           artThird: image.width >= card.width * 0.23 && image.width <= card.width * 0.4,
-          compactHeight: card.height <= 310,
+          compactHeight: card.height <= 245,
           buttonTextSingleLine: (() => {
             const label = article.querySelector('.tariff-bottom .button-label');
             const lineHeight = parseFloat(getComputedStyle(label).lineHeight);
