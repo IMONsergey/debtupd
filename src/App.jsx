@@ -693,41 +693,64 @@ function Tariffs({ onApply }) {
         <Picture className="tariff-astronaut decor" name="tariff-astronaut-masked.png" />
       </div>
       <div className="tariff-grid" id="tariff-plans">
-        {tariffs.items.map((t) => (
-          <article className={'tariff tariff--' + t.id + ' corners'} key={t.id}>
-            <h3>
-              {t.titleSuffix ? (
+        {tariffs.items.map((t) => {
+          const details = (
+            <>
+              <h3>
+                {t.titleSuffix ? (
+                  <>
+                    {t.titleMain}
+                    <small> {t.titleSuffix}</small>
+                  </>
+                ) : (
+                  t.title
+                )}
+              </h3>
+              <ul>
+                {t.features.map((f) => (
+                  <li key={f.label} className={f.active ? 'included' : 'not-included'}>
+                    <img src={t.icon} width="13" height="13" alt="" />
+                    <span>
+                      {f.label}
+                      <span className="sr-only">
+                        {f.active ? ' — входит в тариф' : ' — не входит в тариф'}
+                      </span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              {t.limitNote && <p className="tariff-limit-note">{t.limitNote}</p>}
+              <div className="tariff-bottom">
+                <span>{t.priceCaption || 'Стоимость*'}</span>
+                <strong>{t.price}</strong>
+                <ArrowButton className="secondary" onClick={() => onApply(t)}>
+                  Принять участие
+                </ArrowButton>
+              </div>
+            </>
+          );
+          return (
+            <article className={'tariff tariff--' + t.id + ' corners'} key={t.id}>
+              {t.id === 'online' ? (
                 <>
-                  {t.titleMain}
-                  <small> {t.titleSuffix}</small>
+                  <div className="tariff-online__content">{details}</div>
+                  <div className="tariff-online__visual" aria-hidden="true">
+                    <img
+                      src={assetUrl('assets/images/tariffs/online-satellite.webp')}
+                      alt=""
+                      width="580"
+                      height="515"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
                 </>
               ) : (
-                t.title
+                details
               )}
-            </h3>
-            <ul>
-              {t.features.map((f) => (
-                <li key={f.label} className={f.active ? 'included' : 'not-included'}>
-                  <img src={t.icon} width="13" height="13" alt="" />
-                  <span>
-                    {f.label}
-                    <span className="sr-only">
-                      {f.active ? ' — входит в тариф' : ' — не входит в тариф'}
-                    </span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-            {t.limitNote && <p className="tariff-limit-note">{t.limitNote}</p>}
-            <div className="tariff-bottom">
-              <span>{t.priceCaption || 'Стоимость*'}</span>
-              <strong>{t.price}</strong>
-              <ArrowButton className="secondary" onClick={() => onApply(t)}>
-                Принять участие
-              </ArrowButton>
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </div>
       <p className="tariff-note">
         <b>*</b>

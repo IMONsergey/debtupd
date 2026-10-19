@@ -40,6 +40,47 @@ for (const width of [320, 390, 768, 1024, 1181, 1440, 1920]) {
     }
     await expect(online.locator('.tariff-bottom > span')).toHaveText('Стоимость');
     await expect(online.locator('.tariff-bottom > strong')).toHaveText('25 000 ₽');
+    const illustration = online.locator('.tariff-online__visual');
+    const satellite = illustration.locator('img');
+    await expect(illustration).toHaveAttribute('aria-hidden', 'true');
+    await expect(satellite).toHaveAttribute('alt', '');
+    await expect(satellite).toHaveAttribute(
+      'src',
+      /\/assets\/images\/tariffs\/online-satellite\.webp$/,
+    );
+    if (width >= 900) {
+      await online.scrollIntoViewIfNeeded();
+      await expect(illustration).toBeVisible();
+      await expect
+        .poll(() => satellite.evaluate((image) => image.complete && image.naturalWidth > 0))
+        .toBe(true);
+      const positions = await online.evaluate((article) => {
+        const rect = (selector) => article.querySelector(selector).getBoundingClientRect();
+        const heading = rect('h3');
+        const benefits = rect('ul');
+        const price = rect('.tariff-bottom');
+        const image = rect('.tariff-online__visual');
+        const card = article.getBoundingClientRect();
+        return {
+          titleAligned: Math.abs(heading.left - benefits.left) <= 2,
+          compactText: benefits.top - heading.bottom < 35,
+          priceNextToFeatures: price.left >= benefits.right - 2,
+          imageRightOfPrice: image.left >= price.right - 2,
+          artThird: image.width >= card.width * 0.23 && image.width <= card.width * 0.4,
+          compactHeight: card.height <= 310,
+        };
+      });
+      expect(positions).toEqual({
+        titleAligned: true,
+        compactText: true,
+        priceNextToFeatures: true,
+        imageRightOfPrice: true,
+        artThird: true,
+        compactHeight: true,
+      });
+    } else {
+      await expect(illustration).toBeHidden();
+    }
 
     const layout = await grid.evaluate((element) => {
       const children = [...element.querySelectorAll(':scope > .tariff')];
