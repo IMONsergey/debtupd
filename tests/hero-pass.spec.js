@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+// Legacy automatic-offer scenarios remain available when the feature is re-enabled.
 const OPEN_DAY = new Date('2026-09-29T09:00:00+03:00');
 test.beforeEach(async ({ page }) => {
   await page.route('**/api/lead', (route) => route.abort('blockedbyclient'));
@@ -117,7 +118,7 @@ test('Planet rotates continuously while the crown breathes and scroll entrances 
   expect(samples.every((value) => value === 1)).toBe(true);
   await expect(page.locator('.motion-toggle')).toHaveCount(0);
 });
-test('The booking offer appears after its delay, traps focus and leads to tariffs', async ({
+test.skip('The booking offer appears after its delay, traps focus and leads to tariffs', async ({
   page,
 }) => {
   await page.clock.install({ time: OPEN_DAY });
@@ -136,7 +137,7 @@ test('The booking offer appears after its delay, traps focus and leads to tariff
   await page.clock.fastForward(20000);
   await expect(dialog).toHaveCount(0);
 });
-test('The timed offer waits for an active application dialog and closes on Escape', async ({
+test.skip('The timed offer waits for an active application dialog and closes on Escape', async ({
   page,
 }) => {
   await page.clock.install({ time: OPEN_DAY });
@@ -152,7 +153,7 @@ test('The timed offer waits for an active application dialog and closes on Escap
     await page.evaluate(() => sessionStorage.getItem('debt2026-early-booking-dismissed')),
   ).toBe('1');
 });
-test('Early booking includes October 1 and expires at Moscow midnight on October 2', async ({ page }) => {
+test.skip('Early booking includes October 1 and expires at Moscow midnight on October 2', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-10-01T12:00:00+03:00') });
   await ready(page);
   await page.clock.fastForward(15000);
@@ -168,7 +169,7 @@ test('Early booking includes October 1 and expires at Moscow midnight on October
   await page.clock.fastForward(1000);
   await expect(dialog).toHaveCount(0);
 });
-test('Expired early-booking offer is not shown', async ({ page }) => {
+test.skip('Expired early-booking offer is not shown', async ({ page }) => {
   await page.clock.install({ time: new Date('2026-10-02T00:00:00+03:00') });
   await ready(page);
   await page.clock.fastForward(18000);
@@ -188,7 +189,7 @@ test('Organizer phone and email remain on one row without escaped accessible lab
   }
   expect(await page.locator('.about-photo img').getAttribute('alt')).not.toContain('\\u');
 });
-test('Booking banner fits a 320px screen and preserves spaces around emphasized copy', async ({
+test.skip('Booking banner fits a 320px screen and preserves spaces around emphasized copy', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 320, height: 568 });

@@ -26,6 +26,8 @@ import { DelayedTicketOffer } from './components/TicketOffer.jsx';
 import { useExperienceMotion } from './lib/useExperienceMotion.js';
 import { useAmbientMotion } from './lib/useAmbientMotion.js';
 import { getPricingPhase, getScheduledTariffs, PRICING_SWITCH_AT } from './lib/ticket-pricing.js';
+// Temporarily disable the timed booking overlay; keep its component for later reactivation.
+const SHOW_TIMED_BOOKING_OFFER = false;
 const art = (n) => assetUrl('assets/figma/' + n.replace(/\.png$/, '.webp'));
 function Picture({ name, alt = '', className = '', eager = false, ...props }) {
   return (
@@ -1021,7 +1023,7 @@ export default function App() {
           <a href="#top" className="footer-top" aria-label="Вернуться в начало страницы" />
         </footer>
       </div>
-      <DelayedTicketOffer blocked={!!form || !!media} />
+      {SHOW_TIMED_BOOKING_OFFER && <DelayedTicketOffer blocked={!!form || !!media} />}
       {form && <ApplicationModal {...form} onClose={closeForm} />}{' '}
       {media && <MediaModal kind={media} onClose={closeMedia} />}
     </>
