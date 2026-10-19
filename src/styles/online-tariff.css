@@ -1,6 +1,6 @@
-/* The online ticket uses the existing tariff grid and controls, without changing the four original cards. */
+/* Online-only treatment; the original four ticket cards retain their layout. */
 .tariff-grid > .tariff--online {
-  background: radial-gradient(ellipse at 28% 4%, #1a526b 0%, #0d344e 48%, #081e38 100%);
+  background: radial-gradient(ellipse at 26% 4%, #1a526b 0%, #0d344e 48%, #081e38 100%);
   border-color: rgba(105, 199, 218, 0.48);
 }
 
@@ -20,45 +20,110 @@
   border-top-color: #72cadd;
 }
 
-/* On desktop the fifth option is a deliberate horizontal offer below the unchanged four-card grid. */
+/* On phones and narrow tablets, keep the existing compact vertical card. */
+.tariff-online__content {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.tariff-online__content .tariff-bottom {
+  margin-top: auto;
+}
+
+.tariff-online__visual {
+  display: none;
+}
+
+/* Full-width ticket with tightly composed information and a right-hand satellite. */
 @media (min-width: 900px) {
   .tariff-grid > .tariff--online {
     grid-column: 1 / -1;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(205px, 0.92fr);
+    grid-template-columns: minmax(0, 1fr) minmax(210px, 0.47fr);
     align-items: center;
-    column-gap: clamp(16px, 2vw, 36px);
-    min-height: 234px;
-    padding: clamp(22px, 2.3cqi, 30px);
+    gap: clamp(14px, 1.9vw, 27px);
+    min-height: 266px;
+    padding: clamp(19px, 2.1cqi, 29px);
+  }
+
+  .tariff-online__content {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(192px, 0.86fr);
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: clamp(14px, 1.6vw, 25px);
+    row-gap: 10px;
+    min-width: 0;
   }
 
   .tariff-grid > .tariff--online h3 {
+    grid-column: 1;
+    grid-row: 1;
     min-height: 0;
     margin: 0;
-    font-size: clamp(20px, 1.95cqi, 29px);
-    line-height: 1.3;
+    font-size: clamp(18px, 1.9cqi, 26px);
+    line-height: 1.26;
   }
 
   .tariff-grid > .tariff--online ul {
+    grid-column: 1;
+    grid-row: 2;
     min-width: 0;
+    gap: 6px;
     margin: 0;
-    padding-left: clamp(14px, 1.8vw, 26px);
-    border-left: 1px solid rgba(134, 209, 224, 0.26);
-    gap: 8px;
+    padding: 0;
   }
 
   .tariff-grid > .tariff--online li {
-    min-height: 42px;
-    font-size: clamp(13px, 1.15cqi, 16px);
+    min-height: 38px;
+    padding: 8px 10px;
+    font-size: clamp(12px, 1.08cqi, 14px);
+    line-height: 1.32;
   }
 
   .tariff-grid > .tariff--online .tariff-bottom {
+    grid-column: 2;
+    grid-row: 1 / 3;
     min-width: 0;
-    margin-top: 0;
+    align-self: center;
+    margin: 0;
   }
 
   .tariff-grid > .tariff--online .tariff-bottom strong {
-    font-size: clamp(24px, 2.24cqi, 35px);
-    margin-bottom: 14px;
+    margin-bottom: 13px;
+    font-size: clamp(24px, 2.22cqi, 34px);
+  }
+
+  .tariff-online__visual {
+    position: relative;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    isolation: isolate;
+    min-width: 0;
+    min-height: 215px;
+    align-self: stretch;
+    pointer-events: none;
+  }
+
+  .tariff-online__visual::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 6% 2%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(65, 160, 206, 0.2), transparent 68%);
+    filter: blur(11px);
+  }
+
+  .tariff-online__visual img {
+    display: block;
+    width: auto;
+    height: clamp(175px, 16vw, 220px);
+    max-width: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 13px 20px rgba(0, 9, 32, 0.35));
   }
 }
