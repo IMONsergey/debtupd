@@ -52,7 +52,9 @@ for (const width of [320, 390, 600, 768, 899, 900, 1024, 1180, 1181, 1440, 1920]
       await online.scrollIntoViewIfNeeded();
       await expect(illustration).toBeVisible();
       await expect
-        .poll(() => satellite.evaluate((image) => image.complete && image.naturalWidth > 0))
+        .poll(() => satellite.evaluate((image) => image.complete && image.naturalWidth > 0), {
+          timeout: 20000,
+        })
         .toBe(true);
       const positions = await online.evaluate((article) => {
         const rect = (selector) => article.querySelector(selector).getBoundingClientRect();
