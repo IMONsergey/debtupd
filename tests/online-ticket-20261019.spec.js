@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
-for (const width of [320, 390, 768, 1024, 1181, 1440, 1920]) {
+for (const width of [320, 390, 600, 768, 899, 900, 1024, 1180, 1181, 1440, 1920]) {
   test(`online ticket preserves tariff layout and opens the correct form at ${width}px`, async ({
     page,
   }) => {
@@ -65,18 +65,28 @@ for (const width of [320, 390, 768, 1024, 1181, 1440, 1920]) {
           titleAligned: Math.abs(heading.left - benefits.left) <= 2,
           compactText: benefits.top - heading.bottom < 35,
           priceNextToFeatures: price.left >= benefits.right - 2,
+          priceTopAligned: Math.abs(price.top - benefits.top) <= 2,
           imageRightOfPrice: image.left >= price.right - 2,
           artThird: image.width >= card.width * 0.23 && image.width <= card.width * 0.4,
           compactHeight: card.height <= 310,
+          buttonTextSingleLine: (() => {
+            const label = article.querySelector('.tariff-bottom .button-label');
+            const lineHeight = parseFloat(getComputedStyle(label).lineHeight);
+            return (
+              label.clientHeight <= lineHeight + 2 && label.scrollWidth <= label.clientWidth + 2
+            );
+          })(),
         };
       });
       expect(positions).toEqual({
         titleAligned: true,
         compactText: true,
         priceNextToFeatures: true,
+        priceTopAligned: true,
         imageRightOfPrice: true,
         artThird: true,
         compactHeight: true,
+        buttonTextSingleLine: true,
       });
     } else {
       await expect(illustration).toBeHidden();
