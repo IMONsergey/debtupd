@@ -21,7 +21,7 @@ for (const width of widths)
     await page.goto('/');
     await page.evaluate(() => document.fonts.ready);
     await expect(page.locator('.speaker')).toHaveCount(33);
-    await expect(page.locator('.tariff')).toHaveCount(4);
+    await expect(page.locator('.tariff')).toHaveCount(5);
     await expect(page.getByRole('heading', { name: /Тарифы\s*участия/ })).toBeVisible();
     const issues = await page.evaluate(() => ({
       overflow: document.documentElement.scrollWidth > innerWidth,

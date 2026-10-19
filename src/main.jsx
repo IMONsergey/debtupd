@@ -20,6 +20,7 @@ import './styles/conference-partners.css';
 import './styles/fincifra-tariff.css';
 import './styles/topics-carousel.css';
 import './styles/fincifra-seminar.css';
+import './styles/online-tariff.css';
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />

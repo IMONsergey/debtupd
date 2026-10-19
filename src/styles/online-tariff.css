@@ -1,0 +1,64 @@
+/* The online ticket uses the existing tariff grid and controls, without changing the four original cards. */
+.tariff-grid > .tariff--online {
+  background: radial-gradient(ellipse at 28% 4%, #1a526b 0%, #0d344e 48%, #081e38 100%);
+  border-color: rgba(105, 199, 218, 0.48);
+}
+
+.tariff--online li {
+  background: rgba(122, 201, 220, 0.08);
+}
+
+.tariff--online li > img {
+  filter: hue-rotate(-24deg) saturate(1.2);
+}
+
+.form-dialog--online {
+  --tariff-light: #72cadd;
+}
+
+.form-dialog.form-dialog--online {
+  border-top-color: #72cadd;
+}
+
+/* On desktop the fifth option is a deliberate horizontal offer below the unchanged four-card grid. */
+@media (min-width: 900px) {
+  .tariff-grid > .tariff--online {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(205px, 0.92fr);
+    align-items: center;
+    column-gap: clamp(16px, 2vw, 36px);
+    min-height: 234px;
+    padding: clamp(22px, 2.3cqi, 30px);
+  }
+
+  .tariff-grid > .tariff--online h3 {
+    min-height: 0;
+    margin: 0;
+    font-size: clamp(20px, 1.95cqi, 29px);
+    line-height: 1.3;
+  }
+
+  .tariff-grid > .tariff--online ul {
+    min-width: 0;
+    margin: 0;
+    padding-left: clamp(14px, 1.8vw, 26px);
+    border-left: 1px solid rgba(134, 209, 224, 0.26);
+    gap: 8px;
+  }
+
+  .tariff-grid > .tariff--online li {
+    min-height: 42px;
+    font-size: clamp(13px, 1.15cqi, 16px);
+  }
+
+  .tariff-grid > .tariff--online .tariff-bottom {
+    min-width: 0;
+    margin-top: 0;
+  }
+
+  .tariff-grid > .tariff--online .tariff-bottom strong {
+    font-size: clamp(24px, 2.24cqi, 35px);
+    margin-bottom: 14px;
+  }
+}

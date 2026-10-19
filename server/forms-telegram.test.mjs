@@ -35,6 +35,7 @@ test('Unconfigured lead service validates data and never reports delivered leads
       { participants_count: '2.5' },
       { tariff_id: 'invalid' },
       { tariff_id: 'fincifra' }, // member-only offer is not a corporate package
+      { tariff_id: 'online' }, // online access is not an on-site corporate package
     ]) {
       const r = await fetch(`http://127.0.0.1:${port}/api/lead`, {
         method: 'POST',
@@ -127,6 +128,7 @@ test(
         ['early-registration-form', 'full', 54000, 'C15:NEW'],
         ['corporate-package-form', 'full-plus', 66000, 'C15:NEW'],
         ['early-registration-form', 'fincifra', 24500, 'C15:NEW'],
+        ['early-registration-form', 'online', 25000, 'C15:NEW'],
         ['stand-booking-form', '', null, 'C15:PREPARATION'],
       ];
       for (const [form_id, tariff_id, price, stage] of cases) {
@@ -152,6 +154,10 @@ test(
             .body.rows;
           assert.equal(rows[0].PRICE, price);
           assert.equal(rows[0].QUANTITY, 2);
+          if (tariff_id === 'online') {
+            assert.equal(rows[0].PRODUCT_NAME, 'DEBT TECH 2026 — тариф Онлайн-участие');
+            assert.match(deal.TITLE, /Тариф Онлайн-участие/);
+          }
         }
       }
       // Browser-side max=2 is not an authorization boundary: enforce on the API as well.
@@ -174,6 +180,18 @@ test(
           tariff_id: 'fincifra',
           participants_count: '2',
         },
+        {
+          ...base,
+          form_id: 'corporate-package-form',
+          tariff_id: 'online',
+          participants_count: '2',
+        },
+        {
+          ...base,
+          form_id: 'stand-booking-form',
+          tariff_id: 'online',
+          participants_count: '2',
+        },
       ];
       const createdBefore = lines.filter((line) => line.method === 'crm.deal.add').length;
       for (const payload of rejectedRequests) {
@@ -185,13 +203,13 @@ test(
 
       for (
         let i = 0;
-        i < 100 && lines.filter((line) => line.event === 'telegram_delivered').length < 5;
+        i < 100 && lines.filter((line) => line.event === 'telegram_delivered').length < cases.length;
         i++
       )
         await delay(20);
       const messages = lines.filter((line) => line.method === 'sendMessage');
-      assert.equal(messages.length, 5);
-      assert.equal(lines.filter((line) => line.event === 'telegram_delivered').length, 5);
+      assert.equal(messages.length, cases.length);
+      assert.equal(lines.filter((line) => line.event === 'telegram_delivered').length, cases.length);
       for (const { body } of messages) {
         assert.equal(body.chat_id, '-123');
         assert.equal(body.message_thread_id, '7');
@@ -208,7 +226,7 @@ test(
       assert.equal(failed.status, 502);
       assert.equal((await failed.json()).success, false);
       await delay(100);
-      assert.equal(lines.filter((line) => line.method === 'sendMessage').length, 5);
+      assert.equal(lines.filter((line) => line.method === 'sendMessage').length, cases.length);
     } finally {
       server.kill();
       await once(server, 'exit');
