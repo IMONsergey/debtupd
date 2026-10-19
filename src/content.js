@@ -310,6 +310,19 @@ export const content = {
           { label: 'Space Disco Afterparty', active: false },
         ],
       },
+      {
+        id: 'online',
+        title: 'Онлайн-участие',
+        price: '25 000 ₽',
+        fixedPrice: true,
+        priceCaption: 'Стоимость',
+        icon: assetUrl('assets/images/tariffs/business-icon.svg'),
+        features: [
+          { label: 'Онлайн-трансляция форума', active: true },
+          { label: 'Презентации спикеров', active: true },
+          { label: 'Видеозапись форума', active: true },
+        ],
+      },
     ],
   },
   aboutForum: {

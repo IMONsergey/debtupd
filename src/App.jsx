@@ -720,7 +720,7 @@ function Tariffs({ onApply }) {
             </ul>
             {t.limitNote && <p className="tariff-limit-note">{t.limitNote}</p>}
             <div className="tariff-bottom">
-              <span>Стоимость*</span>
+              <span>{t.priceCaption || 'Стоимость*'}</span>
               <strong>{t.price}</strong>
               <ArrowButton className="secondary" onClick={() => onApply(t)}>
                 Принять участие

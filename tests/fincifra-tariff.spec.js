@@ -28,7 +28,7 @@ for (const width of [1440, 1024, 768, 390, 320]) {
     page.on('pageerror', (error) => pageErrors.push(error.message));
     await page.goto('/#tariff-plans', { waitUntil: 'domcontentloaded' });
     const tariff = page.locator('.tariff--fincifra');
-    await expect(page.locator('.tariff')).toHaveCount(4);
+    await expect(page.locator('.tariff')).toHaveCount(5);
     await expect(tariff).toBeVisible();
     await expect(tariff.locator('h3')).toHaveText('«ФинЦифра» для членов НСФР');
     const compact = await tariff.evaluate((card) => {
@@ -85,10 +85,17 @@ for (const width of [1440, 1024, 768, 390, 320]) {
     expect(layout.columns).toBe(expectedColumns);
     expect(layout.cards.every((card) => card.contentInside)).toBe(true);
     if (width > 1180) {
-      expect(layout.cards.every((card) => Math.abs(card.y - layout.cards[0].y) < 2)).toBe(true);
-      expect(layout.cards.every((card) => Math.abs(card.height - layout.cards[0].height) < 2)).toBe(
-        true,
-      );
+      // The four on-site/membership tariffs keep their original equal-height row.
+      // The online ticket is a separate horizontal card below them.
+      expect(
+        layout.cards.slice(0, 4).every((card) => Math.abs(card.y - layout.cards[0].y) < 2),
+      ).toBe(true);
+      expect(
+        layout.cards
+          .slice(0, 4)
+          .every((card) => Math.abs(card.height - layout.cards[0].height) < 2),
+      ).toBe(true);
+      expect(layout.cards[4].y).toBeGreaterThan(layout.cards[0].y + layout.cards[0].height);
       expect(Math.abs(layout.cards[3].width - layout.cards[0].width)).toBeLessThan(2);
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBe(
@@ -133,22 +140,30 @@ for (const width of [390, 1440]) {
     const tariffs = page.locator('.tariff-grid');
     for (const id of ['business', 'full', 'full-plus']) {
       const card = tariffs.locator('.tariff--' + id);
-      await expect(card.locator('li.included').filter({ hasText: 'Видеозапись форума' })).toHaveCount(1);
+      await expect(
+        card.locator('li.included').filter({ hasText: 'Видеозапись форума' }),
+      ).toHaveCount(1);
       await expect(card).not.toContainText('Видеозапись конференции');
     }
     const fincifra = tariffs.locator('.tariff--fincifra');
     await expect(fincifra).toContainText(
       'Посещение деловой программы DEBT TECH 2026 и практического семинара «ФинЦифра»',
     );
-    await expect(fincifra).toContainText(
-      'Видеозапись форума и практического семинара «ФинЦифра»',
+    await expect(fincifra).toContainText('Видеозапись форума и практического семинара «ФинЦифра»');
+    const rows = await fincifra.locator('li').evaluateAll((nodes) =>
+      nodes.map((node) => {
+        const rect = node.getBoundingClientRect();
+        const span = node.querySelector('span');
+        return {
+          top: rect.top,
+          bottom: rect.bottom,
+          textOverflow: span.scrollHeight > span.clientHeight + 2,
+        };
+      }),
     );
-    const rows = await fincifra.locator('li').evaluateAll((nodes) => nodes.map((node) => {
-      const rect = node.getBoundingClientRect();
-      const span = node.querySelector('span');
-      return { top: rect.top, bottom: rect.bottom, textOverflow: span.scrollHeight > span.clientHeight + 2 };
-    }));
     expect(rows.every((row) => !row.textOverflow)).toBe(true);
-    expect(rows.every((row, index) => index === 0 || row.top >= rows[index - 1].bottom - 1)).toBe(true);
+    expect(rows.every((row, index) => index === 0 || row.top >= rows[index - 1].bottom - 1)).toBe(
+      true,
+    );
   });
 }

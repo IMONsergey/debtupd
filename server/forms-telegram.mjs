@@ -44,6 +44,7 @@ const TARIFFS = {
   full: { name: 'Полный', price: 49_000 },
   'full-plus': { name: 'Полный Plus', price: 66_000 },
   fincifra: { name: '«ФинЦифра» для членов НСФР', price: 24_500, maxTickets: 2 },
+  online: { name: 'Онлайн-участие', price: 25_000 },
 };
 const CORPORATE_TARIFFS = new Set(['business', 'full', 'full-plus']);
 
@@ -430,6 +431,9 @@ function validatePayload(payload) {
   if (formId === 'corporate-package-form' && !CORPORATE_TARIFFS.has(payload.tariff_id))
     return 'invalid_tariff';
   if (payload.tariff_id && !TARIFFS[payload.tariff_id]) return 'invalid_tariff';
+  // Online access is a separate individual ticket, not an on-site corporate package.
+  if (payload.tariff_id === 'online' && formId !== 'early-registration-form')
+    return 'invalid_tariff';
   // The individual NSFR offer must not become a corporate-discount ticket or allow 3+ seats
   // through a hand-crafted request that bypasses the browser's max attribute.
   if (payload.tariff_id === 'fincifra') {
