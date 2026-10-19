@@ -13,7 +13,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     page.on('pageerror', error => errors.push(error.message));
     await page.goto('/#speakers', { waitUntil: 'domcontentloaded' });
     const speakers = page.locator('.speakers-grid .speaker');
-    await expect(speakers).toHaveCount(32);
+    await expect(speakers).toHaveCount(33);
     for (const [name, role, filename] of additions) {
       const card = speakers.filter({ has: page.locator('.speaker-portrait img[alt="' + name + '"]') });
       await expect(card).toHaveCount(1);
@@ -37,9 +37,9 @@ test('expanded roster final speaker is reachable with the mobile carousel', asyn
   const track = page.locator('.speakers-grid');
   await track.focus();
   await page.keyboard.press('End');
-  await expect(page.locator('.speakers-controls > span')).toHaveText(/32\s*\/\s*32/);
-  await expect(track.locator('.speaker').last()).toContainText('Евгений');
+  await expect(page.locator('.speakers-controls > span')).toHaveText(/33\s*\/\s*33/);
+  await expect(track.locator('.speaker').last()).toContainText('Марина');
   await page.getByRole('button', { name: 'Показать всех спикеров' }).click();
   await expect(page.locator('.speaker-collection')).toHaveClass(/is-expanded/);
-  await expect(track.locator('.speaker')).toHaveCount(32);
+  await expect(track.locator('.speaker')).toHaveCount(33);
 });

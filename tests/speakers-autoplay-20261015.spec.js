@@ -60,7 +60,7 @@ test('mouse hover pauses, mouse leave resumes; manual navigation remains precise
   expect(Math.abs((await position(track)) - snapped)).toBeLessThan(5);
   await page.getByRole('button', { name: 'Показать всех спикеров' }).click();
   await expect(page.locator('.speaker-collection')).toHaveClass(/is-expanded/);
-  await expect(track.locator('.speaker')).toHaveCount(32);
+  await expect(track.locator('.speaker')).toHaveCount(33);
   const expandedScroll = await position(track);
   await page.waitForTimeout(800);
   expect(Math.abs((await position(track)) - expandedScroll)).toBeLessThan(2);

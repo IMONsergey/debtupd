@@ -59,7 +59,7 @@ for (const width of [390, 768, 1440]) {
     await expect(card.locator('img[alt="' + name + '"]')).toHaveCount(1);
     await expect(card.locator('.exhibition-company__stand')).toContainText('Стенд №26');
     await expect(page.locator('.conference-partners-list .conference-partner-name').last()).toHaveText(name);
-    await expect(page.locator('.speaker')).toHaveCount(32);
+    await expect(page.locator('.speaker')).toHaveCount(33);
     await expect(page.locator('#fincifra-seminar')).toHaveCount(1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 2);
     expect(errors).toEqual([]);

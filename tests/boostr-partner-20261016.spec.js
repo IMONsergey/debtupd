@@ -41,7 +41,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     expect(response.ok()).toBe(true);
     expect(response.headers()['content-type']).toContain('image/png');
     await expect(section.locator('.sponsor-panel--featured-partner')).toContainText('МигКредит');
-    await expect(page.locator('.speaker')).toHaveCount(32);
+    await expect(page.locator('.speaker')).toHaveCount(33);
     await expect(page.locator('#fincifra-seminar')).toHaveCount(1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 2);
     expect(errors).toEqual([]);

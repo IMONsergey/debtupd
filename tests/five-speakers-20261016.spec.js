@@ -7,7 +7,7 @@ const additions = [
   ['Василий Епифанов', 'Руководитель Дирекции дистанционного урегулирования «Альфа-банка»', 'speaker-vasiliy-epifanov.webp'],
   ['Александр Митрохин', 'Руководитель развития процессов урегулирования «Альфа-банка»', 'speaker-aleksandr-mitrokhin.webp'],
 ];
-const counts = new Map([[320, 32], [390, 32], [768, 16], [1024, 11], [1440, 11]]);
+const counts = new Map([[320, 33], [390, 33], [768, 17], [1024, 11], [1440, 11]]);
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => sessionStorage.setItem('debt2026-early-booking-dismissed', '1'));
@@ -24,7 +24,7 @@ for (const [width, pageCount] of counts) {
     await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 20000 });
     const track = page.locator('.speakers-grid');
     const cards = track.locator('.speaker');
-    await expect(cards).toHaveCount(32);
+    await expect(cards).toHaveCount(33);
     await expect(page.locator('.speakers-controls > span')).toHaveText(
       new RegExp('01\\s*/\\s*' + String(pageCount).padStart(2, '0')),
     );
@@ -38,7 +38,7 @@ for (const [width, pageCount] of counts) {
       await expect(card.locator('h3')).toContainText(name.split(' ')[0]);
       await expect(card.locator('h3')).toContainText(name.split(' ')[1]);
       await expect(card.locator('.speaker-info p')).toHaveText(role);
-      await expect(card).toHaveAttribute('aria-label', (25 + i) + ' из 32: ' + name);
+      await expect(card).toHaveAttribute('aria-label', (25 + i) + ' из 33: ' + name);
       const image = card.locator('.speaker-portrait img');
       await expect(image).toHaveAttribute('src', new RegExp(filename.replaceAll('.', '\\.')));
       const url = new URL(await image.getAttribute('src'), page.url()).href;
@@ -61,13 +61,13 @@ for (const [width, pageCount] of counts) {
   });
 }
 
-test('expanded list shows 32 speakers, all five new portraits without layout clipping', async ({ page }) => {
+test('expanded list shows 33 speakers, all five new portraits without layout clipping', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 900 });
   await page.goto('/#speakers');
   await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 20000 });
   await page.getByRole('button', { name: 'Показать всех спикеров' }).click();
   await expect(page.locator('.speaker-collection')).toHaveClass(/is-expanded/);
-  await expect(page.locator('.speakers-grid .speaker')).toHaveCount(32);
+  await expect(page.locator('.speakers-grid .speaker')).toHaveCount(33);
   const newCards = page.locator('.speakers-grid .speaker').nth(24);
   await newCards.scrollIntoViewIfNeeded();
   const overflow = await page.locator('.speakers-grid .speaker').evaluateAll(nodes =>
