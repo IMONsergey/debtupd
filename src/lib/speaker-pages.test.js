@@ -26,7 +26,7 @@ test('all 29 speakers remain reachable on desktop, tablet and phone', () => {
   );
 });
 
-test('latest ten speakers preserve approved names, roles and loadable portraits', () => {
+test('the previous ten speakers keep approved names, roles and original portraits', () => {
   const speakers = JSON.parse(readFileSync(new URL('../speakers.json', import.meta.url), 'utf8'));
   const expected = [
     [
@@ -80,15 +80,38 @@ test('latest ten speakers preserve approved names, roles and loadable portraits'
       'speaker-aleksandr-mitrokhin.webp',
     ],
   ];
-  assert.equal(speakers.length, 29);
+  assert.equal(speakers.length, 32);
   assert.equal(new Set(speakers.map((speaker) => speaker.name)).size, speakers.length);
   assert.deepEqual(
-    speakers.slice(-expected.length).map(({ name, role, image }) => [name, role, image]),
+    speakers.slice(19, 29).map(({ name, role, image }) => [name, role, image]),
     expected,
   );
   for (const [, , image] of expected) {
     const bytes = readFileSync(new URL(`../../public/assets/figma/${image}`, import.meta.url));
     assert.equal(bytes.subarray(0, 4).toString(), 'RIFF');
     assert.equal(bytes.subarray(8, 12).toString(), 'WEBP');
+  }
+});
+
+test('all 32 speakers paginate correctly across desktop, tablet and mobile', () => {
+  assert.deepEqual(speakerPageStarts(32, 3), [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 29]);
+  assert.deepEqual(speakerPageStarts(32, 2), Array.from({ length: 16 }, (_, i) => i * 2));
+  assert.deepEqual(speakerPageStarts(32, 1), Array.from({ length: 32 }, (_, i) => i));
+});
+
+test('three October additions retain supplied roles and valid WebP portraits', () => {
+  const speakers = JSON.parse(readFileSync(new URL('../speakers.json', import.meta.url), 'utf8'));
+  const expected = [
+    ['Екатерина Данкина', 'Директор по развитию портала «Торги России»', 'speaker-ekaterina-dankina.webp'],
+    ['Глеб Лябушев', 'Заместитель генерального директора ПКО «А.Сторм»', 'speaker-gleb-lyabushev.webp'],
+    ['Евгений Коротков', 'Финансовый директор ООО «ЭВЕРЕСТ ПЛЮС»', 'speaker-evgeniy-korotkov.webp'],
+  ];
+  assert.equal(speakers.length, 32);
+  assert.equal(new Set(speakers.map(({ name }) => name)).size, 32);
+  assert.deepEqual(speakers.slice(29).map(({ name, role, image }) => [name, role, image]), expected);
+  for (const [, , name] of expected) {
+    const bytes = readFileSync(new URL('../../public/assets/figma/' + name, import.meta.url));
+    assert.equal(bytes.toString('ascii', 0, 4), 'RIFF');
+    assert.equal(bytes.toString('ascii', 8, 12), 'WEBP');
   }
 });

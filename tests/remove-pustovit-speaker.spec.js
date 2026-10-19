@@ -5,11 +5,11 @@ test.beforeEach(async ({ page }) => {
 });
 
 for (const [width, lastPage] of [
-  [320, 29],
-  [390, 29],
-  [768, 15],
-  [1024, 10],
-  [1440, 10],
+  [320, 32],
+  [390, 32],
+  [768, 16],
+  [1024, 11],
+  [1440, 11],
 ]) {
   test(
     'roster without Alexander Pustovit and correct pagination at ' + width + 'px',
@@ -20,7 +20,7 @@ for (const [width, lastPage] of [
       await page.goto('/#speakers', { waitUntil: 'domcontentloaded' });
       await page.locator('#site-preloader').waitFor({ state: 'detached', timeout: 20000 });
       const roster = page.locator('.speakers-grid .speaker');
-      await expect(roster).toHaveCount(29);
+      await expect(roster).toHaveCount(32);
       await expect(page.locator('.speaker-portrait img[alt="Александр Пустовит"]')).toHaveCount(0);
       const names = await page
         .locator('.speaker-info h3')
@@ -60,13 +60,13 @@ for (const [width, lastPage] of [
   );
 }
 
-test('expanded full roster shows 29 speakers without the removed profile', async ({ page }) => {
+test('expanded full roster shows 32 speakers without the removed profile', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/#speakers', { waitUntil: 'domcontentloaded' });
   await page.locator('#site-preloader').waitFor({ state: 'detached', timeout: 20000 });
   await page.getByRole('button', { name: 'Показать всех спикеров' }).click();
   await expect(page.locator('.speaker-collection')).toHaveClass(/is-expanded/);
-  await expect(page.locator('.speakers-grid .speaker')).toHaveCount(29);
+  await expect(page.locator('.speakers-grid .speaker')).toHaveCount(32);
   expect((await page.locator('.speaker-info h3').allTextContents()).join(' ')).not.toContain(
     'Пустовит',
   );

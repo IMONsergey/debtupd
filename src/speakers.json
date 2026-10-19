@@ -143,5 +143,20 @@
     "image": "speaker-aleksandr-mitrokhin.webp",
     "name": "Александр Митрохин",
     "role": "Руководитель развития процессов урегулирования «Альфа-банка»"
+  },
+  {
+    "image": "speaker-ekaterina-dankina.webp",
+    "name": "Екатерина Данкина",
+    "role": "Директор по развитию портала «Торги России»"
+  },
+  {
+    "image": "speaker-gleb-lyabushev.webp",
+    "name": "Глеб Лябушев",
+    "role": "Заместитель генерального директора ПКО «А.Сторм»"
+  },
+  {
+    "image": "speaker-evgeniy-korotkov.webp",
+    "name": "Евгений Коротков",
+    "role": "Финансовый директор ООО «ЭВЕРЕСТ ПЛЮС»"
   }
 ]
