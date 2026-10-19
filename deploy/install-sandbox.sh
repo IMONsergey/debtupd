@@ -8,6 +8,7 @@ release=${1:?Usage: install-sandbox.sh RELEASE_ID}
 source="$root/releases/$release"
 test -s "$source/dist/index.html"
 test -s "$source/server/forms-telegram.mjs"
+test -s "$source/src/lib/ticket-pricing.js"
 test "$(id -u)" = 0
 
 install -d -m 700 "$root/env" "$root/backups"
