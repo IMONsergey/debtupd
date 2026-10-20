@@ -699,7 +699,15 @@ function Tariffs({ onApply }) {
           {content.tariffs.eyebrow} {content.tariffs.title}
         </h3>
         <div className="welcome-pass__panel corners">
-          <p className="welcome-pass__offer">{content.tariffs.offer}</p>
+          <p className="welcome-pass__offer">
+            {content.tariffs.offer.intro}
+            <strong className="welcome-pass__emphasis">{content.tariffs.offer.emphasis}</strong>
+            {content.tariffs.offer.conclusion}{' '}
+            <span className="welcome-pass__effective-from">
+              ({content.tariffs.offer.effectiveFrom})
+            </span>
+            .
+          </p>
           <p className="welcome-pass__terms">{content.tariffs.agreement}</p>
         </div>
         <p className="welcome-pass__exclusion">

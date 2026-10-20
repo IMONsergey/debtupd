@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 const offer =
-  'Скидка 50% на один билет любого тарифа для делегатов от компаний, ранее не участвовавших в форумах DOLG TALK и DEBT TECH.';
+  'Скидка 50% на один билет любого тарифа для делегатов от компаний, ранее не участвовавших в форумах DOLG TALK и DEBT TECH (действует с 20 октября).';
 const terms = 'Скидка предоставляется по согласованию с организаторами.';
 const exclusion = 'Скидка не распространяется на оплату от физических лиц.';
 
@@ -36,6 +36,23 @@ for (const width of [320, 390, 599, 600, 700, 768, 900, 1024, 1180, 1181, 1440, 
       );
       await expect(welcome.locator('.welcome-pass__panel')).toHaveClass(/\bcorners\b/);
       await expect(welcome.locator('.welcome-pass__offer')).toHaveText(offer);
+      await expect(welcome.locator('.welcome-pass__emphasis')).toHaveText('ранее не участвовавших');
+      await expect(welcome.locator('.welcome-pass__effective-from')).toHaveText(
+        '(действует с 20 октября)',
+      );
+      const emphasisStyle = await welcome.locator('.welcome-pass__emphasis').evaluate((el) => ({
+        decoration: getComputedStyle(el).textDecorationLine,
+        weight: Number(getComputedStyle(el).fontWeight),
+      }));
+      expect(emphasisStyle.decoration).toContain('underline');
+      expect(emphasisStyle.weight).toBeGreaterThanOrEqual(600);
+      const agreementStyle = await welcome.locator('.welcome-pass__terms').evaluate((el) => ({
+        textColor: getComputedStyle(el).color,
+        background: getComputedStyle(el).backgroundImage,
+        weight: Number(getComputedStyle(el).fontWeight),
+      }));
+      expect(agreementStyle.weight).toBeGreaterThanOrEqual(500);
+      expect(agreementStyle.background).toContain('linear-gradient');
       await expect(welcome.locator('.welcome-pass__terms')).toHaveText(terms);
       await expect(welcome.locator('.welcome-pass__exclusion-mark')).toHaveText('*');
       await expect(welcome.locator('.welcome-pass__exclusion > span:last-child')).toHaveText(
