@@ -46,8 +46,7 @@ for (const [width, height] of [
       (element) => getComputedStyle(element, '::after').content,
     );
     expect(cornerDecoration).toBe('none');
-    await expect(card).not.toContainText('Место проведения');
-    await expect(card.locator('.venue-hero-card__eyebrow')).toHaveCount(0);
+    await expect(card.locator('.venue-hero-card__eyebrow')).toHaveText('Место проведения');
     const photoTreatment = await card.locator('.venue-hero-card__photo img').evaluate((image) => {
       const visual = image.parentElement;
       return {
@@ -77,6 +76,7 @@ for (const [width, height] of [
       const brand = bounds('.hero-wordmark');
       const supporters = bounds('.hero-supporters');
       const photo = bounds('.venue-hero-card__photo');
+      const eyebrow = bounds('.venue-hero-card__eyebrow');
       const title = bounds('.venue-hero-card__details h2');
       const address = bounds('.venue-hero-card__details p');
       const button = bounds('.venue-hero-card__button');
@@ -91,7 +91,13 @@ for (const [width, height] of [
         matchesSupportRight: Math.abs(card.right - supporters.right) <= 1,
         supportersGap: supporters.top - card.bottom,
         photoUnderlaysCopy:
-          photo.top <= title.top && photo.bottom >= address.bottom && photo.width >= card.width - 2,
+          photo.top <= eyebrow.top &&
+          photo.bottom >= address.bottom &&
+          photo.width >= card.width - 2,
+        readableHeading:
+          eyebrow.bottom + 4 <= title.top &&
+          title.bottom + 2 <= address.top &&
+          address.bottom <= photo.bottom - 12,
         buttonIsFooter:
           Math.abs(button.bottom - card.bottom) <= 2 &&
           Math.abs(button.width - (card.width - 2)) <= 2 &&
@@ -108,6 +114,7 @@ for (const [width, height] of [
     expect(layout.clearDate).toBe(true);
     expect(layout.beforeSupporters).toBe(true);
     expect(layout.photoUnderlaysCopy).toBe(true);
+    expect(layout.readableHeading).toBe(true);
     expect(layout.buttonIsFooter).toBe(true);
     expect(layout.cardIsPortrait).toBe(true);
     if (width >= 768) {

@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: column;
   width: clamp(180px, 14.3vw, 230px);
-  height: clamp(278px, 31svh, 340px);
+  height: clamp(306px, 36svh, 370px);
   padding: 0;
   overflow: hidden;
   isolation: isolate;
@@ -57,6 +57,17 @@
   padding: clamp(13px, 1.12vw, 18px);
   padding-bottom: 0;
   text-shadow: 0 2px 13px #001025a8;
+}
+
+.venue-hero-card__eyebrow {
+  display: block;
+  margin-bottom: clamp(7px, 0.8vw, 11px);
+  color: #d9eaff;
+  font:
+    500 clamp(9px, 0.78vw, 11px)/1.4 'IBM Plex Sans',
+    sans-serif;
+  letter-spacing: 0.095em;
+  text-transform: uppercase;
 }
 
 .venue-hero-card__details h2 {
@@ -254,6 +265,10 @@
   .venue-hero-card__details {
     padding: 10px 12px 0;
   }
+  .venue-hero-card__eyebrow {
+    margin-bottom: 5px;
+    font-size: 9px;
+  }
   .venue-hero-card__details h2 {
     font-size: 16px;
   }
@@ -283,7 +298,7 @@
     right: 32px;
     bottom: calc(172px + 191px + 16px);
     width: 180px;
-    height: 278px;
+    height: 304px;
   }
 }
 
@@ -342,7 +357,7 @@
     flex: none;
     align-self: center;
     width: min(380px, calc(100% - 48px));
-    height: clamp(395px, 63vw, 435px);
+    height: clamp(420px, 69vw, 468px);
     margin: 16px 24px 0;
   }
   .hero > .hero-supporters {
@@ -399,11 +414,15 @@
     flex: none;
     align-self: stretch;
     width: calc(100% - 32px);
-    height: clamp(340px, 100vw, 430px);
+    height: clamp(374px, 110vw, 465px);
     margin: 18px 16px 0;
   }
   .hero > .venue-hero-card .venue-hero-card__details {
     padding: 19px 19px 0;
+  }
+  .hero > .venue-hero-card .venue-hero-card__eyebrow {
+    margin-bottom: 10px;
+    font-size: 11px;
   }
   .hero > .venue-hero-card h2 {
     font-size: 25px;
