@@ -20,6 +20,8 @@ for (const [width, height] of [
   [1024, 768],
   [1181, 800],
   [1280, 700],
+  [1280, 800],
+  [1440, 850],
   [1440, 900],
   [1920, 1080],
 ]) {
@@ -55,6 +57,13 @@ for (const [width, height] of [
         belowHeroBottom: card.top >= hero.bottom - 2,
         clearDate: card.top >= date.bottom + 8,
         clearSupporters: card.bottom <= supporters.top - 8,
+        matchesSupportWidth: Math.abs(card.width - supporters.width) <= 1,
+        matchesSupportRight: Math.abs(card.right - supporters.right) <= 1,
+        supportersGap: supporters.top - card.bottom,
+        roundedCorners:
+          parseFloat(
+            getComputedStyle(document.querySelector('.venue-hero-card')).borderTopLeftRadius,
+          ) >= 8,
         overflow: document.documentElement.scrollWidth > innerWidth + 2,
       };
     });
@@ -62,15 +71,38 @@ for (const [width, height] of [
       expect(layout.aboveHeroBottom).toBe(true);
       expect(layout.clearDate).toBe(true);
       expect(layout.clearSupporters).toBe(true);
+      expect(layout.matchesSupportWidth).toBe(true);
+      expect(layout.matchesSupportRight).toBe(true);
+      expect(Math.abs(layout.supportersGap - 18)).toBeLessThanOrEqual(2);
     } else {
       expect(layout.belowHeroBottom).toBe(true);
     }
     expect(layout.overflow).toBe(false);
+    expect(layout.roundedCorners).toBe(true);
 
     await card.getByRole('button', { name: 'Как добраться' }).click();
     const dialog = page.getByRole('dialog', { name: 'Как добраться до TAU' });
     await expect(dialog).toBeVisible();
     await expect(dialog).toHaveAttribute('aria-modal', 'true');
+    const closeGeometry = await dialog
+      .getByRole('button', { name: 'Закрыть маршрут' })
+      .evaluate((button) => {
+        const buttonBounds = button.getBoundingClientRect();
+        const iconBounds = button.querySelector('svg').getBoundingClientRect();
+        return {
+          square:
+            Math.abs(buttonBounds.width - buttonBounds.height) <= 1 && buttonBounds.width >= 44,
+          centeredX:
+            Math.abs(
+              buttonBounds.left + buttonBounds.width / 2 - (iconBounds.left + iconBounds.width / 2),
+            ) <= 1,
+          centeredY:
+            Math.abs(
+              buttonBounds.top + buttonBounds.height / 2 - (iconBounds.top + iconBounds.height / 2),
+            ) <= 1,
+        };
+      });
+    expect(closeGeometry).toEqual({ square: true, centeredX: true, centeredY: true });
     await expect(dialog.locator('.venue-directions-dialog__description')).toHaveText(routeText);
     const image = dialog.locator('.venue-directions-dialog__map');
     await expect(image).toHaveAttribute('src', /\/assets\/images\/venue\/tau-route-map\.webp$/);
