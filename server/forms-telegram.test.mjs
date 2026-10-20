@@ -130,6 +130,7 @@ test(
         ['early-registration-form', 'fincifra', 24500, 'C15:NEW'],
         ['early-registration-form', 'online', 25000, 'C15:NEW'],
         ['stand-booking-form', '', null, 'C15:PREPARATION'],
+        ['partner-participation-form', '', null, 'C15:PREPARATION'],
       ];
       for (const [form_id, tariff_id, price, stage] of cases) {
         const response = await request({ ...base, form_id, tariff_id, tariff_price: '1 ₽' });
@@ -148,6 +149,10 @@ test(
         for (const key of ['SOURCE', 'MEDIUM', 'CAMPAIGN', 'CONTENT', 'TERM'])
           assert.equal(deal[`UF_CRM_DEBT2026_UTM_${key}`], key.toLowerCase());
         assert.ok(deal.TITLE.startsWith('DEBT TECH 2026: '));
+        if (form_id === 'partner-participation-form') {
+          assert.match(deal.TITLE, /Партнерское участие/);
+          assert.equal(deal.UF_CRM_DEBT2026_FORM_TYPE, 'Партнерское участие');
+        }
         assert.ok(!deal.TITLE.includes('ТЕСТ ПЕСОЧНИЦЫ'));
         if (price) {
           const rows = lines.filter((line) => line.method === 'crm.deal.productrows.set').at(-1)
@@ -223,10 +228,14 @@ test(
         form_id: 'stand-booking-form',
         full_name: 'Failure',
       });
-      assert.equal(failed.status, 502);
-      assert.equal((await failed.json()).success, false);
+      assert.equal(failed.status, 200);
+      const fallback = await failed.json();
+      assert.equal(fallback.success, true);
+      assert.equal(fallback.delivery, 'telegram_fallback');
       await delay(100);
-      assert.equal(lines.filter((line) => line.method === 'sendMessage').length, cases.length);
+      const messagesAfterFallback = lines.filter((line) => line.method === 'sendMessage');
+      assert.equal(messagesAfterFallback.length, cases.length + 1);
+      assert.match(messagesAfterFallback.at(-1).body.text, /Резервная доставка/);
     } finally {
       server.kill();
       await once(server, 'exit');

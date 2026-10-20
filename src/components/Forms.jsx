@@ -3,7 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { ActionArrow } from './ActionArrow.jsx';
-import { submitLead, formatPhone } from '../lib/forms.js';
+import { submitLead } from '../lib/forms.js';
+import { fieldError, validateFields } from '../lib/lead-validation.js';
+import { handlePhoneInput, handlePhoneBeforeInput, handlePhoneKeyDown } from '../lib/phone-input.js';
 import { useDialog } from '../lib/useDialog.js';
 import { MAX_CORPORATE_PARTICIPANTS } from '../lib/corporate-pricing.js';
 import { getScheduledTariffs, PRICING_SWITCH_AT } from '../lib/ticket-pricing.js';
@@ -43,22 +45,54 @@ const common = [
     maxLength: 120,
   },
 ];
-function phoneInput(e) {
-  e.currentTarget.setCustomValidity('');
-  e.currentTarget.value = formatPhone(e.currentTarget.value);
+// Delegated handlers cover typing, paste, browser autofill and mobile keyboards.
+function useLeadFieldValidation() {
+  const [errors, setErrors] = useState({});
+  const commit = (field, message) => {
+    setErrors((current) =>
+      current[field.name] === message ? current : { ...current, [field.name]: message },
+    );
+  };
+  const input = (event) => {
+    const field = event.target;
+    if (field?.name === 'phone') handlePhoneInput(field);
+    if (field?.name && Object.hasOwn(errors, field.name)) {
+      commit(field, fieldError(field));
+    }
+  };
+  const change = (event) => {
+    const field = event.target;
+    if (field?.name === 'consent' || field?.name === 'tariff_id') commit(field, fieldError(field));
+  };
+  const blur = (event) => {
+    const field = event.target;
+    if (!field?.name || field.name === 'website') return;
+    if (['full_name', 'company', 'email', 'job_title'].includes(field.name)) {
+      field.value = field.value.trim();
+    }
+    commit(field, fieldError(field));
+  };
+  const validate = (form) => {
+    const { errors: messages, firstInvalid } = validateFields(form);
+    setErrors(messages);
+    if (firstInvalid) {
+      firstInvalid.focus({ preventScroll: false });
+      firstInvalid.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+      return false;
+    }
+    return true;
+  };
+  return { errors, input, blur, change, validate, beforeInput: handlePhoneBeforeInput };
 }
-function validatePhone(form) {
-  const input = form.elements.phone;
-  const digits = input.value.replace(/\D/g, '');
-  input.setCustomValidity(
-    digits.length < 10 || digits.length > 15 ? 'Введите телефон: от 10 до 15 цифр.' : '',
-  );
-  return form.reportValidity();
+function FieldError({ id, message }) {
+  return message ? <span id={id} className="field-error" role="alert">{message}</span> : null;
 }
-function Consent({ id }) {
+function Consent({ id, error }) {
   return (
+    <>
     <label className="consent" htmlFor={id}>
-      <input id={id} name="consent" type="checkbox" value="yes" required />
+      <input id={id} name="consent" type="checkbox" value="yes" required
+          aria-invalid={!!error} aria-describedby={error ? id + '-error' : undefined} />
       <span>
         Я соглашаюсь на обработку персональных данных и принимаю условия{' '}
         <a href={privacy} target="_blank" rel="noreferrer">
@@ -67,6 +101,8 @@ function Consent({ id }) {
         .
       </span>
     </label>
+    <FieldError id={id + '-error'} message={error} />
+    </>
   );
 }
 function Honeypot() {
@@ -91,6 +127,7 @@ export function ApplicationModal({
   const [status, setStatus] = useState(completed ? 'success' : 'idle'),
     [message, setMessage] = useState(''),
     [now, setNow] = useState(Date.now());
+  const validation = useLeadFieldValidation();
   useDialog(ref, onClose);
   useEffect(() => () => abort.current?.abort(), []);
   useEffect(() => {
@@ -104,7 +141,9 @@ export function ApplicationModal({
         tariff
       : null,
     stand = kind === 'stand-booking',
-    id = stand ? 'stand-booking-form' : 'early-registration-form';
+    id = stand
+      ? partner ? 'partner-participation-form' : 'stand-booking-form'
+      : 'early-registration-form';
   const fields = stand
     ? [
         ...common.slice(0, 2),
@@ -134,7 +173,7 @@ export function ApplicationModal({
       ];
   async function send(e) {
     e.preventDefault();
-    if (sending.current || !validatePhone(e.currentTarget)) return;
+    if (sending.current || !validation.validate(e.currentTarget)) return;
     const data = new FormData(e.currentTarget);
     sending.current = true;
     setStatus('sending');
@@ -229,7 +268,10 @@ export function ApplicationModal({
             {activeTariff?.limitNote && (
               <p className="tariff-form-limit"><AlertTriangle size={18} strokeWidth={1.8} aria-hidden="true" /><span>{activeTariff.limitNote}</span></p>
             )}
-            <form id={id} onSubmit={send}>
+            <form id={id} noValidate onSubmit={send}
+              onInput={validation.input} onBlurCapture={validation.blur}
+              onChangeCapture={validation.change} onBeforeInputCapture={validation.beforeInput}
+      onKeyDownCapture={handlePhoneKeyDown}>
               <Honeypot />
               <fieldset disabled={status === 'sending'}>
                 <div className="form-grid">
@@ -241,7 +283,8 @@ export function ApplicationModal({
                       </span>
                       <input
                         {...f}
-                        onInput={f.name === 'phone' ? phoneInput : undefined}
+                        aria-invalid={!!validation.errors[f.name]}
+                        aria-describedby={validation.errors[f.name] ? id + '-' + f.name + '-error' : undefined}
                         inputMode={
                           f.type === 'number'
                             ? 'numeric'
@@ -252,6 +295,7 @@ export function ApplicationModal({
                                 : undefined
                         }
                       />
+                      <FieldError id={id + '-' + f.name + '-error'} message={validation.errors[f.name]} />
                     </label>
                   ))}
                   {stand && (
@@ -266,7 +310,7 @@ export function ApplicationModal({
                     </label>
                   )}
                 </div>
-                <Consent id="application-consent" />
+                <Consent id="application-consent" error={validation.errors.consent} />
                 <button className="button" type="submit">
                   {status === 'sending'
                     ? 'Отправляем…'
@@ -299,6 +343,7 @@ export function CorporateForm({ onSuccess }) {
     [message, setMessage] = useState(''),
     [now, setNow] = useState(Date.now());
   const sending = useRef(false);
+  const validation = useLeadFieldValidation();
   useEffect(() => {
     const delay = PRICING_SWITCH_AT - Date.now();
     if (delay <= 0) return undefined;
@@ -309,7 +354,7 @@ export function CorporateForm({ onSuccess }) {
   const tariff = tariffs.items.find((t) => t.id === tariffId);
   async function send(e) {
     e.preventDefault();
-    if (sending.current || !validatePhone(e.currentTarget)) return;
+    if (sending.current || !validation.validate(e.currentTarget)) return;
     const data = new FormData(e.currentTarget);
     sending.current = true;
     setStatus('sending');
@@ -332,7 +377,10 @@ export function CorporateForm({ onSuccess }) {
     }
   }
   return (
-    <form id="corporate-package-form" className="corporate-form" onSubmit={send}>
+    <form id="corporate-package-form" className="corporate-form" noValidate onSubmit={send}
+      onInput={validation.input} onBlurCapture={validation.blur}
+      onChangeCapture={validation.change} onBeforeInputCapture={validation.beforeInput}
+      onKeyDownCapture={handlePhoneKeyDown}>
       <h3>
         Узнайте стоимость
         <br />
@@ -353,7 +401,10 @@ export function CorporateForm({ onSuccess }) {
               required
               value={count}
               onChange={(e) => setCount(e.target.value)}
+              aria-invalid={!!validation.errors.participants_count}
+              aria-describedby={validation.errors.participants_count ? 'corporate-participants-error' : undefined}
             />
+            <FieldError id="corporate-participants-error" message={validation.errors.participants_count} />
           </label>
           <label className="field">
             <span>Выберите тариф</span>
@@ -362,6 +413,8 @@ export function CorporateForm({ onSuccess }) {
               value={tariffId}
               onChange={(e) => setTariff(e.target.value)}
               required
+              aria-invalid={!!validation.errors.tariff_id}
+              aria-describedby={validation.errors.tariff_id ? 'corporate-tariff-error' : undefined}
             >
               {tariffs.items
                 .filter((t) => !t.fixedPrice)
@@ -371,6 +424,7 @@ export function CorporateForm({ onSuccess }) {
                   </option>
                 ))}
             </select>
+            <FieldError id="corporate-tariff-error" message={validation.errors.tariff_id} />
           </label>
           <label className="field span-two">
             <span>Ваше ФИО</span>
@@ -380,7 +434,10 @@ export function CorporateForm({ onSuccess }) {
               placeholder="Иванов Иван Иванович"
               maxLength={150}
               required
+              aria-invalid={!!validation.errors.full_name}
+              aria-describedby={validation.errors.full_name ? 'corporate-name-error' : undefined}
             />
+            <FieldError id="corporate-name-error" message={validation.errors.full_name} />
           </label>
           <label className="field span-two">
             <span>Номер телефона</span>
@@ -391,12 +448,14 @@ export function CorporateForm({ onSuccess }) {
               inputMode="tel"
               placeholder="+7 999 999 99 99"
               maxLength={24}
-              onInput={phoneInput}
               required
+              aria-invalid={!!validation.errors.phone}
+              aria-describedby={validation.errors.phone ? 'corporate-phone-error' : undefined}
             />
+            <FieldError id="corporate-phone-error" message={validation.errors.phone} />
           </label>
         </div>
-        <Consent id="corporate-consent" />
+        <Consent id="corporate-consent" error={validation.errors.consent} />
         <button className="button" type="submit">
           {status === 'sending' ? 'Отправляем…' : 'Рассчитать стоимость'}
           <ActionArrow />

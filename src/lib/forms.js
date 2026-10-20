@@ -25,21 +25,38 @@ export function initAnalytics() {
     trackLinks: true,
   });
 }
+// Keep international +8xx numbers intact. Only unprefixed 89xx and 9xx
+// phone entries are interpreted as Russian domestic mobile numbers.
 export function formatPhone(value) {
-  let d = value.replace(/\D/g, '');
-  if (d.startsWith('9')) d = '7' + d.slice(0, 10);
-  else if (d.startsWith('8')) d = '7' + d.slice(1, 11);
-  if (!d) return '';
-  if (!d.startsWith('7')) return '+' + d.slice(0, 15);
-  const n = d.slice(1, 11);
+  const raw = String(value || '').trim();
+  const digits = raw.replace(/\D/g, '');
+  if (!digits) return '';
+
+  let russian = null;
+  if (raw.startsWith('+')) {
+    if (digits.startsWith('7')) russian = digits;
+  } else if (digits.startsWith('89')) {
+    russian = '7' + digits.slice(1);
+  } else if (digits.startsWith('9')) {
+    russian = '7' + digits;
+  } else if (digits.startsWith('7')) {
+    russian = digits;
+  }
+
+  // Do not silently swallow extra digits: the validator must flag invalid
+  // country-code lengths, instead of accepting a truncated telephone number.
+  if (russian === null) return '+' + digits;
+  if (russian.length > 11) return '+' + russian;
+  const ruDigits = russian.slice(1);
   return (
     '+7' +
-    (n ? ' ' + n.slice(0, 3) : '') +
-    (n.length > 3 ? ' ' + n.slice(3, 6) : '') +
-    (n.length > 6 ? '-' + n.slice(6, 8) : '') +
-    (n.length > 8 ? '-' + n.slice(8, 10) : '')
+    (ruDigits ? ' ' + ruDigits.slice(0, 3) : '') +
+    (ruDigits.length > 3 ? ' ' + ruDigits.slice(3, 6) : '') +
+    (ruDigits.length > 6 ? '-' + ruDigits.slice(6, 8) : '') +
+    (ruDigits.length > 8 ? '-' + ruDigits.slice(8, 10) : '')
   );
 }
+
 export async function submitLead(fields, { endpoint, signal, timeout = 20000 } = {}) {
   const target =
     endpoint ||

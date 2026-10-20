@@ -3704,3 +3704,23 @@ fieldset:disabled {
     width: 52px;
   }
 }
+
+/* Lead forms: field-level feedback stays adjacent to its input on narrow screens. */
+.field-error {
+  display: block;
+  color: #ffc5cf;
+  font: 400 12px/1.45 'IBM Plex Sans', sans-serif;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+.field input[aria-invalid='true'],
+.field select[aria-invalid='true'],
+.field textarea[aria-invalid='true'] {
+  border-color: #f38597;
+}
+.consent + .field-error {
+  margin: -14px 0 20px;
+}
+.corporate-form .field-error {
+  margin-top: 2px;
+}

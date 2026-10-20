@@ -21,6 +21,7 @@ const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGIN || process.env.ALLOWED_ORIGI
 const MAX_BODY_BYTES = Number(process.env.MAX_BODY_BYTES || 32_768);
 const RATE_WINDOW_MS = Number(process.env.RATE_WINDOW_MS || 10 * 60 * 1000);
 const RATE_LIMIT = Number(process.env.RATE_LIMIT || 8);
+const INVALID_RATE_LIMIT = Number(process.env.INVALID_RATE_LIMIT || 30);
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const TELEGRAM_RETRY_DELAYS_MS = [600, 1_600];
 const BITRIX_TIMEOUT_MS = Number(process.env.BITRIX_TIMEOUT_MS || 8_000);
@@ -77,19 +78,22 @@ function clientIp(request) {
   return request.socket.remoteAddress || 'unknown';
 }
 
-function isRateLimited(ip) {
+// Invalid corrections have a separate, still bounded allowance. They must not
+// exhaust the legitimate-submission budget for a customer correcting mistakes.
+function isRateLimited(ip, invalid = false) {
+  const key = (invalid ? 'invalid:' : 'valid:') + ip;
   const now = Date.now();
-  const bucket = (rateBuckets.get(ip) || []).filter((time) => now - time < RATE_WINDOW_MS);
+  const bucket = (rateBuckets.get(key) || []).filter((time) => now - time < RATE_WINDOW_MS);
   bucket.push(now);
-  rateBuckets.set(ip, bucket);
+  rateBuckets.set(key, bucket);
 
   if (rateBuckets.size > 2000) {
-    for (const [key, values] of rateBuckets.entries()) {
-      if (values.every((time) => now - time >= RATE_WINDOW_MS)) rateBuckets.delete(key);
+    for (const [name, values] of rateBuckets.entries()) {
+      if (values.every((time) => now - time >= RATE_WINDOW_MS)) rateBuckets.delete(name);
     }
   }
 
-  return bucket.length > RATE_LIMIT;
+  return bucket.length > (invalid ? INVALID_RATE_LIMIT : RATE_LIMIT);
 }
 
 function readJson(request) {
@@ -129,13 +133,18 @@ function escapeHtml(value) {
 
 function formTitle(formId) {
   if (formId === 'stand-booking-form') return 'Бронирование стенда';
+  if (formId === 'partner-participation-form') return 'Партнерское участие';
   if (formId === 'corporate-package-form') return 'Корпоративный пакет';
   if (formId === 'early-registration-form') return 'Ранняя регистрация';
   return clean(formId || 'Заявка');
 }
 
 function stageIdForForm(formId) {
-  if (formId === 'stand-booking-form') return BITRIX_STAND_BOOKING_STAGE_ID;
+  if (formId === 'stand-booking-form' || formId === 'partner-participation-form') {
+    return process.env.BITRIX_PARTNER_STAGE_ID && formId === 'partner-participation-form'
+      ? process.env.BITRIX_PARTNER_STAGE_ID
+      : BITRIX_STAND_BOOKING_STAGE_ID;
+  }
   return BITRIX_EARLY_REGISTRATION_STAGE_ID;
 }
 
@@ -334,6 +343,7 @@ function formatMessage(payload) {
   const tariff = normalizeTariff(payload);
   const rows = [
     ['Форма', formTitle(payload.form_id)],
+    ['Доставка', payload.delivery_note],
     ['Тариф', tariff ? `${tariff.name} — ${tariff.price.toLocaleString('ru-RU')} ₽` : ''],
     ['ФИО', payload.full_name],
     ['Компания', payload.company],
@@ -407,7 +417,7 @@ function validatePayload(payload) {
   if (payload.consent !== true) return 'consent_required';
 
   const formId = clean(payload.form_id);
-  if (!['early-registration-form', 'stand-booking-form', 'corporate-package-form'].includes(formId))
+  if (!['early-registration-form', 'stand-booking-form', 'partner-participation-form', 'corporate-package-form'].includes(formId))
     return 'invalid_form';
 
   const required =
@@ -421,6 +431,7 @@ function validatePayload(payload) {
 
   const phoneDigits = clean(payload.phone, 40).replace(/\D/g, '');
   if (phoneDigits.length < 10 || phoneDigits.length > 15) return 'invalid_phone';
+  if (clean(payload.phone, 40).startsWith('+7') && phoneDigits.length !== 11) return 'invalid_phone';
 
   if (payload.email && !EMAIL_PATTERN.test(clean(payload.email, 160))) return 'invalid_email';
 
@@ -465,19 +476,18 @@ const server = http.createServer(async (request, response) => {
   }
 
   const ip = clientIp(request);
-  if (isRateLimited(ip)) {
-    jsonResponse(
-      response,
-      429,
-      { success: false, message: 'Слишком много отправок. Попробуйте позже.' },
-      corsHeaders,
-    );
-    return;
-  }
-
   try {
     const payload = await readJson(request);
     const validationError = validatePayload(payload);
+    if (isRateLimited(ip, !!validationError)) {
+      jsonResponse(
+        response,
+        429,
+        { success: false, message: 'Слишком много попыток. Повторите отправку позже.' },
+        corsHeaders,
+      );
+      return;
+    }
     if (validationError === 'spam') {
       jsonResponse(response, 200, { success: true }, corsHeaders);
       return;
@@ -486,7 +496,7 @@ const server = http.createServer(async (request, response) => {
       jsonResponse(
         response,
         400,
-        { success: false, message: 'Проверьте обязательные поля формы.' },
+        { success: false, message: 'Некоторые поля заполнены неверно. Проверьте контакты и попробуйте ещё раз.' },
         corsHeaders,
       );
       return;
@@ -504,26 +514,42 @@ const server = http.createServer(async (request, response) => {
       );
       return;
     }
-    const bitrixDealId = BITRIX_WEBHOOK_URL ? await createBitrixDeal(payload) : null;
-    if (bitrixDealId)
-      console.log(
-        JSON.stringify({
-          event: 'bitrix_delivered',
-          form_id: payload.form_id,
-          deal_id: bitrixDealId,
-        }),
-      );
-    // A real, durable destination must confirm receipt before the UI reports success.
-    if (!BITRIX_WEBHOOK_URL) await sendTelegram(payload);
-    jsonResponse(response, 200, { success: true, deal_id: bitrixDealId || undefined }, corsHeaders);
-    if (BITRIX_WEBHOOK_URL && BOT_TOKEN && CHAT_ID)
+    let bitrixDealId = null;
+    let fallbackDelivered = false;
+    if (BITRIX_WEBHOOK_URL) {
+      try {
+        bitrixDealId = await createBitrixDeal(payload);
+      } catch (error) {
+        console.error(new Date().toISOString(), 'bitrix_delivery_failed', error.name);
+        // Never claim success unless at least one configured destination confirms receipt.
+        if (!BOT_TOKEN || !CHAT_ID) throw error;
+        await sendTelegram({
+          ...payload,
+          delivery_note: 'Резервная доставка: проверьте создание сделки в Bitrix вручную.',
+        });
+        fallbackDelivered = true;
+      }
+    } else {
+      await sendTelegram(payload);
+    }
+    if (bitrixDealId) {
+      console.log(JSON.stringify({ event: 'bitrix_delivered', form_id: payload.form_id, deal_id: bitrixDealId }));
+    }
+    jsonResponse(response, 200, {
+      success: true,
+      deal_id: bitrixDealId || undefined,
+      delivery: fallbackDelivered ? 'telegram_fallback' : undefined,
+    }, corsHeaders);
+    if (bitrixDealId && BOT_TOKEN && CHAT_ID) {
       setImmediate(() => {
         sendTelegram(payload).catch(() =>
           console.error(new Date().toISOString(), 'telegram_async_delivery_failed'),
         );
       });
+    }
   } catch (error) {
-    const status = error.message === 'payload_too_large' ? 413 : 502;
+    const status = error.message === 'payload_too_large' ? 413
+      : error.message === 'invalid_json' ? 400 : 502;
     console.error(new Date().toISOString(), 'lead_delivery_failed', error.name);
     jsonResponse(
       response,

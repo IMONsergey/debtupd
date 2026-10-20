@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "forms:telegram": "node server/forms-telegram.mjs",
-    "test": "node --test src/lib/corporate-pricing.test.js server/forms-telegram.test.mjs scripts/typography.test.mjs src/lib/speaker-pages.test.js src/lib/ticket-pricing.test.js src/data/exhibition.test.js",
+    "test": "node --test src/lib/corporate-pricing.test.js server/forms-telegram.test.mjs scripts/typography.test.mjs src/lib/speaker-pages.test.js src/lib/ticket-pricing.test.js src/data/exhibition.test.js src/lib/lead-validation.test.js",
     "test:e2e": "playwright test",
     "audit:visual": "node scripts/visual-audit.mjs"
   },
