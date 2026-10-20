@@ -132,8 +132,8 @@ test('Marina Selina is the 33rd speaker with exact approved role and valid WebP 
 test('two latest speakers preserve approved identities, exact roles and WebP sources', () => {
   const speakers = JSON.parse(readFileSync(new URL('../speakers.json', import.meta.url), 'utf8'));
   const expected = [
-    ['Дмитрий Ломакин', 'Директор по развитию бизнеса «Инфолоджистикс»', 'speaker-dmitriy-lomakin.webp'],
-    ['Павел Соболев', 'Коммерческий директор «iDSystems»', 'speaker-pavel-sobolev.webp'],
+    ['Дмитрий Ломакин', 'Директор по развитию бизнеса «Инфолоджистикс»', 'speaker-dmitriy-lomakin-hq-20261020.webp'],
+    ['Павел Соболев', 'Коммерческий директор «iDSystems»', 'speaker-pavel-sobolev-hq-20261020.webp'],
   ];
   assert.equal(speakers.length, 35);
   assert.equal(new Set(speakers.map(({ name }) => name)).size, 35);

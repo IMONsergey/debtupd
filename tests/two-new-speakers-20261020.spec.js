@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 const additions = [
-  ['Дмитрий Ломакин', 'Директор по развитию бизнеса «Инфолоджистикс»', 'speaker-dmitriy-lomakin.webp'],
-  ['Павел Соболев', 'Коммерческий директор «iDSystems»', 'speaker-pavel-sobolev.webp'],
+  ['Дмитрий Ломакин', 'Директор по развитию бизнеса «Инфолоджистикс»', 'speaker-dmitriy-lomakin-hq-20261020.webp'],
+  ['Павел Соболев', 'Коммерческий директор «iDSystems»', 'speaker-pavel-sobolev-hq-20261020.webp'],
 ];
 
 test.beforeEach(async ({ page }) => {
@@ -41,7 +41,7 @@ for (const [width, pages] of [[320, 35], [390, 35], [768, 18], [1024, 12], [1440
       await expect(card.locator('.speaker-info p')).toHaveText(role);
       await portrait.scrollIntoViewIfNeeded();
       await expect.poll(
-        () => portrait.evaluate(img => img.complete && img.naturalWidth === 357 && img.naturalHeight === 292),
+        () => portrait.evaluate(img => img.complete && img.naturalWidth === 1071 && img.naturalHeight === 876),
         { timeout: 15000 },
       ).toBe(true);
       const layout = await card.evaluate(node => {
