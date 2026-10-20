@@ -70,7 +70,7 @@
   color: #cfebff;
   font-weight: 400;
   font-size: 0.88em;
-  text-transform: none;
+  text-transform: uppercase;
 }
 
 .welcome-pass__terms {
@@ -79,12 +79,12 @@
   align-items: center;
   min-height: 66px;
   padding-left: clamp(14px, 1.6cqi, 22px);
-  color: #ecf6ff;
+  color: #65baff;
   font:
     500 clamp(12px, 1.03cqi, 15px)/1.4 'IBM Plex Sans',
     sans-serif;
   text-wrap: pretty;
-  background: linear-gradient(90deg, rgba(67, 161, 239, 0.13), rgba(67, 161, 239, 0.035));
+  background: none;
 }
 
 .welcome-pass__terms::before {
