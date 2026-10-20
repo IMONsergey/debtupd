@@ -238,8 +238,9 @@ export const content = {
     logoImage: assetUrl('assets/images/tariffs/logo-form.svg'),
     handImage: assetUrl('assets/images/tariffs/hand-spaceman.png'),
     offer:
-      'Скидка 50% на один билет любого тарифа для представителя компании, которая впервые участвует в DEBT TECH.',
+      'Скидка 50% на один билет любого тарифа для делегатов от компаний, ранее не участвовавших в форумах DOLG TALK и DEBT TECH.',
     agreement: 'Скидка предоставляется по согласованию с организаторами.',
+    exclusion: 'Скидка не распространяется на оплату от физических лиц.',
     note: 'Стоимость актуальна до 1 октября включительно',
     ctaLabel: 'Принять участие',
     ctaModal: 'early-registration',

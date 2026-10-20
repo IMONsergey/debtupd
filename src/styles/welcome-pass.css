@@ -100,6 +100,27 @@
   transform: skewX(-12deg);
 }
 
+.welcome-pass__exclusion {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  max-width: 100%;
+  margin: clamp(11px, 1.2cqi, 16px) 0 0;
+  color: #b7cfe8;
+  font:
+    400 clamp(11px, 1.03cqi, 14px)/1.5 'IBM Plex Sans',
+    sans-serif;
+  text-wrap: pretty;
+}
+
+.welcome-pass__exclusion-mark {
+  flex: none;
+  color: #59b6ff;
+  font:
+    600 18px/1 'IBM Plex Sans',
+    sans-serif;
+}
+
 @media (max-width: 1180px) {
   .welcome-pass {
     width: min(100%, 720px);
