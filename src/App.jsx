@@ -695,34 +695,14 @@ function Tariffs({ onApply }) {
         <Picture className="tariff-astronaut decor" name="tariff-astronaut-masked.png" />
       </div>
       <section id="welcome-pass" className="welcome-pass" aria-labelledby="welcome-pass-title">
-        <div className="welcome-pass__content">
-          <div className="welcome-pass__heading">
-            <span className="welcome-pass__eyebrow">{content.tariffs.eyebrow}</span>
-            <h3 id="welcome-pass-title">{content.tariffs.title} Pass</h3>
-          </div>
-          <div className="welcome-pass__offer">
-            <strong aria-hidden="true">50%</strong>
-            <div className="welcome-pass__description">
-              <span className="welcome-pass__label">Для новых компаний</span>
-              <p>{content.tariffs.offer}</p>
-            </div>
-          </div>
-          <div className="welcome-pass__footer">
-            <p>{content.tariffs.agreement}</p>
-            <ArrowButton href="#tariff-plans" className="secondary welcome-pass__cta">
-              Выбрать тариф
-            </ArrowButton>
-          </div>
+        <h3 id="welcome-pass-title" className="welcome-pass__heading">
+          <span className="welcome-pass__headline">{content.tariffs.eyebrow}</span>
+          <span className="welcome-pass__outline">{content.tariffs.title}</span>
+        </h3>
+        <div className="welcome-pass__panel">
+          <p className="welcome-pass__offer">{content.tariffs.offer}</p>
+          <p className="welcome-pass__terms">{content.tariffs.agreement}</p>
         </div>
-        <img
-          className="welcome-pass__art"
-          src={content.tariffs.handImage}
-          alt=""
-          width="754"
-          height="402"
-          loading="lazy"
-          decoding="async"
-        />
       </section>
       <div className="tariff-grid" id="tariff-plans">
         {tariffs.items.map((t) => {
