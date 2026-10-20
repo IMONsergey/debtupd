@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 const offer =
-  'Скидка 50% на один билет любого тарифа для представителя компании, которая впервые участвует в DEBT TECH.';
+  'Скидка 50% на один билет любого тарифа для делегатов от компаний, ранее не участвовавших в форумах DOLG TALK и DEBT TECH.';
 const terms = 'Скидка предоставляется по согласованию с организаторами.';
+const exclusion = 'Скидка не распространяется на оплату от физических лиц.';
 
 test.beforeEach(async ({ page }) => {
   // Do not deliver test traffic to live Bitrix24 or Telegram.
@@ -33,6 +34,10 @@ for (const width of [320, 390, 599, 600, 700, 768, 900, 1024, 1180, 1181, 1440, 
       await expect(welcome.locator('.welcome-pass__outline')).toHaveText('Welcome');
       await expect(welcome.locator('.welcome-pass__offer')).toHaveText(offer);
       await expect(welcome.locator('.welcome-pass__terms')).toHaveText(terms);
+      await expect(welcome.locator('.welcome-pass__exclusion-mark')).toHaveText('*');
+      await expect(welcome.locator('.welcome-pass__exclusion > span:last-child')).toHaveText(
+        exclusion,
+      );
 
       // No redundant visual, registration CTA, extra pricing or oversized percentage.
       await expect(welcome.locator('img, picture, button, a')).toHaveCount(0);
@@ -52,6 +57,7 @@ for (const width of [320, 390, 599, 600, 700, 768, 900, 1024, 1180, 1181, 1440, 
         const panel = root.querySelector('.welcome-pass__panel').getBoundingClientRect();
         const main = root.querySelector('.welcome-pass__offer').getBoundingClientRect();
         const terms = root.querySelector('.welcome-pass__terms').getBoundingClientRect();
+        const footnote = root.querySelector('.welcome-pass__exclusion').getBoundingClientRect();
         const grid = document.querySelector('#tariff-plans').getBoundingClientRect();
         const columnLayout = window.innerWidth >= 700;
         return {
@@ -84,6 +90,11 @@ for (const width of [320, 390, 599, 600, 700, 768, 900, 1024, 1180, 1181, 1440, 
             terms.right <= panel.right &&
             terms.top >= panel.top &&
             terms.bottom <= panel.bottom,
+          footnoteBelowPanel:
+            footnote.top >= panel.bottom + 7 &&
+            footnote.left >= block.left - 1 &&
+            footnote.right <= block.right + 1 &&
+            footnote.bottom <= block.bottom + 1,
           alignedRows: columnLayout
             ? Math.abs(main.top + main.height / 2 - (terms.top + terms.height / 2)) < 26
             : terms.top >= main.bottom,
@@ -101,6 +112,7 @@ for (const width of [320, 390, 599, 600, 700, 768, 900, 1024, 1180, 1181, 1440, 
         astronautLowered: true,
         copyWithinPanel: true,
         termsWithinPanel: true,
+        footnoteBelowPanel: true,
         alignedRows: true,
         noHorizontalScroll: true,
       });

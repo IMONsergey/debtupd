@@ -703,6 +703,12 @@ function Tariffs({ onApply }) {
           <p className="welcome-pass__offer">{content.tariffs.offer}</p>
           <p className="welcome-pass__terms">{content.tariffs.agreement}</p>
         </div>
+        <p className="welcome-pass__exclusion">
+          <span className="welcome-pass__exclusion-mark" aria-hidden="true">
+            *
+          </span>
+          <span>{content.tariffs.exclusion}</span>
+        </p>
       </section>
       <div className="tariff-grid" id="tariff-plans">
         {tariffs.items.map((t) => {
