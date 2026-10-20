@@ -34,9 +34,9 @@
   background: linear-gradient(
     180deg,
     rgba(1, 11, 30, 0.94) 0%,
-    rgba(1, 17, 40, 0.82) 26%,
-    rgba(1, 18, 40, 0.13) 72%,
-    rgba(2, 16, 35, 0.42) 100%
+    rgba(1, 17, 40, 0.84) 26%,
+    rgba(1, 18, 40, 0.35) 72%,
+    rgba(2, 16, 35, 0.49) 100%
   );
 }
 
@@ -46,6 +46,7 @@
   height: 100%;
   object-fit: cover;
   object-position: center 51%;
+  filter: brightness(0.88);
 }
 
 .venue-hero-card__details {
@@ -56,17 +57,6 @@
   padding: clamp(13px, 1.12vw, 18px);
   padding-bottom: 0;
   text-shadow: 0 2px 13px #001025a8;
-}
-
-.venue-hero-card__eyebrow {
-  display: block;
-  margin-bottom: clamp(8px, 1vw, 13px);
-  color: #d5eaff;
-  font:
-    500 clamp(9px, 0.81vw, 11px)/1.35 'IBM Plex Sans',
-    sans-serif;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
 }
 
 .venue-hero-card__details h2 {
@@ -264,9 +254,6 @@
   .venue-hero-card__details {
     padding: 10px 12px 0;
   }
-  .venue-hero-card__eyebrow {
-    margin-bottom: 6px;
-  }
   .venue-hero-card__details h2 {
     font-size: 16px;
   }
@@ -417,9 +404,6 @@
   }
   .hero > .venue-hero-card .venue-hero-card__details {
     padding: 19px 19px 0;
-  }
-  .hero > .venue-hero-card .venue-hero-card__eyebrow {
-    font-size: 11px;
   }
   .hero > .venue-hero-card h2 {
     font-size: 25px;
