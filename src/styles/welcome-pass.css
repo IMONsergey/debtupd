@@ -66,13 +66,6 @@
   text-decoration-skip-ink: none;
 }
 
-.welcome-pass__effective-from {
-  color: #cfebff;
-  font-weight: 400;
-  font-size: 0.88em;
-  text-transform: uppercase;
-}
-
 .welcome-pass__terms {
   position: relative;
   display: flex;

@@ -702,11 +702,7 @@ function Tariffs({ onApply }) {
           <p className="welcome-pass__offer">
             {content.tariffs.offer.intro}
             <strong className="welcome-pass__emphasis">{content.tariffs.offer.emphasis}</strong>
-            {content.tariffs.offer.conclusion}{' '}
-            <span className="welcome-pass__effective-from">
-              ({content.tariffs.offer.effectiveFrom})
-            </span>
-            .
+            {content.tariffs.offer.conclusion}.
           </p>
           <p className="welcome-pass__terms">{content.tariffs.agreement}</p>
         </div>

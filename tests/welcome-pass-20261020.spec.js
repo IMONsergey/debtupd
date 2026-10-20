@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 const offer =
-  'Скидка 50% на один билет любого тарифа для делегатов от компаний, ранее не участвовавших в форумах DOLG TALK и DEBT TECH (ДЕЙСТВУЕТ С 20 ОКТЯБРЯ).';
+  'Скидка 50% на один билет по тарифам «Деловой», «Полный» или «Полный Plus» для делегатов от компаний, ранее не участвовавших в форумах DOLG TALK и DEBT TECH.';
 const terms = 'Скидка предоставляется по согласованию с организаторами.';
 const exclusion = 'Скидка не распространяется на оплату от физических лиц.';
 
@@ -37,13 +37,8 @@ for (const width of [320, 390, 599, 600, 700, 768, 900, 1024, 1180, 1181, 1440, 
       await expect(welcome.locator('.welcome-pass__panel')).toHaveClass(/\bcorners\b/);
       await expect(welcome.locator('.welcome-pass__offer')).toHaveText(offer);
       await expect(welcome.locator('.welcome-pass__emphasis')).toHaveText('ранее не участвовавших');
-      await expect(welcome.locator('.welcome-pass__effective-from')).toHaveText(
-        '(ДЕЙСТВУЕТ С 20 ОКТЯБРЯ)',
-      );
-      await expect(welcome.locator('.welcome-pass__effective-from')).toHaveCSS(
-        'text-transform',
-        'uppercase',
-      );
+      await expect(welcome.locator('.welcome-pass__effective-from')).toHaveCount(0);
+      await expect(welcome).not.toContainText('ДЕЙСТВУЕТ С 20 ОКТЯБРЯ');
       const emphasisStyle = await welcome.locator('.welcome-pass__emphasis').evaluate((el) => ({
         decoration: getComputedStyle(el).textDecorationLine,
         weight: Number(getComputedStyle(el).fontWeight),
