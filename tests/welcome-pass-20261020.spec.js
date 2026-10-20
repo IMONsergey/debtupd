@@ -29,9 +29,12 @@ for (const width of [320, 390, 599, 600, 700, 768, 900, 1024, 1180, 1181, 1440, 
       await expect(welcome).toHaveCount(1);
       await welcome.scrollIntoViewIfNeeded();
 
-      await expect(welcome.getByRole('heading', { name: /Multipass Welcome/i })).toBeVisible();
-      await expect(welcome.locator('.welcome-pass__headline')).toHaveText('Multipass');
-      await expect(welcome.locator('.welcome-pass__outline')).toHaveText('Welcome');
+      const heading = welcome.getByRole('heading', { name: /Multipass Welcome/i });
+      await expect(heading).toHaveText('Multipass Welcome');
+      await expect(welcome.locator('.welcome-pass__headline, .welcome-pass__outline')).toHaveCount(
+        0,
+      );
+      await expect(welcome.locator('.welcome-pass__panel')).toHaveClass(/\bcorners\b/);
       await expect(welcome.locator('.welcome-pass__offer')).toHaveText(offer);
       await expect(welcome.locator('.welcome-pass__terms')).toHaveText(terms);
       await expect(welcome.locator('.welcome-pass__exclusion-mark')).toHaveText('*');
@@ -47,11 +50,9 @@ for (const width of [320, 390, 599, 600, 700, 768, 900, 1024, 1180, 1181, 1440, 
 
       const geometry = await welcome.evaluate((root) => {
         const block = root.getBoundingClientRect();
-        const heading = root.querySelector('.welcome-pass__heading').getBoundingClientRect();
-        const multipass = root.querySelector('.welcome-pass__headline');
-        const welcome = root.querySelector('.welcome-pass__outline');
-        const multipassRect = multipass.getBoundingClientRect();
-        const welcomeRect = welcome.getBoundingClientRect();
+        const headingElement = root.querySelector('.welcome-pass__heading');
+        const heading = headingElement.getBoundingClientRect();
+        const headingStyle = getComputedStyle(headingElement);
         const astronautStyle = getComputedStyle(document.querySelector('.tariff-astronaut'));
         const width = window.innerWidth;
         const panel = root.querySelector('.welcome-pass__panel').getBoundingClientRect();
@@ -66,20 +67,31 @@ for (const width of [320, 390, 599, 600, 700, 768, 900, 1024, 1180, 1181, 1440, 
           compact: block.height <= (columnLayout ? 350 : 290),
           panelWithinBlock: panel.left >= block.left - 1 && panel.right <= block.right + 1,
           headingAbovePanel: heading.bottom < panel.top,
-          titleOnSingleRow:
-            Math.abs(multipassRect.top - welcomeRect.top) < 10 &&
-            welcomeRect.left >= multipassRect.right &&
-            welcomeRect.right <= heading.right + 1,
-          smallerType:
-            parseFloat(getComputedStyle(multipass).fontSize) <= 35 &&
-            parseFloat(getComputedStyle(welcome).fontSize) <= 28 &&
-            heading.height <= 42,
+          singleFilledTitle:
+            headingStyle.whiteSpace === 'nowrap' &&
+            headingElement.scrollWidth <= headingElement.clientWidth + 2 &&
+            headingStyle.webkitTextStrokeWidth === '0px' &&
+            headingStyle.backgroundImage.includes('linear-gradient') &&
+            headingStyle.fontFamily.toLowerCase().includes('bounded'),
+          smallerType: parseFloat(headingStyle.fontSize) <= 34 && heading.height <= 42,
+          participantSurface:
+            getComputedStyle(root.querySelector('.welcome-pass__panel')).backgroundImage ===
+              getComputedStyle(document.querySelector('.participant-card')).backgroundImage &&
+            getComputedStyle(root.querySelector('.welcome-pass__panel')).borderColor ===
+              getComputedStyle(document.querySelector('.participant-card')).borderColor,
+          brandedCorners:
+            getComputedStyle(root.querySelector('.welcome-pass__panel'), '::after').content ===
+              '""' &&
+            getComputedStyle(
+              root.querySelector('.welcome-pass__panel'),
+              '::after',
+            ).backgroundImage.includes('rgb(50, 171, 255)'),
           astronautLowered:
             width < 600
-              ? parseFloat(astronautStyle.top) >= 63
+              ? parseFloat(astronautStyle.top) >= 110
               : width <= 1180
-                ? parseFloat(astronautStyle.bottom) <= -150
-                : parseFloat(astronautStyle.bottom) <= -180,
+                ? parseFloat(astronautStyle.bottom) <= -220
+                : parseFloat(astronautStyle.bottom) <= -280,
           copyWithinPanel:
             main.left >= panel.left &&
             main.right <= panel.right &&
@@ -107,8 +119,10 @@ for (const width of [320, 390, 599, 600, 700, 768, 900, 1024, 1180, 1181, 1440, 
         compact: true,
         panelWithinBlock: true,
         headingAbovePanel: true,
-        titleOnSingleRow: true,
+        singleFilledTitle: true,
         smallerType: true,
+        participantSurface: true,
+        brandedCorners: true,
         astronautLowered: true,
         copyWithinPanel: true,
         termsWithinPanel: true,

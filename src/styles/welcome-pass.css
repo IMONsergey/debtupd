@@ -10,41 +10,19 @@
 }
 
 .welcome-pass__heading {
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
-  flex-wrap: nowrap;
-  gap: clamp(8px, 1.4cqi, 18px);
   max-width: 100%;
   margin: 0 0 clamp(12px, 1.2cqi, 16px);
-  font-weight: 400;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.welcome-pass__headline {
-  display: block;
-  max-width: 100%;
-  color: #fff;
-  background: linear-gradient(100deg, #fff 8%, #d3e9ff 58%, #53aaff 100%);
+  color: #edf6ff;
+  background: linear-gradient(100deg, #ffffff 0%, #d5e8ff 55%, #63b5ff 100%);
+  -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0;
   font:
-    400 clamp(18px, 2.9cqi, 35px)/1.1 Bounded,
+    400 clamp(19px, 2.8cqi, 34px)/1.12 Bounded,
     sans-serif;
-  letter-spacing: -0.005em;
-  white-space: nowrap;
-}
-
-.welcome-pass__outline {
-  display: block;
-  max-width: 100%;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(169, 205, 239, 0.92);
-  font:
-    400 clamp(16px, 2.35cqi, 28px)/1.08 Bounded,
-    sans-serif;
-  letter-spacing: 0.075em;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
@@ -56,8 +34,10 @@
   gap: clamp(18px, 2.2cqi, 30px);
   width: 100%;
   padding: clamp(17px, 1.75cqi, 23px);
-  border: 1px solid rgba(81, 165, 236, 0.56);
-  background: linear-gradient(100deg, rgba(12, 51, 96, 0.97), rgba(8, 36, 75, 0.98));
+  /* Match the finished participant cards in figma-fidelity.css. */
+  border: 1px solid #6374874a;
+  background-color: #050c1e;
+  background-image: linear-gradient(142deg, #0069ad 0%, #061222 27%, #091324 85%, #1e294177);
 }
 
 .welcome-pass__offer,
@@ -137,17 +117,8 @@
   }
 
   .welcome-pass__heading {
-    gap: clamp(7px, 2.1vw, 11px);
     margin-bottom: 11px;
-  }
-
-  .welcome-pass__headline {
-    font-size: clamp(18px, 5.4vw, 25px);
-  }
-
-  .welcome-pass__outline {
-    font-size: clamp(16px, 4.45vw, 22px);
-    letter-spacing: 0.045em;
+    font-size: clamp(17px, 5.1vw, 25px);
   }
 
   .welcome-pass__panel {
@@ -176,12 +147,8 @@
 }
 
 @media (max-width: 359px) {
-  .welcome-pass__headline {
-    font-size: 18px;
-  }
-  .welcome-pass__outline {
-    font-size: 16px;
-    letter-spacing: 0.035em;
+  .welcome-pass__heading {
+    font-size: clamp(16px, 5vw, 18px);
   }
 }
 
@@ -190,20 +157,20 @@
 @media (min-width: 1181px) {
   .tariffs-heading .tariff-astronaut {
     top: auto;
-    bottom: calc(clamp(-240px, -16cqi, -120px) - 62px);
+    bottom: calc(clamp(-240px, -16cqi, -120px) - 162px);
   }
 }
 
 @media (min-width: 600px) and (max-width: 1180px) {
   .tariffs-heading .tariff-astronaut {
     top: auto;
-    bottom: -154px;
+    bottom: -225px;
   }
 }
 
 @media (max-width: 599px) {
   .tariffs-heading .tariff-astronaut {
-    top: clamp(64px, 13vw, 92px);
+    top: clamp(112px, 21vw, 146px);
     bottom: auto;
   }
 }
