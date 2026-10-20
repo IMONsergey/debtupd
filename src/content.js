@@ -237,8 +237,12 @@ export const content = {
     title: 'Welcome',
     logoImage: assetUrl('assets/images/tariffs/logo-form.svg'),
     handImage: assetUrl('assets/images/tariffs/hand-spaceman.png'),
-    offer:
-      'Скидка 50% на один билет любого тарифа для делегатов от компаний, ранее не участвовавших в форумах DOLG TALK и DEBT TECH.',
+    offer: {
+      intro: 'Скидка 50% на один билет любого тарифа для делегатов от компаний, ',
+      emphasis: 'ранее не участвовавших',
+      conclusion: ' в форумах DOLG TALK и DEBT TECH',
+      effectiveFrom: 'действует с 20 октября',
+    },
     agreement: 'Скидка предоставляется по согласованию с организаторами.',
     exclusion: 'Скидка не распространяется на оплату от физических лиц.',
     note: 'Стоимость актуальна до 1 октября включительно',

@@ -56,17 +56,35 @@
   text-wrap: pretty;
 }
 
+.welcome-pass__emphasis {
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration-line: underline;
+  text-decoration-color: #56b8ff;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  text-decoration-skip-ink: none;
+}
+
+.welcome-pass__effective-from {
+  color: #cfebff;
+  font-weight: 400;
+  font-size: 0.88em;
+  text-transform: none;
+}
+
 .welcome-pass__terms {
   position: relative;
   display: flex;
   align-items: center;
   min-height: 66px;
   padding-left: clamp(14px, 1.6cqi, 22px);
-  color: #c4d9ed;
+  color: #ecf6ff;
   font:
-    400 clamp(12px, 1cqi, 14px)/1.37 'IBM Plex Sans',
+    500 clamp(12px, 1.03cqi, 15px)/1.4 'IBM Plex Sans',
     sans-serif;
   text-wrap: pretty;
+  background: linear-gradient(90deg, rgba(67, 161, 239, 0.13), rgba(67, 161, 239, 0.035));
 }
 
 .welcome-pass__terms::before {
