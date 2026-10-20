@@ -21,6 +21,7 @@ import './styles/fincifra-tariff.css';
 import './styles/topics-carousel.css';
 import './styles/fincifra-seminar.css';
 import './styles/online-tariff.css';
+import './styles/venue-directions.css';
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />

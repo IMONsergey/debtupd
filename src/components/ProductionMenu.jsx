@@ -5,7 +5,7 @@ import { assetUrl } from '../lib/assets.js';
 import { content } from '../content.js';
 
 // Production navigation content with the shared CTA system and a feathered blur backdrop.
-export function ProductionMenu({ onVideo, onGallery, onStand }) {
+export function ProductionMenu({ onVideo, onGallery, onStand, onDirections }) {
   const [desktop, setDesktop] = useState(() => matchMedia('(min-width:1181px)').matches);
   useEffect(() => {
     const mq = matchMedia('(min-width:1181px)');
@@ -13,7 +13,7 @@ export function ProductionMenu({ onVideo, onGallery, onStand }) {
     mq.addEventListener('change', sync);
     return () => mq.removeEventListener('change', sync);
   }, []);
-  if (!desktop) return <SpaceNavigation mobile onGallery={onGallery} />;
+  if (!desktop) return <SpaceNavigation mobile onGallery={onGallery} onDirections={onDirections} />;
   return (
     <>
       <MenuAtmosphere />

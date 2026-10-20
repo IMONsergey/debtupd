@@ -5,7 +5,7 @@ import { destinations } from '../navigation.js';
 import '../styles/space-navigation.css';
 const shipImageSrc = `${import.meta.env.BASE_URL}assets/menu-spaceship.png`;
 
-export function SpaceNavigation({ mobile = false, onNavigate }) {
+export function SpaceNavigation({ mobile = false, onNavigate, onDirections }) {
   const [active, setActive] = useState('about-forum');
   const [open, setOpen] = useState(false);
   const [routeHeight, setRouteHeight] = useState(0);
@@ -203,6 +203,21 @@ export function SpaceNavigation({ mobile = false, onNavigate }) {
             <span className="space-route__label">{item.label}</span>
           </a>
         ))}
+        {mobile && (
+          <button
+            type="button"
+            className="button secondary space-route__directions"
+            aria-haspopup="dialog"
+            onClick={() => {
+              setOpen(false);
+              toggleRef.current?.focus({ preventScroll: true });
+              onDirections?.();
+            }}
+          >
+            <span className="button-label">Как добраться</span>
+            <ActionArrow />
+          </button>
+        )}
         {mobile && (
           <a
             className="button space-route__register"
