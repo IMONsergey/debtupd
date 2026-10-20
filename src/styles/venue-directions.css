@@ -1,32 +1,28 @@
-/* Hero location teaser and the shared accessible directions dialog. */
-.hero-only-view {
-  position: relative;
-}
-
+/* First-screen venue card: photo-first composition with readable live text. */
 .venue-hero-card {
   position: absolute;
   z-index: 12;
-  /* Align with the support logos rather than the date above. */
-  top: calc(var(--hero-height) - clamp(165px, 17.8svh, 214px) - 191px - 18px);
   right: 32px;
+  bottom: calc(clamp(165px, 17.8svh, 214px) + 191px + 18px);
   display: flex;
   flex-direction: column;
   width: clamp(180px, 14.3vw, 230px);
+  height: clamp(278px, 31svh, 340px);
   padding: 0;
   overflow: hidden;
-  transform: translateY(-100%);
+  isolation: isolate;
+  border: 1px solid rgba(103, 182, 248, 0.57);
   border-radius: 10px;
   color: #f0f7ff;
-  background: #06182e;
-  border: 1px solid rgba(103, 182, 248, 0.54);
+  background: #04152b;
   box-shadow: 0 14px 32px #00081d66;
 }
 
 .venue-hero-card__photo {
-  position: relative;
-  flex: none;
+  position: absolute;
+  z-index: 0;
+  inset: 0 0 52px;
   overflow: hidden;
-  height: clamp(125px, 11.5vw, 169px);
   background: #04162b;
 }
 
@@ -35,7 +31,13 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(180deg, #0213273d 0%, transparent 45%, #06182e78 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(1, 11, 30, 0.94) 0%,
+    rgba(1, 17, 40, 0.82) 26%,
+    rgba(1, 18, 40, 0.13) 72%,
+    rgba(2, 16, 35, 0.42) 100%
+  );
 }
 
 .venue-hero-card__photo img {
@@ -43,99 +45,95 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 43%;
-}
-
-.venue-hero-card__eyebrow {
-  position: absolute;
-  z-index: 1;
-  left: 13px;
-  top: 12px;
-  padding: 5px 7px;
-  color: #f0f8ff;
-  background: #031b35b8;
-  border: 1px solid #63bafa69;
-  font:
-    500 10px/1.35 'IBM Plex Sans',
-    sans-serif;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  object-position: center 51%;
 }
 
 .venue-hero-card__details {
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  padding: 13px;
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
   min-width: 0;
+  padding: clamp(13px, 1.12vw, 18px);
+  padding-bottom: 0;
+  text-shadow: 0 2px 13px #001025a8;
+}
+
+.venue-hero-card__eyebrow {
+  display: block;
+  margin-bottom: clamp(8px, 1vw, 13px);
+  color: #d5eaff;
+  font:
+    500 clamp(9px, 0.81vw, 11px)/1.35 'IBM Plex Sans',
+    sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .venue-hero-card__details h2 {
   margin: 0;
+  color: #fff;
   font:
-    400 clamp(16px, 1.32vw, 19px)/1.2 Bounded,
+    400 clamp(17px, 1.45vw, 23px)/1.23 Bounded,
     sans-serif;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
+  text-wrap: balance;
 }
 
 .venue-hero-card__details h2 span {
   display: block;
-  margin-top: 4px;
+  margin-top: 6px;
+  color: #f0f6ff;
   font:
-    450 clamp(11px, 0.94vw, 13px)/1.35 'IBM Plex Sans',
+    500 clamp(11px, 0.94vw, 14px)/1.36 'IBM Plex Sans',
     sans-serif;
   letter-spacing: 0;
   text-transform: none;
-  color: #deefff;
   text-wrap: pretty;
 }
 
 .venue-hero-card__details p {
-  margin: 0;
-  color: #abc8e2;
+  margin: clamp(8px, 0.9vw, 13px) 0 0;
+  color: #d8e9ff;
   font:
-    400 clamp(10px, 0.88vw, 12px)/1.4 'IBM Plex Sans',
+    400 clamp(11px, 0.88vw, 13px)/1.4 'IBM Plex Sans',
     sans-serif;
   text-wrap: pretty;
 }
 
-.venue-hero-card__button,
-.venue-directions-dialog__close {
+.venue-hero-card__button {
+  position: relative;
+  z-index: 1;
   display: flex;
+  flex: 0 0 52px;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  cursor: pointer;
+  gap: 10px;
+  width: 100%;
+  min-height: 52px;
+  padding: 12px clamp(13px, 1.12vw, 18px);
+  border: 0;
+  border-top: 1px solid rgba(101, 186, 255, 0.34);
+  border-radius: 0;
+  background: rgba(4, 27, 56, 0.94);
+  color: #fff;
   font:
     500 12px/1.35 'IBM Plex Sans',
     sans-serif;
+  letter-spacing: 0.04em;
+  text-align: left;
   text-transform: uppercase;
-  letter-spacing: 0.025em;
-  color: #fff;
-  border: 1px solid #65baff66;
-  background: #103c6557;
-  transition:
-    background 200ms ease,
-    border-color 200ms ease;
-}
-
-.venue-hero-card__button {
-  margin-top: 4px;
-  min-height: 41px;
-  width: 100%;
-  padding: 10px 11px;
-  border-radius: 4px;
+  cursor: pointer;
+  transition: background 200ms ease;
 }
 
 .venue-hero-card__button svg {
-  flex: none;
+  display: block;
+  flex: 0 0 20px;
 }
 
-.venue-hero-card__button:hover,
-.venue-directions-dialog__close:hover {
-  border-color: #a0d6ffcc;
-  background: #1763a175;
+.venue-hero-card__button:hover {
+  background: rgba(12, 63, 111, 0.96);
 }
 
 .venue-hero-card__button:focus-visible,
@@ -143,7 +141,17 @@
 .venue-directions-dialog__link:focus-visible,
 .space-route__directions:focus-visible {
   outline: 2px solid #9bddff;
+  outline-offset: -4px;
+}
+.venue-directions-dialog__close:focus-visible,
+.venue-directions-dialog__link:focus-visible,
+.space-route__directions:focus-visible {
   outline-offset: 3px;
+}
+
+.venue-directions-dialog__close:hover {
+  border-color: #a0d6ffcc;
+  background: #1763a175;
 }
 
 .venue-directions-layer {
@@ -247,56 +255,59 @@
   margin-top: 17px;
 }
 
-@media (min-width: 1181px) and (max-height: 840px) {
-  .venue-hero-card__photo {
-    height: clamp(125px, 10vw, 146px);
+/* A short desktop has less vertical room above the supporting logos. */
+@media (min-width: 1181px) and (max-height: 760px) {
+  .hero > .venue-hero-card {
+    height: 218px;
+    bottom: calc(165px + 191px + 16px);
   }
   .venue-hero-card__details {
-    gap: 7px;
-    padding: 10px 12px;
+    padding: 10px 12px 0;
+  }
+  .venue-hero-card__eyebrow {
+    margin-bottom: 6px;
+  }
+  .venue-hero-card__details h2 {
+    font-size: 16px;
+  }
+  .venue-hero-card__details h2 span {
+    margin-top: 3px;
+    font-size: 10px;
+    line-height: 1.24;
+  }
+  .venue-hero-card__details p {
+    margin-top: 5px;
+    font-size: 10px;
+    line-height: 1.27;
+  }
+  .venue-hero-card__photo {
+    bottom: 44px;
   }
   .venue-hero-card__button {
-    min-height: 37px;
-    margin-top: 2px;
-    padding: 8px 9px;
+    flex-basis: 44px;
+    min-height: 44px;
+    padding: 9px 12px;
+    font-size: 11px;
   }
 }
 
-/* On tablet the venue has its own full-width slot after the hero, avoiding overlap
-   with the planet, conference logo, supporting organizations and countdown. */
-@media (max-width: 1180px), (max-height: 760px) {
-  .venue-hero-card {
-    position: relative;
-    inset: auto;
-    transform: none;
-    width: min(660px, calc(100% - 48px));
-    margin: 20px auto 28px;
-    display: grid;
-    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1fr);
-    align-items: stretch;
-    box-shadow: none;
+@media (min-width: 768px) and (max-width: 1180px) {
+  .hero > .venue-hero-card {
+    right: 32px;
+    bottom: calc(172px + 191px + 16px);
+    width: 180px;
+    height: 278px;
   }
-  .venue-hero-card__photo {
-    height: 100%;
-    min-height: 210px;
+}
+
+/* Keep the conference wordmark clear of the location panel at tight tablet widths. */
+@media (min-width: 768px) and (max-width: 820px) {
+  .hero {
+    --hero-logo-width: min(42vw, 320px);
   }
-  .venue-hero-card__details {
-    gap: 12px;
-    padding: 19px 21px;
-  }
-  .venue-hero-card__details h2 {
-    font-size: 22px;
-  }
-  .venue-hero-card__details h2 span {
-    font-size: 14px;
-  }
-  .venue-hero-card__details p {
-    font-size: 13px;
-  }
-  .venue-hero-card__button {
-    margin-top: auto;
-    min-height: 46px;
-  }
+}
+
+@media (max-width: 1180px) {
   .space-navigation--mobile .space-route {
     max-height: calc(100dvh - 85px);
     overflow-y: auto;
@@ -318,25 +329,118 @@
   }
 }
 
+/* Narrow tablets need more room than the hero's fixed-height rail provides.
+   Make the venue a proper element of the opening section, before supporter logos. */
+@media (min-width: 600px) and (max-width: 767px) {
+  .hero {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: var(--hero-height);
+  }
+  .hero .hero-layer-scene {
+    height: var(--hero-height);
+    bottom: auto;
+  }
+  .hero .hero-content {
+    flex: 0 0 var(--hero-height);
+    height: var(--hero-height);
+    min-height: var(--hero-height);
+  }
+  .hero > .venue-hero-card {
+    position: relative;
+    inset: auto;
+    transform: none;
+    order: 2;
+    flex: none;
+    align-self: center;
+    width: min(380px, calc(100% - 48px));
+    height: clamp(395px, 63vw, 435px);
+    margin: 16px 24px 0;
+  }
+  .hero > .hero-supporters {
+    position: relative;
+    order: 3;
+    inset: auto;
+    align-self: stretch;
+    width: auto;
+    max-width: none;
+    margin: 24px 24px 30px;
+    padding-top: 16px;
+    border-top: 1px solid #b9d9ff36;
+  }
+  .hero > .hero-supporters .supporters-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .hero > .hero-supporters .supporter {
+    gap: 8px;
+    min-height: 38px;
+  }
+  .hero > .hero-supporters .supporter img {
+    width: 30px;
+    height: 30px;
+    flex: none;
+    object-fit: contain;
+  }
+  .hero > .hero-supporters .supporter-full {
+    display: block;
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+    font-size: 10px;
+    line-height: 1.35;
+  }
+  .hero > .hero-supporters .supporter-short,
+  .hero > .hero-supporters .supporter-prefix {
+    display: none;
+  }
+}
+
+/* On phones the venue follows the hero introduction and countdown and precedes
+   supporting partners, all within the first page section. */
 @media (max-width: 599px) {
-  .venue-hero-card {
-    grid-template-columns: 1fr;
-    margin: 18px 16px 26px;
+  .hero > .venue-hero-card {
+    position: relative;
+    inset: auto;
+    transform: none;
+    order: 2;
+    flex: none;
+    align-self: stretch;
     width: calc(100% - 32px);
+    height: clamp(340px, 100vw, 430px);
+    margin: 18px 16px 0;
   }
-  .venue-hero-card__photo {
-    height: clamp(157px, 45vw, 220px);
-    min-height: 0;
+  .hero > .venue-hero-card .venue-hero-card__details {
+    padding: 19px 19px 0;
   }
-  .venue-hero-card__details {
-    gap: 9px;
-    padding: 16px;
+  .hero > .venue-hero-card .venue-hero-card__eyebrow {
+    font-size: 11px;
   }
-  .venue-hero-card__details h2 {
-    font-size: 20px;
+  .hero > .venue-hero-card h2 {
+    font-size: 25px;
   }
-  .venue-hero-card__button {
-    margin-top: 6px;
+  .hero > .venue-hero-card h2 span {
+    font-size: 16px;
+  }
+  .hero > .venue-hero-card .venue-hero-card__details p {
+    font-size: 14px;
+  }
+  .hero > .venue-hero-card .venue-hero-card__button {
+    min-height: 56px;
+    flex-basis: 56px;
+    font-size: 14px;
+    padding-inline: 19px;
+  }
+  .hero > .venue-hero-card .venue-hero-card__photo {
+    bottom: 56px;
+  }
+  .hero > .hero-supporters {
+    margin-top: 23px;
   }
   .venue-directions-dialog {
     max-height: calc(100dvh - 24px);
