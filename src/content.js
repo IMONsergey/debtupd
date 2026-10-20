@@ -317,7 +317,7 @@ export const content = {
         title: 'Онлайн-участие',
         price: '25 000 ₽',
         fixedPrice: true,
-        priceCaption: 'Стоимость',
+        priceCaption: 'Стоимость*',
         icon: assetUrl('assets/images/tariffs/business-icon.svg'),
         features: [
           { label: 'Онлайн-трансляция форума', active: true },

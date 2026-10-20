@@ -11,7 +11,7 @@ const venueDirectionsMap = assetUrl('assets/images/venue/tau-route-map.webp');
 export function VenueCard({ onDirections }) {
   const venue = content.venue;
   return (
-    <section className="venue-hero-card corners" aria-label={venue.title}>
+    <section className="venue-hero-card" aria-label={venue.title}>
       <div className="venue-hero-card__photo">
         <img
           src={venuePhoto}

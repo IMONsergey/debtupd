@@ -34,6 +34,11 @@ for (const [width, height] of [
 
     const card = page.locator('.venue-hero-card');
     await expect(card).toBeVisible();
+    await expect(card).not.toHaveClass(/\bcorners\b/);
+    const cornerDecoration = await card.evaluate(
+      (element) => getComputedStyle(element, '::after').content,
+    );
+    expect(cornerDecoration).toBe('none');
     await expect(card.locator('h2')).toContainText(venueName);
     await expect(card.locator('h2')).toContainText('пространство музыкальных культур');
     await expect(card.locator('p')).toHaveText(address);

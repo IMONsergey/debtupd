@@ -38,7 +38,7 @@ for (const width of [320, 390, 600, 768, 899, 900, 1024, 1180, 1181, 1440, 1920]
     for (const [index, label] of expectedFeatures.entries()) {
       expect(benefits[index].replace(/\s+/g, ' ').trim()).toContain(label);
     }
-    await expect(online.locator('.tariff-bottom > span')).toHaveText('Стоимость');
+    await expect(online.locator('.tariff-bottom > span')).toHaveText('Стоимость*');
     await expect(online.locator('.tariff-bottom > strong')).toHaveText('25 000 ₽');
     const illustration = online.locator('.tariff-online__visual');
     const satellite = illustration.locator('img');
