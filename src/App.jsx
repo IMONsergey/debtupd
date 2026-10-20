@@ -696,10 +696,9 @@ function Tariffs({ onApply }) {
       </div>
       <section id="welcome-pass" className="welcome-pass" aria-labelledby="welcome-pass-title">
         <h3 id="welcome-pass-title" className="welcome-pass__heading">
-          <span className="welcome-pass__headline">{content.tariffs.eyebrow}</span>
-          <span className="welcome-pass__outline">{content.tariffs.title}</span>
+          {content.tariffs.eyebrow} {content.tariffs.title}
         </h3>
-        <div className="welcome-pass__panel">
+        <div className="welcome-pass__panel corners">
           <p className="welcome-pass__offer">{content.tariffs.offer}</p>
           <p className="welcome-pass__terms">{content.tariffs.agreement}</p>
         </div>
