@@ -157,7 +157,7 @@ function Countdown() {
     </div>
   );
 }
-function Hero({ onStand }) {
+function Hero({ onStand, onDirections }) {
   return (
     <header className="hero" id="top">
       <HeroScene />
@@ -187,6 +187,7 @@ function Hero({ onStand }) {
         </div>
         <Countdown />
       </div>
+      <VenueCard onDirections={onDirections} />
       <Supporters />
     </header>
   );
@@ -1018,8 +1019,7 @@ export default function App() {
           onStand={() => openForm('stand-booking')}
           onDirections={openDirections}
         />
-        <Hero onStand={() => openForm('stand-booking')} />
-        <VenueCard onDirections={openDirections} />
+        <Hero onStand={() => openForm('stand-booking')} onDirections={openDirections} />
         <main className="main-grid">
           <div className="mobile-info">
             <InfoBlock

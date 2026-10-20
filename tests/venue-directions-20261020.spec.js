@@ -16,11 +16,18 @@ test.beforeEach(async ({ page }) => {
 for (const [width, height] of [
   [320, 720],
   [390, 844],
+  [600, 800],
+  [680, 800],
+  [700, 800],
   [768, 800],
+  [800, 800],
+  [900, 800],
   [1024, 768],
+  [1181, 620],
   [1181, 800],
   [1280, 700],
   [1280, 800],
+  [1440, 650],
   [1440, 850],
   [1440, 900],
   [1920, 1080],
@@ -56,15 +63,29 @@ for (const [width, height] of [
       const card = bounds('.venue-hero-card');
       const hero = bounds('.hero');
       const date = bounds('.hero-date');
+      const brand = bounds('.hero-wordmark');
       const supporters = bounds('.hero-supporters');
+      const photo = bounds('.venue-hero-card__photo');
+      const title = bounds('.venue-hero-card__details h2');
+      const address = bounds('.venue-hero-card__details p');
+      const button = bounds('.venue-hero-card__button');
+      const overlaps = (a, b) =>
+        a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
       return {
-        aboveHeroBottom: card.bottom <= hero.bottom,
-        belowHeroBottom: card.top >= hero.bottom - 2,
-        clearDate: card.top >= date.bottom + 8,
-        clearSupporters: card.bottom <= supporters.top - 8,
+        insideHero: card.top >= hero.top - 2 && card.bottom <= hero.bottom + 2,
+        clearDate: !overlaps(card, date),
+        clearBrand: !overlaps(card, brand),
+        beforeSupporters: card.bottom <= supporters.top - 12,
         matchesSupportWidth: Math.abs(card.width - supporters.width) <= 1,
         matchesSupportRight: Math.abs(card.right - supporters.right) <= 1,
         supportersGap: supporters.top - card.bottom,
+        photoUnderlaysCopy:
+          photo.top <= title.top && photo.bottom >= address.bottom && photo.width >= card.width - 2,
+        buttonIsFooter:
+          Math.abs(button.bottom - card.bottom) <= 2 &&
+          Math.abs(button.width - (card.width - 2)) <= 2 &&
+          button.top >= photo.bottom - 2,
+        cardIsPortrait: card.height >= card.width * 0.95,
         roundedCorners:
           parseFloat(
             getComputedStyle(document.querySelector('.venue-hero-card')).borderTopLeftRadius,
@@ -72,15 +93,18 @@ for (const [width, height] of [
         overflow: document.documentElement.scrollWidth > innerWidth + 2,
       };
     });
-    if (width >= 1181 && height > 760) {
-      expect(layout.aboveHeroBottom).toBe(true);
-      expect(layout.clearDate).toBe(true);
-      expect(layout.clearSupporters).toBe(true);
+    expect(layout.insideHero).toBe(true);
+    expect(layout.clearDate).toBe(true);
+    expect(layout.beforeSupporters).toBe(true);
+    expect(layout.photoUnderlaysCopy).toBe(true);
+    expect(layout.buttonIsFooter).toBe(true);
+    expect(layout.cardIsPortrait).toBe(true);
+    if (width >= 768) {
+      expect(layout.clearBrand).toBe(true);
       expect(layout.matchesSupportWidth).toBe(true);
       expect(layout.matchesSupportRight).toBe(true);
-      expect(Math.abs(layout.supportersGap - 18)).toBeLessThanOrEqual(2);
-    } else {
-      expect(layout.belowHeroBottom).toBe(true);
+      const expectedGap = width <= 1180 || height <= 760 ? 16 : 18;
+      expect(Math.abs(layout.supportersGap - expectedGap)).toBeLessThanOrEqual(2);
     }
     expect(layout.overflow).toBe(false);
     expect(layout.roundedCorners).toBe(true);

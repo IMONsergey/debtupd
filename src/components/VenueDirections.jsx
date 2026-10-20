@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowUpRight, X } from 'lucide-react';
+import { ArrowUpRight, MapPin, X } from 'lucide-react';
 import { useDialog } from '../lib/useDialog.js';
 import { assetUrl } from '../lib/assets.js';
 import { content } from '../content.js';
@@ -15,30 +15,30 @@ export function VenueCard({ onDirections }) {
       <div className="venue-hero-card__photo">
         <img
           src={venuePhoto}
-          alt="Площадка TAU с синим световым оформлением"
+          alt="Зал пространства TAU с синим световым оформлением"
           width="1400"
           height="1264"
           loading="eager"
           decoding="async"
           fetchPriority="low"
         />
-        <span className="venue-hero-card__eyebrow">Место проведения</span>
       </div>
       <div className="venue-hero-card__details">
+        <span className="venue-hero-card__eyebrow">Место проведения</span>
         <h2>
           TAU <span>— пространство музыкальных культур</span>
         </h2>
         <p>{venue.address}</p>
-        <button
-          type="button"
-          className="venue-hero-card__button"
-          onClick={onDirections}
-          aria-haspopup="dialog"
-        >
-          <span>Как добраться</span>
-          <ArrowUpRight aria-hidden="true" size={17} />
-        </button>
       </div>
+      <button
+        type="button"
+        className="venue-hero-card__button"
+        onClick={onDirections}
+        aria-haspopup="dialog"
+      >
+        <span>Как добраться</span>
+        <MapPin aria-hidden="true" size={20} />
+      </button>
     </section>
   );
 }
