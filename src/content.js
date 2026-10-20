@@ -238,10 +238,10 @@ export const content = {
     logoImage: assetUrl('assets/images/tariffs/logo-form.svg'),
     handImage: assetUrl('assets/images/tariffs/hand-spaceman.png'),
     offer: {
-      intro: 'Скидка 50% на один билет любого тарифа для делегатов от компаний, ',
+      intro:
+        'Скидка 50% на один билет по тарифам «Деловой», «Полный» или «Полный Plus» для делегатов от компаний, ',
       emphasis: 'ранее не участвовавших',
       conclusion: ' в форумах DOLG TALK и DEBT TECH',
-      effectiveFrom: 'ДЕЙСТВУЕТ С 20 ОКТЯБРЯ',
     },
     agreement: 'Скидка предоставляется по согласованию с организаторами.',
     exclusion: 'Скидка не распространяется на оплату от физических лиц.',
