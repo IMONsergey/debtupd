@@ -1,0 +1,257 @@
+/* Archive-inspired Welcome Pass: the original MULTIPASS / WELCOME lettering,
+   approved astronaut glove and the archived first-time attendee offer.
+   The 50% offer remains organizer-approved, never a client-side tariff discount. */
+.welcome-pass {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: block;
+  min-width: 0;
+  min-height: 340px;
+  margin: 0 0 clamp(24px, 2.6cqi, 38px);
+  border: 1px solid rgba(89, 165, 229, 0.53);
+  border-radius: 8px;
+  background:
+    radial-gradient(ellipse at 92% 46%, rgba(47, 133, 225, 0.32) 0%, transparent 58%),
+    linear-gradient(
+      122deg,
+      rgba(12, 49, 88, 0.99),
+      rgba(3, 24, 52, 0.99) 62%,
+      rgba(5, 26, 57, 0.99)
+    );
+  color: #f2f8ff;
+  box-shadow: inset 0 0 52px rgba(42, 151, 244, 0.045);
+}
+
+.welcome-pass__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(14px, 1.4cqi, 22px);
+  width: 100%;
+  min-height: 340px;
+  padding: clamp(24px, 2.9cqi, 40px);
+  padding-right: clamp(250px, 37%, 485px);
+}
+
+.welcome-pass__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.welcome-pass__eyebrow {
+  color: #7fbeee;
+  font:
+    500 11px/1.35 'IBM Plex Sans',
+    sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.welcome-pass__heading h3 {
+  margin: 0;
+  color: #fff;
+  font:
+    450 clamp(26px, 3.1cqi, 44px)/1.16 Bounded,
+    sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+}
+
+.welcome-pass__offer {
+  display: flex;
+  align-items: center;
+  gap: clamp(15px, 2cqi, 28px);
+  min-width: 0;
+}
+
+.welcome-pass__offer > strong {
+  display: block;
+  flex: none;
+  color: #57b7ff;
+  font:
+    400 clamp(64px, 7.1cqi, 96px)/1 Bounded,
+    sans-serif;
+  letter-spacing: -0.05em;
+  white-space: nowrap;
+  text-shadow: 0 0 45px #1a88ea38;
+}
+
+.welcome-pass__description {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.welcome-pass__label {
+  color: #eff7ff;
+  font:
+    500 clamp(11px, 1.12cqi, 14px)/1.5 'IBM Plex Sans',
+    sans-serif;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.welcome-pass__description p {
+  max-width: 430px;
+  margin: 0;
+  color: #dceafa;
+  font:
+    400 clamp(13px, 1.15cqi, 16px)/1.45 'IBM Plex Sans',
+    sans-serif;
+  text-wrap: pretty;
+}
+
+.welcome-pass__footer {
+  display: flex;
+  align-items: center;
+  gap: clamp(15px, 2cqi, 30px);
+  width: min(100%, 660px);
+  margin-top: auto;
+  padding-top: clamp(12px, 1.4cqi, 19px);
+  border-top: 1px solid rgba(122, 188, 242, 0.24);
+}
+
+.welcome-pass__footer p {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  color: #a7c4e0;
+  font:
+    400 clamp(11px, 0.93cqi, 13px)/1.5 'IBM Plex Sans',
+    sans-serif;
+  text-wrap: pretty;
+}
+
+.welcome-pass__cta.button {
+  flex: 0 0 auto;
+  min-width: 198px;
+  min-height: 50px;
+  gap: 15px;
+  padding: 12px 15px;
+  font-size: clamp(11px, 1.1cqi, 13px);
+}
+
+.welcome-pass__art {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  width: min(46%, 550px);
+  height: auto;
+  right: -3%;
+  top: 50%;
+  transform: translateY(-43%) rotate(-4deg);
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 17px 24px rgba(0, 9, 28, 0.4));
+}
+
+@media (max-width: 1179px) {
+  .welcome-pass__content {
+    padding-right: 33%;
+  }
+
+  .welcome-pass__offer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .welcome-pass__footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 13px;
+  }
+}
+
+@media (max-width: 699px) {
+  .welcome-pass {
+    min-height: 0;
+  }
+
+  .welcome-pass__content {
+    min-height: 0;
+    padding: 22px 19px 18px;
+    padding-right: 19px;
+    gap: 15px;
+  }
+
+  .welcome-pass__heading h3 {
+    font-size: clamp(25px, 7.3vw, 37px);
+  }
+
+  .welcome-pass__offer {
+    width: 100%;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .welcome-pass__offer > strong {
+    font-size: clamp(60px, 20vw, 94px);
+  }
+
+  .welcome-pass__description {
+    width: 100%;
+  }
+
+  .welcome-pass__label {
+    font-size: 12px;
+  }
+
+  .welcome-pass__description p {
+    max-width: 420px;
+    font-size: 14px;
+  }
+
+  .welcome-pass__footer {
+    gap: 14px;
+    align-items: stretch;
+    margin-top: 126px;
+    padding-top: 16px;
+  }
+
+  .welcome-pass__footer p {
+    font-size: 12px;
+  }
+
+  .welcome-pass__cta.button {
+    width: 100%;
+    justify-content: space-between;
+    min-width: 0;
+    font-size: 13px;
+  }
+
+  .welcome-pass__art {
+    top: auto;
+    bottom: 81px;
+    right: -38px;
+    width: min(96%, 390px);
+    max-height: 185px;
+    transform: rotate(-4deg);
+    opacity: 0.93;
+  }
+}
+
+@media (max-width: 359px) {
+  .welcome-pass__content {
+    padding-inline: 15px;
+  }
+  .welcome-pass__heading h3 {
+    font-size: 25px;
+  }
+  .welcome-pass__art {
+    bottom: 94px;
+    right: -54px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-pass__art {
+    transition: none;
+  }
+}
