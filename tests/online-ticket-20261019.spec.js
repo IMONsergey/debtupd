@@ -82,6 +82,11 @@ for (const width of [320, 390, 600, 768, 899, 900, 1024, 1180, 1181, 1440, 1920]
               .getBoundingClientRect();
             return image.right > card.right + 5 || image.top < card.top - 5;
           })(),
+          visiblePriceGap: (() => {
+            const amount = article.querySelector('.tariff-bottom > strong').getBoundingClientRect();
+            const button = article.querySelector('.tariff-bottom .button').getBoundingClientRect();
+            return button.top - amount.bottom >= 16 && button.top - amount.bottom <= 32;
+          })(),
           buttonTextSingleLine: (() => {
             const label = article.querySelector('.tariff-bottom .button-label');
             const lineHeight = parseFloat(getComputedStyle(label).lineHeight);
@@ -101,6 +106,7 @@ for (const width of [320, 390, 600, 768, 899, 900, 1024, 1180, 1181, 1440, 1920]
         compactHeight: true,
         purchaseBottomAligned: true,
         imageIntentionallyCropped: true,
+        visiblePriceGap: true,
         buttonTextSingleLine: true,
       });
     } else {
