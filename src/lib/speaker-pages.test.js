@@ -80,7 +80,7 @@ test('the previous ten speakers keep approved names, roles and original portrait
       'speaker-aleksandr-mitrokhin.webp',
     ],
   ];
-  assert.equal(speakers.length, 33);
+  assert.equal(speakers.length, 35);
   assert.equal(new Set(speakers.map((speaker) => speaker.name)).size, speakers.length);
   assert.deepEqual(
     speakers.slice(19, 29).map(({ name, role, image }) => [name, role, image]),
@@ -93,10 +93,10 @@ test('the previous ten speakers keep approved names, roles and original portrait
   }
 });
 
-test('all 33 speakers paginate correctly across desktop, tablet and mobile', () => {
-  assert.deepEqual(speakerPageStarts(33, 3), [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30]);
-  assert.deepEqual(speakerPageStarts(33, 2), [...Array.from({ length: 16 }, (_, i) => i * 2), 31]);
-  assert.deepEqual(speakerPageStarts(33, 1), Array.from({ length: 33 }, (_, i) => i));
+test('all 35 speakers paginate correctly across desktop, tablet and mobile', () => {
+  assert.deepEqual(speakerPageStarts(35, 3), [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 32]);
+  assert.deepEqual(speakerPageStarts(35, 2), [...Array.from({ length: 17 }, (_, i) => i * 2), 33]);
+  assert.deepEqual(speakerPageStarts(35, 1), Array.from({ length: 35 }, (_, i) => i));
 });
 
 test('three October additions retain supplied roles and valid WebP portraits', () => {
@@ -106,8 +106,8 @@ test('three October additions retain supplied roles and valid WebP portraits', (
     ['Глеб Лябушев', 'Заместитель генерального директора ПКО «А.Сторм»', 'speaker-gleb-lyabushev.webp'],
     ['Евгений Коротков', 'Финансовый директор ООО «ЭВЕРЕСТ ПЛЮС»', 'speaker-evgeniy-korotkov.webp'],
   ];
-  assert.equal(speakers.length, 33);
-  assert.equal(new Set(speakers.map(({ name }) => name)).size, 33);
+  assert.equal(speakers.length, 35);
+  assert.equal(new Set(speakers.map(({ name }) => name)).size, 35);
   assert.deepEqual(speakers.slice(29, 32).map(({ name, role, image }) => [name, role, image]), expected);
   for (const [, , name] of expected) {
     const bytes = readFileSync(new URL('../../public/assets/figma/' + name, import.meta.url));
@@ -118,7 +118,7 @@ test('three October additions retain supplied roles and valid WebP portraits', (
 
 test('Marina Selina is the 33rd speaker with exact approved role and valid WebP image', () => {
   const speakers = JSON.parse(readFileSync(new URL('../speakers.json', import.meta.url), 'utf8'));
-  assert.equal(speakers.length, 33);
+  assert.equal(speakers.length, 35);
   assert.deepEqual(speakers[32], {
     image: 'speaker-marina-selina.webp',
     name: 'Марина Селина',
@@ -127,4 +127,20 @@ test('Marina Selina is the 33rd speaker with exact approved role and valid WebP 
   const bytes = readFileSync(new URL('../../public/assets/figma/speaker-marina-selina.webp', import.meta.url));
   assert.equal(bytes.toString('ascii', 0, 4), 'RIFF');
   assert.equal(bytes.toString('ascii', 8, 12), 'WEBP');
+});
+
+test('two latest speakers preserve approved identities, exact roles and WebP sources', () => {
+  const speakers = JSON.parse(readFileSync(new URL('../speakers.json', import.meta.url), 'utf8'));
+  const expected = [
+    ['Дмитрий Ломакин', 'Директор по развитию бизнеса «Инфолоджистикс»', 'speaker-dmitriy-lomakin.webp'],
+    ['Павел Соболев', 'Коммерческий директор «iDSystems»', 'speaker-pavel-sobolev.webp'],
+  ];
+  assert.equal(speakers.length, 35);
+  assert.equal(new Set(speakers.map(({ name }) => name)).size, 35);
+  assert.deepEqual(speakers.slice(33).map(({ name, role, image }) => [name, role, image]), expected);
+  for (const [, , filename] of expected) {
+    const data = readFileSync(new URL('../../public/assets/figma/' + filename, import.meta.url));
+    assert.equal(data.subarray(0, 4).toString(), 'RIFF');
+    assert.equal(data.subarray(8, 12).toString(), 'WEBP');
+  }
 });

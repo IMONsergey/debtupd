@@ -44,7 +44,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
       await expect.poll(() => img.evaluate(el => el.complete && el.naturalWidth === 256)).toBe(true);
     }
     await expect(block.getByRole('button', { name: 'Зарегистрироваться' })).toBeVisible();
-    await expect(page.locator('.speakers-grid .speaker')).toHaveCount(33);
+    await expect(page.locator('.speakers-grid .speaker')).toHaveCount(35);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 2);
     expect(errors).toEqual([]);
   });

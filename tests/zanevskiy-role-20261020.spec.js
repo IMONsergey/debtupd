@@ -19,7 +19,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 20000 });
 
     const cards = page.locator('.speakers-grid .speaker');
-    await expect(cards).toHaveCount(33);
+    await expect(cards).toHaveCount(35);
     const speaker = cards.nth(10);
     await expect(speaker.locator('.speaker-portrait img')).toHaveAttribute('alt', 'Андрей Заневский');
     await expect(speaker.locator('.speaker-info h3')).toContainText('Заневский');
@@ -48,7 +48,7 @@ test('correct role remains visible in expanded list and others stay unchanged', 
   await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 20000 });
   await page.getByRole('button', { name: 'Показать всех спикеров' }).click();
   const cards = page.locator('.speakers-grid .speaker');
-  await expect(cards).toHaveCount(33);
+  await expect(cards).toHaveCount(35);
   await expect(cards.nth(10).locator('.speaker-info p')).toHaveText(role);
   await expect(cards.nth(32).locator('.speaker-portrait img')).toHaveAttribute('alt', 'Марина Селина');
 });

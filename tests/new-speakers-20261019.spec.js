@@ -15,7 +15,7 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
-for (const [width, pages] of [[320, 33], [390, 33], [768, 17], [1024, 11], [1440, 11]]) {
+for (const [width, pages] of [[320, 35], [390, 35], [768, 18], [1024, 12], [1440, 12]]) {
   test('the three speakers have correctly paired portraits and roles at ' + width + 'px', async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     const errors = [];
@@ -25,7 +25,7 @@ for (const [width, pages] of [[320, 33], [390, 33], [768, 17], [1024, 11], [1440
 
     const track = page.locator('.speakers-grid');
     const cards = track.locator('.speaker');
-    await expect(cards).toHaveCount(33);
+    await expect(cards).toHaveCount(35);
     await expect(page.locator('.speakers-controls > span')).toHaveText(
       new RegExp('01\\s*/\\s*' + String(pages).padStart(2, '0')),
     );
@@ -35,7 +35,7 @@ for (const [width, pages] of [[320, 33], [390, 33], [768, 17], [1024, 11], [1440
 
     for (const [i, [name, role, file]] of additions.entries()) {
       const card = cards.nth(29 + i);
-      await expect(card).toHaveAttribute('aria-label', (30 + i) + ' из 33: ' + name);
+      await expect(card).toHaveAttribute('aria-label', (30 + i) + ' из 35: ' + name);
       const portrait = card.locator('.speaker-portrait img');
       await expect(portrait).toHaveAttribute('alt', name);
       expect((await portrait.getAttribute('src')).endsWith('/assets/figma/' + file)).toBe(true);
@@ -63,14 +63,14 @@ for (const [width, pages] of [[320, 33], [390, 33], [768, 17], [1024, 11], [1440
   });
 }
 
-test('expanded roster displays all 33 names with unclipped newest titles and roles', async ({ page }) => {
+test('expanded roster displays all 35 names with unclipped newest titles and roles', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 900 });
   await page.goto('/#speakers', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 20000 });
   await page.getByRole('button', { name: 'Показать всех спикеров' }).click();
   const track = page.locator('.speakers-grid');
   await expect(page.locator('.speaker-collection')).toHaveClass(/is-expanded/);
-  await expect(track.locator('.speaker')).toHaveCount(33);
+  await expect(track.locator('.speaker')).toHaveCount(35);
 
   const geometry = await track.locator('.speaker').evaluateAll(cards => cards.slice(29, 33).map(card => {
     const name = card.querySelector('h3');
