@@ -43,6 +43,12 @@ for (const width of [320, 390, 599, 600, 700, 768, 900, 1024, 1180, 1181, 1440, 
       const geometry = await welcome.evaluate((root) => {
         const block = root.getBoundingClientRect();
         const heading = root.querySelector('.welcome-pass__heading').getBoundingClientRect();
+        const multipass = root.querySelector('.welcome-pass__headline');
+        const welcome = root.querySelector('.welcome-pass__outline');
+        const multipassRect = multipass.getBoundingClientRect();
+        const welcomeRect = welcome.getBoundingClientRect();
+        const astronautStyle = getComputedStyle(document.querySelector('.tariff-astronaut'));
+        const width = window.innerWidth;
         const panel = root.querySelector('.welcome-pass__panel').getBoundingClientRect();
         const main = root.querySelector('.welcome-pass__offer').getBoundingClientRect();
         const terms = root.querySelector('.welcome-pass__terms').getBoundingClientRect();
@@ -54,6 +60,20 @@ for (const width of [320, 390, 599, 600, 700, 768, 900, 1024, 1180, 1181, 1440, 
           compact: block.height <= (columnLayout ? 350 : 290),
           panelWithinBlock: panel.left >= block.left - 1 && panel.right <= block.right + 1,
           headingAbovePanel: heading.bottom < panel.top,
+          titleOnSingleRow:
+            Math.abs(multipassRect.top - welcomeRect.top) < 10 &&
+            welcomeRect.left >= multipassRect.right &&
+            welcomeRect.right <= heading.right + 1,
+          smallerType:
+            parseFloat(getComputedStyle(multipass).fontSize) <= 35 &&
+            parseFloat(getComputedStyle(welcome).fontSize) <= 28 &&
+            heading.height <= 42,
+          astronautLowered:
+            width < 600
+              ? parseFloat(astronautStyle.top) >= 63
+              : width <= 1180
+                ? parseFloat(astronautStyle.bottom) <= -150
+                : parseFloat(astronautStyle.bottom) <= -180,
           copyWithinPanel:
             main.left >= panel.left &&
             main.right <= panel.right &&
@@ -76,6 +96,9 @@ for (const width of [320, 390, 599, 600, 700, 768, 900, 1024, 1180, 1181, 1440, 
         compact: true,
         panelWithinBlock: true,
         headingAbovePanel: true,
+        titleOnSingleRow: true,
+        smallerType: true,
+        astronautLowered: true,
         copyWithinPanel: true,
         termsWithinPanel: true,
         alignedRows: true,

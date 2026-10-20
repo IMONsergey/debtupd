@@ -11,13 +11,15 @@
 
 .welcome-pass__heading {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
+  flex-direction: row;
+  align-items: baseline;
+  flex-wrap: nowrap;
+  gap: clamp(8px, 1.4cqi, 18px);
   max-width: 100%;
-  margin: 0 0 clamp(13px, 1.4cqi, 18px);
+  margin: 0 0 clamp(12px, 1.2cqi, 16px);
   font-weight: 400;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .welcome-pass__headline {
@@ -28,7 +30,7 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   font:
-    400 clamp(31px, 4.65cqi, 62px)/1.06 Bounded,
+    400 clamp(18px, 2.9cqi, 35px)/1.1 Bounded,
     sans-serif;
   letter-spacing: -0.005em;
   white-space: nowrap;
@@ -40,9 +42,9 @@
   color: transparent;
   -webkit-text-stroke: 1px rgba(169, 205, 239, 0.92);
   font:
-    400 clamp(25px, 3.05cqi, 40px)/1.05 Bounded,
+    400 clamp(16px, 2.35cqi, 28px)/1.08 Bounded,
     sans-serif;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.075em;
   white-space: nowrap;
 }
 
@@ -114,17 +116,17 @@
   }
 
   .welcome-pass__heading {
-    gap: 4px;
-    margin-bottom: 12px;
+    gap: clamp(7px, 2.1vw, 11px);
+    margin-bottom: 11px;
   }
 
   .welcome-pass__headline {
-    font-size: clamp(28px, 8.4vw, 43px);
+    font-size: clamp(18px, 5.4vw, 25px);
   }
 
   .welcome-pass__outline {
-    font-size: clamp(24px, 6vw, 34px);
-    letter-spacing: 0.13em;
+    font-size: clamp(16px, 4.45vw, 22px);
+    letter-spacing: 0.045em;
   }
 
   .welcome-pass__panel {
@@ -154,10 +156,33 @@
 
 @media (max-width: 359px) {
   .welcome-pass__headline {
-    font-size: 29px;
+    font-size: 18px;
   }
   .welcome-pass__outline {
-    font-size: 23px;
-    letter-spacing: 0.11em;
+    font-size: 16px;
+    letter-spacing: 0.035em;
+  }
+}
+
+/* Lower the existing section astronaut without duplicating its artwork.
+   Position overrides are breakpoint-specific to preserve the section composition. */
+@media (min-width: 1181px) {
+  .tariffs-heading .tariff-astronaut {
+    top: auto;
+    bottom: calc(clamp(-240px, -16cqi, -120px) - 62px);
+  }
+}
+
+@media (min-width: 600px) and (max-width: 1180px) {
+  .tariffs-heading .tariff-astronaut {
+    top: auto;
+    bottom: -154px;
+  }
+}
+
+@media (max-width: 599px) {
+  .tariffs-heading .tariff-astronaut {
+    top: clamp(64px, 13vw, 92px);
+    bottom: auto;
   }
 }
