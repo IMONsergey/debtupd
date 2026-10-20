@@ -10,6 +10,7 @@ import { useSnapCarousel } from './lib/useSnapCarousel.js';
 import { SpeakerCollection } from './components/SpeakerCollection.jsx';
 import { Exhibition } from './components/Exhibition.jsx';
 import { VenueMap } from './components/VenueMap.jsx';
+import { VenueCard, VenueDirectionsDialog } from './components/VenueDirections.jsx';
 import { topics, stages, spaces, audience, partnerNames } from './data.js';
 import speakers from './speakers.json';
 import artDimensions from './art-dimensions.json';
@@ -983,9 +984,12 @@ function Contacts() {
 }
 export default function App() {
   const [form, setForm] = useState(null),
-    [media, setMedia] = useState(null);
+    [media, setMedia] = useState(null),
+    [directionsOpen, setDirectionsOpen] = useState(false);
   const closeForm = useCallback(() => setForm(null), []),
-    closeMedia = useCallback(() => setMedia(null), []);
+    closeMedia = useCallback(() => setMedia(null), []),
+    openDirections = useCallback(() => setDirectionsOpen(true), []),
+    closeDirections = useCallback(() => setDirectionsOpen(false), []);
   const openForm = (
     kind = 'early-registration',
     tariff = null,
@@ -1012,8 +1016,10 @@ export default function App() {
           onVideo={() => openMedia('video')}
           onGallery={() => openMedia('gallery')}
           onStand={() => openForm('stand-booking')}
+          onDirections={openDirections}
         />
         <Hero onStand={() => openForm('stand-booking')} />
+        <VenueCard onDirections={openDirections} />
         <main className="main-grid">
           <div className="mobile-info">
             <InfoBlock
@@ -1049,6 +1055,7 @@ export default function App() {
       {SHOW_TIMED_BOOKING_OFFER && <DelayedTicketOffer blocked={!!form || !!media} />}
       {form && <ApplicationModal {...form} onClose={closeForm} />}{' '}
       {media && <MediaModal kind={media} onClose={closeMedia} />}
+      {directionsOpen && <VenueDirectionsDialog onClose={closeDirections} />}
     </>
   );
 }

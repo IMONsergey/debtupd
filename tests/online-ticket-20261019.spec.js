@@ -71,6 +71,17 @@ for (const width of [320, 390, 600, 768, 899, 900, 1024, 1180, 1181, 1440, 1920]
           imageRightOfPrice: image.left >= price.right - 2,
           artThird: image.width >= card.width * 0.23 && image.width <= card.width * 0.4,
           compactHeight: card.height <= 245,
+          purchaseBottomAligned:
+            Math.abs(
+              article.querySelector('.tariff-bottom .button').getBoundingClientRect().bottom -
+                article.querySelector('ul').getBoundingClientRect().bottom,
+            ) <= 3,
+          imageIntentionallyCropped: (() => {
+            const image = article
+              .querySelector('.tariff-online__visual img')
+              .getBoundingClientRect();
+            return image.right > card.right + 5 || image.top < card.top - 5;
+          })(),
           buttonTextSingleLine: (() => {
             const label = article.querySelector('.tariff-bottom .button-label');
             const lineHeight = parseFloat(getComputedStyle(label).lineHeight);
@@ -88,6 +99,8 @@ for (const width of [320, 390, 600, 768, 899, 900, 1024, 1180, 1181, 1440, 1920]
         imageRightOfPrice: true,
         artThird: true,
         compactHeight: true,
+        purchaseBottomAligned: true,
+        imageIntentionallyCropped: true,
         buttonTextSingleLine: true,
       });
     } else {
@@ -102,12 +115,16 @@ for (const width of [320, 390, 600, 768, 899, 900, 1024, 1180, 1181, 1440, 1920]
       return {
         alignX: Math.abs(first.left - fifth.left),
         onlineBelow: fifth.top >= lastOfFirstRow.top + lastOfFirstRow.height - 2,
-        cardOverflow: children.some((item) => item.scrollWidth > item.clientWidth + 2),
+        // The online artwork deliberately extends beyond its clipped container.
+        // Only the four standard cards must have zero intrinsic scroll overflow.
+        cardOverflow: children.slice(0, 4).some((item) => item.scrollWidth > item.clientWidth + 2),
+        onlineArtworkClipped: getComputedStyle(children[4]).overflowX === 'hidden',
       };
     });
     expect(layout.alignX).toBeLessThanOrEqual(2);
     expect(layout.onlineBelow).toBe(true);
     expect(layout.cardOverflow).toBe(false);
+    expect(layout.onlineArtworkClipped).toBe(true);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
       width + 2,
     );
