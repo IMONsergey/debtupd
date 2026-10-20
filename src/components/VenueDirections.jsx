@@ -24,7 +24,6 @@ export function VenueCard({ onDirections }) {
         />
       </div>
       <div className="venue-hero-card__details">
-        <span className="venue-hero-card__eyebrow">Место проведения</span>
         <h2>
           TAU <span>— пространство музыкальных культур</span>
         </h2>

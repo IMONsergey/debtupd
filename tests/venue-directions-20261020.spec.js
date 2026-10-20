@@ -46,6 +46,17 @@ for (const [width, height] of [
       (element) => getComputedStyle(element, '::after').content,
     );
     expect(cornerDecoration).toBe('none');
+    await expect(card).not.toContainText('Место проведения');
+    await expect(card.locator('.venue-hero-card__eyebrow')).toHaveCount(0);
+    const photoTreatment = await card.locator('.venue-hero-card__photo img').evaluate((image) => {
+      const visual = image.parentElement;
+      return {
+        brightness: getComputedStyle(image).filter,
+        overlay: getComputedStyle(visual, '::after').backgroundImage,
+      };
+    });
+    expect(photoTreatment.brightness).toContain('brightness(0.88)');
+    expect(photoTreatment.overlay).toContain('0.35');
     await expect(card.locator('h2')).toContainText(venueName);
     await expect(card.locator('h2')).toContainText('пространство музыкальных культур');
     await expect(card.locator('p')).toHaveText(address);
@@ -113,6 +124,9 @@ for (const [width, height] of [
     const dialog = page.getByRole('dialog', { name: 'Как добраться до TAU' });
     await expect(dialog).toBeVisible();
     await expect(dialog).toHaveAttribute('aria-modal', 'true');
+    await expect(dialog.locator('.venue-directions-dialog__eyebrow')).toHaveText(
+      'Место проведения',
+    );
     const closeGeometry = await dialog
       .getByRole('button', { name: 'Закрыть маршрут' })
       .evaluate((button) => {
