@@ -71,6 +71,21 @@ test('programme CMS isolates drafts, validates auth, publishes and restores hist
       'X-Programme-Csrf': session,
       'Content-Type': 'application/json',
     };
+    const anonymousValidation = await api(
+      '/api/programme/validate', 'POST', { programme: seed },
+      { Origin: origin, 'Content-Type': 'application/json' },
+    );
+    assert.equal(anonymousValidation.response.status, 401);
+    const checked = await api('/api/programme/validate', 'POST', { programme: seed }, authHeaders);
+    assert.equal(checked.response.status, 200);
+    assert.equal(checked.data.programme.stages.length, 3);
+    const badTime = structuredClone(seed);
+    badTime.commonEvents[0].time = '10:00–09:00';
+    const invalidTime = await api('/api/programme/validate', 'POST', { programme: badTime }, authHeaders);
+    assert.equal(invalidTime.response.status, 400);
+    assert.match(invalidTime.data.error, /позже начала/);
+    assert.equal((await api('/api/programme')).data.revision, 1);
+
     const forbidden = await api(
       '/api/programme/draft',
       'PUT',

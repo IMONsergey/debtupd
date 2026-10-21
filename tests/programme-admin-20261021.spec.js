@@ -222,3 +222,75 @@ test('moving a session to another stage is draft-only until publish and supports
   expect(restored.programme.stages[1].entries).toHaveLength(smallCount);
   expect(restored.programme.stages[1].status).toBe(before.programme.stages[1].status);
 });
+
+test('draft validation catches time errors and rejects invalid JSON before import', async ({ page }) => {
+  await login(page);
+  await page.getByRole('button', { name: 'Проверить данные' }).click();
+  await expect(page.locator('.toast')).toContainText('Проверка пройдена');
+  const before = await page.locator('.inspector [data-field="title"]').inputValue();
+  await page.locator('#import-file').setInputFiles({
+    name: 'programme-invalid.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({ stages: [], commonEvents: [] })),
+  });
+  await expect(page.locator('.toast.bad')).toBeVisible();
+  await expect(page.locator('.inspector [data-field="title"]')).toHaveValue(before);
+  await expect(page.locator('.stage-pick')).toHaveCount(5);
+});
+
+test('edits made while saving are not overwritten by an older server response', async ({ page }) => {
+  await login(page);
+  const field = page.locator('.inspector [data-field="description"]');
+  await field.fill('Первая редакция подписи');
+  let unlock;
+  let observed;
+  const held = new Promise((resolve) => (unlock = resolve));
+  const intercepted = new Promise((resolve) => (observed = resolve));
+  await page.route('**/api/programme/draft', async (route) => {
+    observed();
+    await held;
+    await route.continue();
+  });
+  await page.getByRole('button', { name: 'Сохранить черновик' }).click();
+  await intercepted;
+  await field.fill('Вторая редакция, введена во время сохранения');
+  unlock();
+  await expect(page.locator('#save-state')).toHaveText('Есть несохранённые изменения');
+  await expect(field).toHaveValue('Вторая редакция, введена во время сохранения');
+  await page.unroute('**/api/programme/draft');
+  await page.getByRole('button', { name: 'Сохранить черновик' }).click();
+  await expect(page.locator('#save-state')).toHaveText('Черновик сохранён');
+  const preview = await page.evaluate(async () => (await fetch('/api/programme/preview')).json());
+  expect(preview.programme.stages[0].description).toBe('Вторая редакция, введена во время сохранения');
+});
+
+test('photo upload remains attached to the original speaker after switching talks', async ({ page }) => {
+  await login(page);
+  await page.locator('.listpane [data-action="entry:session-1"]').click();
+  const talkButtons = page.locator('.inspector [data-action^="talk:"]');
+  const firstId = await talkButtons.first().getAttribute('data-action');
+  const secondId = await talkButtons.nth(1).getAttribute('data-action');
+  await talkButtons.first().click();
+  let unlock;
+  let observed;
+  const held = new Promise((resolve) => (unlock = resolve));
+  const intercepted = new Promise((resolve) => (observed = resolve));
+  await page.route('**/api/programme/upload', async (route) => {
+    observed();
+    await held;
+    await route.continue();
+  });
+  await page.locator('.photo-upload').first().setInputFiles('public/assets/images/programme/ipatyev.webp');
+  await intercepted;
+  await page.locator('.listpane [data-action="entry:session-1"]').click();
+  await page.locator('[data-action="' + secondId + '"]').click();
+  const secondOriginal = await page.locator('[data-scope="speaker:0"][data-field="photo"]').inputValue();
+  unlock();
+  await expect(page.locator('.toast')).toContainText('Фотография привязана');
+  await expect(page.locator('[data-scope="speaker:0"][data-field="photo"]')).toHaveValue(secondOriginal);
+  await page.locator('.listpane [data-action="entry:session-1"]').click();
+  await page.locator('[data-action="' + firstId + '"]').click();
+  await expect(page.locator('[data-scope="speaker:0"][data-field="photo"]'))
+    .toHaveValue(/\/api\/programme\/image\/.*\.webp/);
+  await page.unroute('**/api/programme/upload');
+});

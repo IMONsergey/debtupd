@@ -387,6 +387,12 @@ export async function createProgrammeServer({ distDir, adminDir, dataDir, origin
         );
         return;
       }
+      if (method === 'POST' && pathname === '/api/programme/validate') {
+        // Use the save validator for imports and review, without mutating state.
+        const input = await jsonBody(request);
+        send(response, 200, { programme: validateProgramme(input.programme) });
+        return;
+      }
       if (method === 'PUT' && pathname === '/api/programme/draft') {
         const input = await jsonBody(request);
         const clean = validateProgramme(input.programme);

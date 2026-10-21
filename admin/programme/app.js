@@ -11,6 +11,7 @@ const state = {
   selection: { type: 'stage', id: 'main' },
   dirty: false,
   busy: false,
+  editVersion: 0,
   mobileView: 'scenes',
 };
 let toastHandle;
@@ -74,6 +75,7 @@ async function request(path, method = 'GET', payload, contentType = 'application
   return json;
 }
 function markDirty() {
+  state.editVersion += 1;
   state.dirty = true;
   refreshStatus();
 }
@@ -82,6 +84,10 @@ function refreshStatus() {
   const buttonSave = document.getElementById('save-draft');
   if (text) text.textContent = state.dirty ? 'Есть несохранённые изменения' : 'Черновик сохранён';
   if (buttonSave) buttonSave.disabled = !state.dirty || state.busy;
+  for (const id of ['publish-programme', 'preview-programme', 'logout-programme']) {
+    const control = document.getElementById(id);
+    if (control) control.disabled = state.busy;
+  }
 }
 async function loadState() {
   const data = await request('/admin');
@@ -91,6 +97,7 @@ async function loadState() {
   state.history = data.history;
   state.portraits = data.portraits;
   state.dirty = false;
+  state.editVersion += 1;
   if (!state.programme.stages.some((s) => s.id === state.stage))
     state.stage = state.programme.stages[0].id;
   state.selection = { type: 'stage', id: state.stage };
@@ -155,9 +162,9 @@ function topBar() {
     <div class="toolbar">
       <span class="top-status"><span class="dirty"></span><span class="muted" id="save-state"></span></span>
       ${button('Сохранить черновик', 'save', 'subtle', 'id="save-draft"')}
-      ${button('Предпросмотр', 'preview')}
-      ${button('Опубликовать', 'publish', 'primary')}
-      ${button('Выйти', 'logout')}
+      ${button('Предпросмотр', 'preview', 'subtle', 'id="preview-programme"')}
+      ${button('Опубликовать', 'publish', 'primary', 'id="publish-programme"')}
+      ${button('Выйти', 'logout', 'subtle', 'id="logout-programme"')}
     </div></header>`;
 }
 function select(type, id) {
@@ -261,6 +268,7 @@ function sideBar() {
   });
   html += `</div><div class="sectionhead"><h3>Дополнительно</h3></div>
     <div class="stack">${button('Настройки программы', 'settings', 'full')}
+      ${button('Проверить данные', 'validate', 'full')}
       ${button('Экспорт JSON', 'export', 'full')}
       ${button('Импорт JSON', 'import', 'full')}
       <input type="file" id="import-file" accept=".json,application/json">
@@ -581,17 +589,23 @@ function removeTalk(talk, session) {
 async function save() {
   if (!state.dirty || state.busy) return;
   state.busy = true;
+  const version = state.editVersion;
+  const snapshot = structuredClone(state.programme);
   refreshStatus();
   try {
     const payload = await request('/draft', 'PUT', {
       expectedRevision: state.revision,
-      programme: state.programme,
+      programme: snapshot,
     });
     state.revision = payload.draft.revision;
-    state.programme = structuredClone(payload.draft.programme);
-    state.dirty = false;
-    render();
-    notice('Черновик сохранён. На сайте пока ничего не изменилось.');
+    if (version === state.editVersion) {
+      state.programme = structuredClone(payload.draft.programme);
+      state.dirty = false;
+      render();
+      notice('Черновик сохранён. На сайте пока ничего не изменилось.');
+    } else {
+      notice('Первая версия сохранена. Новые правки остались в редакторе — сохраните ещё раз.');
+    }
   } finally {
     state.busy = false;
     refreshStatus();
@@ -600,22 +614,38 @@ async function save() {
 async function publish() {
   if (state.busy) return;
   if (state.dirty) await save();
+  if (state.dirty)
+    throw Error('Во время сохранения появились новые правки. Сохраните их перед публикацией.');
   if (!confirm('Опубликовать программу в тестовой песочнице? Изменения станут видны посетителям.'))
     return;
-  const result = await request('/publish', 'POST', {
-    expectedRevision: state.revision,
-    expectedPublishedRevision: state.published.revision,
-  });
-  state.published = result.published;
-  await loadState();
-  notice('Программа опубликована в песочнице.');
+  const version = state.editVersion;
+  state.busy = true;
+  refreshStatus();
+  try {
+    const result = await request('/publish', 'POST', {
+      expectedRevision: state.revision,
+      expectedPublishedRevision: state.published.revision,
+    });
+    state.published = result.published;
+    if (version === state.editVersion) {
+      await loadState();
+      notice('Программа опубликована в песочнице.');
+    } else {
+      notice('Сохранённая версия опубликована. Новые правки остались в черновике.');
+    }
+  } finally {
+    state.busy = false;
+    refreshStatus();
+  }
 }
 async function preview() {
+  if (state.busy) return;
   const opened = window.open('about:blank', '_blank');
   if (!opened) throw Error('Разрешите открытие вкладок для предпросмотра.');
   opened.opener = null;
   try {
     if (state.dirty) await save();
+    if (state.dirty) throw Error('Новые правки ещё не сохранены. Повторите предпросмотр.');
     opened.location.href = '/programme-admin/preview#programme';
   } catch (error) {
     opened.close();
@@ -655,16 +685,25 @@ function exportJson() {
 async function importJson(file) {
   if (!file) return;
   if (file.size > 1_000_000) throw Error('JSON-файл превышает 1 МБ.');
-  const json = JSON.parse(await file.text());
-  if (!json || !Array.isArray(json.stages) || !Array.isArray(json.commonEvents))
-    throw Error('Неправильная структура JSON.');
-  if (!confirm('Заменить текущий черновик содержимым файла?')) return;
-  state.programme = json;
-  state.stage = json.stages[0].id;
+  let json;
+  try {
+    json = JSON.parse(await file.text());
+  } catch {
+    throw Error('Файл не содержит корректный JSON.');
+  }
+  const { programme } = await request('/validate', 'POST', { programme: json });
+  if (!confirm('Заменить текущие изменения проверенными данными из файла?')) return;
+  state.programme = programme;
+  state.stage = programme.stages[0].id;
   state.selection = { type: 'stage', id: state.stage };
   markDirty();
   render();
-  notice('Файл загружен в черновик. Проверьте и сохраните его.');
+  notice('Файл проверен и загружен в черновик. Сохраните его для предпросмотра.');
+}
+async function validateDraft() {
+  const { programme } = await request('/validate', 'POST', { programme: state.programme });
+  const count = programme.stages.reduce((total, stage) => total + stage.entries.length, 0);
+  notice('Проверка пройдена: ' + programme.stages.length + ' сцен, ' + count + ' событий и сессий. Данные не публиковались.');
 }
 
 async function changePassword() {
@@ -686,16 +725,29 @@ async function uploadPhoto(scope, input) {
   if (file.size > 4_000_000) throw Error('Максимальный размер фотографии — 4 МБ.');
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type))
     throw Error('Поддерживаются JPG, PNG, WebP.');
-  const result = await request('/upload', 'POST', file, file.type);
+  const selection = { ...state.selection };
   const current = activeSelection().item;
-  let person =
-    scope === 'moderator' ? current.moderator : current.speakers?.[Number(scope.split(':')[1])];
-  if (!person) throw Error('Спикер больше не существует.');
-  person.photo = result.url;
-  state.portraits.unshift({ group: 'Загруженные фотографии', name: file.name, url: result.url });
-  markDirty();
-  render();
-  notice('Фотография загружена. Не забудьте сохранить черновик.');
+  const person =
+    scope === 'moderator' ? current?.moderator : current?.speakers?.[Number(scope.split(':')[1])];
+  if (!person) throw Error('Выберите модератора или спикера для загрузки.');
+  input.disabled = true;
+  try {
+    const result = await request('/upload', 'POST', file, file.type);
+    const stillPresent = state.programme.stages.some((stage) =>
+      stage.entries.some((entry) =>
+        entry.moderator === person ||
+        entry.talks?.some((talk) => talk.speakers.includes(person)),
+      ),
+    );
+    if (!stillPresent) throw Error('Участник был удалён во время загрузки. Фото осталось в библиотеке.');
+    person.photo = result.url;
+    state.portraits.unshift({ group: 'Загруженные фотографии', name: file.name, url: result.url });
+    markDirty();
+    if (state.selection.id === selection.id && state.selection.type === selection.type) render();
+    notice('Фотография привязана к выбранному участнику. Сохраните черновик.');
+  } finally {
+    if (input.isConnected) input.disabled = false;
+  }
 }
 async function dispatchAction(action) {
   if (action.startsWith('view:')) {
@@ -732,6 +784,7 @@ async function dispatchAction(action) {
   if (action === 'delete-stage') return deleteStage();
   if (action === 'export') return exportJson();
   if (action === 'import') return document.getElementById('import-file')?.click();
+  if (action === 'validate') return validateDraft();
   if (action.startsWith('stage:')) return stageSelect(action.slice(6));
   if (action.startsWith('common:')) return select('common', action.slice(7));
   if (action.startsWith('entry:')) return select('entry', action.slice(6));

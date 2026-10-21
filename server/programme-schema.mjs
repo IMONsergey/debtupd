@@ -43,21 +43,30 @@ function person(value, label) {
   };
 }
 
+function validTime(value, name) {
+  if (!timePattern.test(value)) fail('Время должно быть в формате 09:00–10:00: ' + name + '.');
+  const [start, end] = value.split(/\s*[–-]\s*/).map((part) => {
+    const [hour, minute] = part.split(':').map(Number);
+    return hour * 60 + minute;
+  });
+  if (end <= start) fail('Время завершения должно быть позже начала: ' + name + '.');
+  return value;
+}
+
 function event(value, ids) {
   const result = {
     id: id(value.id, 'событие', ids),
     kind: 'event',
-    time: text(value.time, 'время события', 50, true),
+    time: validTime(text(value.time, 'время события', 50, true), 'событие'),
     title: text(value.title, 'название события', 360, true),
     visible: value.visible !== false,
   };
-  if (!timePattern.test(result.time)) fail('Время должно быть в формате 09:00–10:00.');
   return result;
 }
 
 function session(value, ids) {
   const time = text(value.time, 'время сессии', 50, true);
-  if (!timePattern.test(time)) fail('Время сессии должно быть в формате 10:00–12:00.');
+  validTime(time, 'сессия');
   if (!Array.isArray(value.talks) || value.talks.length > 60)
     fail('Некорректное количество выступлений.');
   const talks = value.talks.map((item) => {
@@ -75,8 +84,11 @@ function session(value, ids) {
   return {
     id: id(value.id, 'сессия', ids),
     kind: 'session',
-    number:
-      Number.isInteger(value.number) && value.number >= 1 && value.number <= 99 ? value.number : 1,
+    number: (() => {
+      if (!Number.isInteger(value.number) || value.number < 1 || value.number > 99)
+        fail('Номер сессии должен быть целым числом от 1 до 99.');
+      return value.number;
+    })(),
     time,
     title: text(value.title, 'название сессии', 440, true),
     category: text(value.category ?? '', 'формат сессии', 200),
