@@ -146,7 +146,18 @@ for (const width of [320, 390, 600, 768, 1024, 1440, 1920]) {
     const session3 = section.locator('[data-session-id="session-3"]');
     await session3.locator('.forum-programme__session-toggle').click();
     await expect(session3.locator('.forum-programme__talk')).toHaveCount(6);
-    await expect(session3).toContainText('Информация уточняется');
+    // The CMS may contain a newly assigned moderator; render the published person
+    // exactly as saved rather than relying on the original seed placeholder.
+    const currentModerator = await page.evaluate(async () => {
+      // Local Vite fixtures use bundled data rather than a CMS endpoint.
+      const response = await fetch('/api/programme', { cache: 'no-store' });
+      if (!response.ok) return null;
+      const payload = await response.json().catch(() => null);
+      return payload?.programme?.stages
+        ?.flatMap((stage) => stage.entries)
+        ?.find((entry) => entry.id === 'session-3')?.moderator || null;
+    });
+    await expect(session3).toContainText(currentModerator?.name || 'Информация уточняется');
     await expect(session3).not.toContainText('В документе не указан');
     for (const name of [
       'Елена Авакян',
