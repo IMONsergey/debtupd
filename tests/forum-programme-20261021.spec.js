@@ -26,6 +26,8 @@ for (const width of [320, 390, 600, 768, 1024, 1440, 1920]) {
     await section.scrollIntoViewIfNeeded();
 
     await expect(section.getByRole('heading', { name: 'Программа форума' })).toBeVisible();
+    // The CMS has no public navigation entry: it is opened only by direct URL.
+    await expect(page.locator('a[href*="programme-admin"]')).toHaveCount(0);
     await expect(section.getByRole('tab')).toHaveCount(3);
     await expect(section.getByRole('tab', { name: /Большая сцена/ })).toHaveAttribute(
       'aria-selected',
@@ -49,6 +51,26 @@ for (const width of [320, 390, 600, 768, 1024, 1440, 1920]) {
 
     const session1 = section.locator('[data-session-id="session-1"]');
     await expect(session1.locator('.forum-programme__talk')).toHaveCount(3);
+    await expect(session1.locator('.forum-programme__talk-kicker')).toHaveText([
+      'Тема выступления',
+      'Тема выступления',
+      'Тема выступления',
+    ]);
+    const readingOrder = await session1
+      .locator('.forum-programme__talk')
+      .first()
+      .evaluate((row) => {
+        const label = row.querySelector('.forum-programme__talk-kicker').getBoundingClientRect();
+        const title = row
+          .querySelector('.forum-programme__talk-content h4')
+          .getBoundingClientRect();
+        const speakers = row.querySelector('.forum-programme__talk-people').getBoundingClientRect();
+        return {
+          kickerBeforeTitle: label.top < title.top,
+          topicBeforeSpeakers: innerWidth < 700 || title.right <= speakers.left,
+        };
+      });
+    expect(readingOrder).toEqual({ kickerBeforeTitle: true, topicBeforeSpeakers: true });
     await expect(session1).toContainText('Андрей Емелин');
     await expect(session1).toContainText('Владимир Вербицкий');
     await expect(session1).toContainText('Константин Виноградов');

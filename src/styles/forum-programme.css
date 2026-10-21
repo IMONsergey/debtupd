@@ -484,6 +484,17 @@
   padding: 4px 0 0;
 }
 
+.forum-programme__talk-kicker {
+  display: block;
+  margin: 0 0 clamp(7px, 0.8cqi, 11px);
+  color: #6bc7ff;
+  font:
+    500 clamp(10px, 0.88cqi, 12px)/1.4 'IBM Plex Sans',
+    sans-serif;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
 .forum-programme__talk-content h4 {
   max-width: 490px;
   margin: 0;

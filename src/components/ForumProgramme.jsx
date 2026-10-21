@@ -72,6 +72,7 @@ function ProgrammeTalk({ talk }) {
   return (
     <div className="forum-programme__talk" data-talk-id={talk.id}>
       <div className="forum-programme__talk-content">
+        <span className="forum-programme__talk-kicker">Тема выступления</span>
         {talk.title ? (
           <h4>{talk.title}</h4>
         ) : (

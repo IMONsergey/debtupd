@@ -194,6 +194,32 @@ test('programme CMS isolates drafts, validates auth, publishes and restores hist
       },
     });
     assert.equal(badUpload.status, 400);
+    // A spoofed X-Forwarded-For cannot defeat the password-attempt limit.
+    for (let i = 0; i < 8; i++) {
+      const wrong = await api(
+        '/api/programme/login',
+        'POST',
+        { password: 'wrong-again' },
+        {
+          Origin: origin,
+          'Content-Type': 'application/json',
+          'X-Forwarded-For': '198.51.100.' + (i + 1),
+        },
+      );
+      assert.equal(wrong.response.status, 401);
+    }
+    const blocked = await api(
+      '/api/programme/login',
+      'POST',
+      { password: 'wrong-again' },
+      {
+        Origin: origin,
+        'Content-Type': 'application/json',
+        'X-Forwarded-For': '203.0.113.200',
+      },
+    );
+    assert.equal(blocked.response.status, 429);
+
     const logout = await api('/api/programme/logout', 'POST', {}, authHeaders);
     assert.equal(logout.response.status, 200);
     assert.equal(

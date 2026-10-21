@@ -64,12 +64,17 @@ function send(response, status, payload, headers = {}) {
 }
 
 function clientIp(request) {
-  if (['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(request.socket.remoteAddress))
-    return (
-      String(request.headers['x-forwarded-for'] || '')
-        .split(',')[0]
-        .trim() || 'local'
-    );
+  // X-Client-IP is overwritten by our loopback-only Caddy reverse proxy.
+  // Never trust a caller-provided X-Forwarded-For value: it can bypass login throttling.
+  const forwarded = request.headers['x-client-ip'];
+  if (
+    ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(request.socket.remoteAddress) &&
+    typeof forwarded === 'string' &&
+    forwarded.length <= 64 &&
+    /^[0-9a-fA-F:.]+$/.test(forwarded)
+  ) {
+    return forwarded;
+  }
   return request.socket.remoteAddress || 'unknown';
 }
 
