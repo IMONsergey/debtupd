@@ -16,9 +16,30 @@ const state = {
   dirty: false,
   busy: false,
   editVersion: 0,
+  publishedProgramme: null,
+  peopleCatalog: [],
+  saveError: '',
   mobileView: 'agenda',
 };
 let toastHandle;
+let autosaveTimer;
+
+function clearAutosave() {
+  clearTimeout(autosaveTimer);
+  autosaveTimer = null;
+}
+function hasUnpublishedChanges() {
+  return !!state.publishedProgramme &&
+    JSON.stringify(state.programme) !== JSON.stringify(state.publishedProgramme);
+}
+function scheduleAutosave(delay = 2200) {
+  clearAutosave();
+  if (!state.dirty || !state.programme) return;
+  autosaveTimer = setTimeout(() => {
+    if (!state.busy && state.dirty) save({ silent: true }).catch(() => {});
+    else if (state.busy && state.dirty) scheduleAutosave(650);
+  }, delay);
+}
 
 function escapeHtml(value = '') {
   return String(value).replace(/[&<>"']/g, (character) =>
@@ -64,20 +85,38 @@ async function request(path, method = 'GET', payload, contentType = 'application
 function markDirty() {
   state.editVersion += 1;
   state.dirty = true;
+  state.saveError = '';
   refreshStatus();
+  scheduleAutosave();
 }
 function refreshStatus() {
   const status = document.getElementById('save-state');
-  const text = state.busy ? 'Выполняется действие…' :
-    state.dirty ? 'Есть несохранённые изменения' : 'Все изменения сохранены';
-  if (status) status.textContent = text;
+  const text = state.busy ? 'Сохраняем…' :
+    state.saveError ? 'Не сохранено: ' + state.saveError :
+    state.dirty ? 'Правки сохраняются автоматически' :
+    hasUnpublishedChanges() ? 'Черновик сохранён · ещё не на сайте' :
+    'Все изменения опубликованы';
+  if (status) {
+    status.textContent = text;
+    status.title = text;
+  }
   const dot = document.querySelector('.save-indicator');
-  if (dot) dot.classList.toggle('is-dirty', state.dirty);
+  if (dot) {
+    dot.classList.toggle('is-dirty', state.dirty || !!state.saveError);
+    dot.classList.toggle('is-unpublished', !state.dirty && hasUnpublishedChanges());
+  }
   const save = document.getElementById('save-draft');
   if (save) save.disabled = !state.dirty || state.busy;
-  for (const id of ['preview-programme', 'publish-programme', 'logout-programme']) {
+  for (const id of ['preview-programme', 'logout-programme']) {
     const control = document.getElementById(id);
     if (control) control.disabled = state.busy;
+  }
+  const publish = document.getElementById('publish-programme');
+  if (publish) {
+    publish.disabled = state.busy || !(state.dirty || hasUnpublishedChanges());
+    publish.title = state.dirty || hasUnpublishedChanges()
+      ? 'Опубликовать сохранённый черновик на тестовом сайте'
+      : 'На сайте уже актуальная версия';
   }
 }
 function resetSelection() {
@@ -100,14 +139,20 @@ function selectionExists() {
   return false;
 }
 async function loadState() {
+  clearAutosave();
   const firstLoad = !state.programme;
-  const data = await request('/admin');
+  const [data, live, catalog] = await Promise.all([
+    request('/admin'), request(''), request('/people'),
+  ]);
   state.programme = structuredClone(data.draft.programme);
+  state.peopleCatalog = Array.isArray(catalog.people) ? catalog.people : [];
+  state.publishedProgramme = structuredClone(live.programme);
   state.revision = data.draft.revision;
   state.published = data.published;
   state.history = data.history;
   state.portraits = data.portraits;
   state.dirty = false;
+  state.saveError = '';
   state.editVersion += 1;
   if (!state.programme.stages.some((item) => item.id === state.stage)) state.stage = state.programme.stages[0].id;
   if (firstLoad || !selectionExists()) resetSelection();
@@ -163,9 +208,9 @@ function topBar() {
     '<div class="top-brand"><span class="brand-mark">DEBT <strong>TECH</strong></span>' +
     '<span class="brand-divider"></span><div class="top-title"><h1>Программа форума</h1>' +
     '<p>Редактор расписания <span class="environment">Песочница</span></p></div></div>' +
-    '<div class="toolbar"><div class="top-status"><span class="save-indicator"></span><span id="save-state"></span></div>' +
+    '<div class="toolbar"><div class="top-status" aria-live="polite"><span class="save-indicator"></span><span id="save-state"></span></div>' +
     button('Предпросмотр', 'preview', 'subtle', 'id="preview-programme"') +
-    button('Сохранить', 'save', 'subtle save', 'id="save-draft" aria-label="Сохранить черновик"') +
+    button('Сохранить', 'save', 'subtle save', 'id="save-draft" aria-label="Сохранить черновик" title="Сохранить черновик (⌘/Ctrl+S)"') +
     button('Опубликовать', 'publish', 'primary', 'id="publish-programme"') +
     toolsMenu() +
     '</div></header>';
@@ -240,7 +285,7 @@ function listPanel() {
       ? items.map(agendaCard).join('')
       : '<div class="empty-list"><strong>Пока нет событий</strong><p>Добавьте первую сессию или событие — оно сразу появится в списке.</p></div>') +
     '</div><div class="search-empty" hidden>Ничего не найдено. Измените запрос.</div>' +
-    '<p class="agenda-foot">Выберите элемент, чтобы изменить его. Порядок можно поменять стрелками или перетаскиванием.</p>';
+    '<p class="agenda-foot">Поиск по ФИО и событиям: ⌘/Ctrl+K. Порядок меняется перетаскиванием или стрелками.</p>';
 }
 function currentSelection() {
   const { type, id } = state.selection;
@@ -305,26 +350,168 @@ function editorHead(type, title, subtitle = '', status = '') {
 
 function photoSource(person, scope) {
   const source = person.photo || '';
-  const preview = source ? '<img class="photo-preview" src="' + e(source) + '" alt="Фото участника">' :
-    '<div class="photo-preview photo-placeholder" aria-label="Без фотографии">◯</div>';
-  const missing = source && !state.portraits.some((p) => p.url === source);
-  const groups = new Map();
-  for (const picture of state.portraits) {
-    const items = groups.get(picture.group) || [];
-    items.push('<option value="' + e(picture.url) + '"' + (source === picture.url ? ' selected' : '') + '>' + e(picture.name) + '</option>');
-    groups.set(picture.group, items);
-  }
-  let choices = '<option value=""' + (!source ? ' selected' : '') + '>Без фотографии</option>';
-  if (missing) choices += '<option value="' + e(source) + '" selected>Текущее изображение</option>';
-  for (const [group, options] of groups) choices += '<optgroup label="' + e(group) + '">' + options.join('') + '</optgroup>';
+  const preview = source
+    ? '<img class="photo-preview" src="' + e(source) + '" alt="Фото участника">'
+    : '<div class="photo-preview photo-placeholder" aria-label="Без фотографии">◯</div>';
   return '<div class="photo-control">' + preview +
     '<div class="photo-actions"><span class="field-label">Фотография</span>' +
-    '<details class="photo-picker"><summary>Выбрать или загрузить фото <span aria-hidden="true">⌄</span></summary>' +
-    '<div class="photo-picker__fields"><label class="field"><span class="field-label">Из библиотеки</span>' +
-    '<select data-scope="' + e(scope) + '" data-field="photo">' + choices + '</select></label>' +
+    button(source ? 'Заменить фото' : 'Выбрать фото', 'library-photo:' + scope, 'photo-open small') +
     '<input class="photo-upload" type="file" accept=".jpg,.jpeg,.png,.webp,image/*" data-upload="' + e(scope) + '">' +
-    button('Загрузить с компьютера', 'upload:' + scope, 'subtle small') +
-    '</div></details></div></div>';
+    button('Загрузить файл', 'upload:' + scope, 'subtle small photo-upload-btn') +
+    '</div></div>';
+}
+function allPeople() {
+  const names = new Map();
+  const add = (person, primary = false) => {
+    if (!person?.name || person.name.startsWith('Новый ')) return;
+    const key = person.name.toLocaleLowerCase('ru-RU').trim();
+    const current = names.get(key);
+    if (primary || !current || (!current.photo && person.photo) || (!current.role && person.role))
+      names.set(key, { ...person });
+  };
+  for (const person of state.peopleCatalog) add(person);
+  for (const stage of state.programme.stages) {
+    for (const entry of stage.entries) {
+      if (entry.kind !== 'session') continue;
+      if (entry.moderator) add(entry.moderator, true);
+      for (const talk of entry.talks) for (const person of talk.speakers) add(person, true);
+    }
+  }
+  return [...names.values()].sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+}
+function mediaGallery(kind, scope = '') {
+  if (document.querySelector('.library-wrap')) return;
+  const previousFocus = document.activeElement;
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-wrap library-wrap';
+  const people = allPeople();
+  const names = new Map(people.filter((p) => !!p.photo).map((p) => [p.photo, p.name]));
+  const photos = state.portraits.map((p) => ({
+    ...p,
+    label: names.get(p.url) || p.name.replace(/\.webp$|\.png$|\.jpe?g$/i, '').replaceAll('-', ' '),
+    keywords: (names.get(p.url) || '') + ' ' + p.name + ' ' + p.group,
+    libraryGroup: names.has(p.url) ? 'people' :
+      p.group === 'Загруженные фотографии' ? 'uploaded' : 'other',
+  }));
+  const current = kind === 'photo' ? scopedItem(scope)?.photo : null;
+  if (current && !photos.some((p) => p.url === current))
+    photos.unshift({ url: current, name: 'Текущее фото', label: 'Текущее фото', keywords: current,
+      group: 'Загруженные фотографии', libraryGroup: 'people' });
+  const title = kind === 'photo' ? 'Библиотека фотографий' : 'Участники программы';
+  overlay.innerHTML = '<section class="library-dialog" role="dialog" aria-modal="true" aria-labelledby="library-title">' +
+    '<header class="library-head"><div><span class="eyebrow">DEBT TECH · РЕДАКТОР</span><h2 id="library-title">' + title + '</h2>' +
+    '<p>' + (kind === 'photo' ? 'Найдите нужное изображение и нажмите на него.' : 'Выберите участника — имя, должность и фото заполнятся автоматически.') + '</p></div>' +
+    '<button type="button" class="library-close" data-library-close aria-label="Закрыть">×</button></header>' +
+    '<div class="library-filter">' +
+    '<input type="search" id="library-search" placeholder="' + (kind === 'photo' ? 'Поиск по имени или файлу' : 'Поиск по ФИО или должности') + '" aria-label="Поиск в библиотеке" autocomplete="off">' +
+    (kind === 'photo' ? '<select id="library-group" aria-label="Источник фотографий">' +
+      '<option value="people">Фотографии участников</option><option value="">Все изображения</option>' +
+      '<option value="uploaded">Загруженные файлы</option><option value="other">Другие изображения</option></select>' : '') +
+    '</div><p class="library-count" id="library-count" aria-live="polite"></p>' +
+    '<div class="library-results" id="library-results"></div>' +
+    '<footer class="library-footer">' +
+    (kind === 'photo' ? '<button type="button" class="btn subtle" data-library-clear>Убрать фото</button>' +
+      '<button type="button" class="btn primary" data-library-upload>Загрузить с компьютера</button>' :
+      '<span>Не нашли участника? Закройте библиотеку и добавьте нового вручную.</span>') +
+    '</footer></section>';
+  document.body.append(overlay);
+  overlay.addEventListener('error', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLImageElement) || !target.closest('.library-item')) return;
+    const empty = document.createElement('span');
+    empty.className = 'library-photo-empty';
+    empty.setAttribute('aria-label', 'Изображение недоступно');
+    empty.textContent = '◯';
+    target.replaceWith(empty);
+  }, true);
+  const results = overlay.querySelector('#library-results');
+  const input = overlay.querySelector('#library-search');
+  const counter = overlay.querySelector('#library-count');
+  let limit = 60;
+  function matches() {
+    const query = input.value.trim().toLocaleLowerCase('ru-RU');
+    const group = overlay.querySelector('#library-group')?.value || '';
+    return (kind === 'photo' ? photos : people).filter((item) => {
+      const text = kind === 'photo' ? item.keywords : [item.name, item.role].join(' ');
+      return (!group || item.libraryGroup === group) &&
+        text.toLocaleLowerCase('ru-RU').includes(query);
+    });
+  }
+  function draw() {
+    const list = matches();
+    counter.textContent = 'Найдено: ' + list.length + (list.length > limit ? ' · показаны первые ' + limit : '');
+    results.innerHTML = list.length
+      ? list.slice(0, limit).map((item, index) =>
+        '<button type="button" class="library-item" data-library-index="' + index + '">' +
+        (item.url || item.photo
+          ? '<img src="' + e(item.url || item.photo) + '" alt="" loading="lazy">'
+          : '<span class="library-photo-empty" aria-hidden="true">◯</span>') +
+        '<span class="library-item-text"><strong>' + e(kind === 'photo' ? item.label : item.name) + '</strong>' +
+        '<small>' + e(kind === 'photo' ? item.group : item.role || 'Должность не указана') + '</small></span></button>'
+      ).join('') + (list.length > limit ? '<button type="button" class="btn subtle library-more" data-library-more>Показать ещё</button>' : '')
+      : '<div class="library-empty">Ничего не найдено. Попробуйте другое имя или часть названия.</div>';
+  }
+  function close() {
+    overlay.remove();
+    document.removeEventListener('keydown', onKey);
+    if (previousFocus?.isConnected) previousFocus.focus();
+  }
+  function onKey(event) {
+    if (event.key === 'Escape') { event.preventDefault(); close(); }
+    if (event.key !== 'Tab') return;
+    const fields = [...overlay.querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled)')].filter(el => el.getBoundingClientRect().width);
+    if (event.shiftKey && document.activeElement === fields[0]) { event.preventDefault(); fields.at(-1).focus(); }
+    else if (!event.shiftKey && document.activeElement === fields.at(-1)) { event.preventDefault(); fields[0].focus(); }
+  }
+  document.addEventListener('keydown', onKey);
+  overlay.addEventListener('click', (event) => {
+    if (event.target === overlay || event.target.closest('[data-library-close]')) return close();
+    if (event.target.closest('[data-library-more]')) { limit += 60; return draw(); }
+    if (event.target.closest('[data-library-upload]')) {
+      const upload = app.querySelector('[data-upload="' + CSS.escape(scope) + '"]');
+      close();
+      upload?.click();
+      return;
+    }
+    if (event.target.closest('[data-library-clear]')) {
+      const person = scopedItem(scope);
+      if (!person) return close();
+      person.photo = '';
+      markDirty(); close(); render();
+      return;
+    }
+    const tile = event.target.closest('[data-library-index]');
+    if (!tile) return;
+    const chosen = matches()[Number(tile.dataset.libraryIndex)];
+    if (!chosen) return;
+    if (kind === 'photo') {
+      const person = scopedItem(scope);
+      if (!person) { close(); return notice('Участник больше не найден.', true); }
+      person.photo = chosen.url;
+      markDirty(); close(); render();
+      notice('Фотография выбрана.');
+      return;
+    }
+    const { type, item } = currentSelection();
+    if (type !== 'entry' || item?.kind !== 'session') return close();
+    if (scope === 'moderator') {
+      item.moderator = { ...chosen };
+      state.editModerator = false;
+    } else {
+      const talk = item.talks.find((t) => t.id === scope);
+      if (!talk || talk.speakers.length >= 8) return close();
+      if (talk.speakers.some((p) => p.name.toLocaleLowerCase('ru-RU') === chosen.name.toLocaleLowerCase('ru-RU')))
+        return notice('Этот участник уже добавлен в выступление.', true);
+      talk.speakers.push({ ...chosen });
+      state.expandedTalk = scope;
+    }
+    markDirty(); close(); render();
+    notice('Участник добавлен со всеми данными.');
+  });
+  input.addEventListener('input', () => { limit = 60; draw(); });
+  overlay.querySelector('#library-group')?.addEventListener('change', () => { limit = 60; draw(); });
+  draw();
+  input.focus();
 }
 function personEditor(person, scope) {
   return '<div class="person-fields">' +
@@ -337,13 +524,15 @@ function personEditor(person, scope) {
 function moderatorEditor(session) {
   const person = session.moderator;
   if (!person) {
-    return '<section class="editor-section"><div class="section-heading"><div><h3>Модератор</h3><p>Ведущий сессии</p></div>' +
-      button('+ Добавить', 'add-moderator', 'subtle small') +
+    return '<section class="editor-section" id="session-moderator"><div class="section-heading"><div><h3>Модератор</h3><p>Ведущий сессии</p></div>' +
+      '<div class="inline-actions">' + button('Из программы', 'library-moderator', 'subtle small') +
+      button('+ Добавить', 'add-moderator', 'subtle small') + '</div>' +
       '</div><div class="empty-inline">Модератор не указан. Можно добавить позже.</div></section>';
   }
-  return '<section class="editor-section"><div class="section-heading"><div><h3>Модератор</h3><p>Ведущий сессии</p></div>' +
+  return '<section class="editor-section" id="session-moderator"><div class="section-heading"><div><h3>Модератор</h3><p>Ведущий сессии</p></div>' +
+    '<div class="inline-actions">' + button('Заменить', 'library-moderator', 'subtle small') +
     button(state.editModerator ? 'Готово' : 'Изменить', 'edit-moderator', 'subtle small') +
-    '</div>' +
+    '</div></div>' +
     (state.editModerator
       ? '<div class="card-editor">' + personEditor(person, 'moderator') + '<div class="item-actions">' +
         button('Убрать модератора', 'remove-moderator', 'text-danger small') + '</div></div>'
@@ -361,8 +550,9 @@ function talkCard(talk, index, session) {
       field('Тема выступления', 'talk:' + talk.id, 'title', { type: 'textarea', rows: 2, main: true, placeholder: 'О чём будет выступление?' }) +
       field('Дополнительная пометка', 'talk:' + talk.id, 'note', { placeholder: 'Если тема уточняется или на согласовании' }) +
       checkbox('Показывать выступление на сайте', 'talk:' + talk.id, 'visible', talk) +
-      '<div class="section-heading section-heading--nested"><div><h4>Спикеры</h4><p>Люди, указанные в этом выступлении</p></div>' +
-      button('+ Спикер', 'add-speaker:' + talk.id, 'subtle small') + '</div>' +
+      '<div class="section-heading section-heading--nested"><div><h4>Спикеры</h4><p>Выберите существующего человека или создайте нового</p></div>' +
+      '<div class="inline-actions">' + button('Из программы', 'library-person:' + talk.id, 'subtle small') +
+      button('+ Новый', 'add-speaker:' + talk.id, 'subtle small', 'aria-label="+ Спикер"') + '</div></div>' +
       (!talk.speakers.length ? '<div class="empty-inline">Спикеров пока нет. Добавьте участника.</div>' : '') +
       talk.speakers.map((person, speakerIndex) =>
         '<div class="speaker-editor"><div class="speaker-head"><strong>Спикер ' + (speakerIndex + 1) + '</strong>' +
@@ -390,10 +580,15 @@ function talkCard(talk, index, session) {
     details + '</article>';
 }
 function sessionEditor(session) {
-  const subtitle = 'Все настройки сессии, выступления и спикеры — прямо здесь, без переходов.';
-  return editorHead('СЕССИЯ ' + session.number, 'Настройка сессии', subtitle,
+  const subtitle = session.time + ' · ' + session.talks.length + ' выступлений';
+  return editorHead('СЕССИЯ ' + session.number, session.title, subtitle,
     session.visible === false ? 'Скрыта' : 'В черновике') +
-    '<div class="editor-section editor-section--main">' +
+    '<nav class="editor-jumps" aria-label="Разделы сессии">' +
+    '<button type="button" data-jump="session-main">Основное</button>' +
+    '<button type="button" data-jump="session-moderator">Модератор</button>' +
+    '<button type="button" data-jump="session-talks">Выступления (' + session.talks.length + ')</button>' +
+    '</nav>' +
+    '<div class="editor-section editor-section--main" id="session-main">' +
     field('Название сессии', '', 'title', { main: true, type: 'textarea', rows: 2, placeholder: 'Название сессии' }) +
     '<div class="form-grid"><div>' + timeField(session) + '</div>' +
     '<div class="form-grid__side">' + field('Номер сессии', '', 'number', { type: 'number' }) + '</div></div>' +
@@ -401,7 +596,7 @@ function sessionEditor(session) {
     checkbox('Показывать сессию на сайте', '', 'visible', session) +
     '</div>' +
     moderatorEditor(session) +
-    '<section class="editor-section"><div class="section-heading"><div><h3>Выступления <span class="count">' + session.talks.length + '</span></h3>' +
+    '<section class="editor-section" id="session-talks"><div class="section-heading"><div><h3>Выступления <span class="count">' + session.talks.length + '</span></h3>' +
     '<p>Нажмите на выступление, чтобы изменить тему и спикеров</p></div>' +
     button('+ Выступление', 'add-talk', 'subtle small') +
     '</div><div class="talk-list">' +
@@ -420,10 +615,10 @@ function sessionEditor(session) {
     '<div class="item-actions">' + button('Дублировать сессию', 'clone-session', 'subtle small') +
     button('Удалить сессию', 'delete-session', 'text-danger small') + '</div>' +
     '</div></details></section>' +
-    '<p class="editor-footer">Сначала сохраните черновик. Чтобы изменения появились на сайте, нажмите «Опубликовать».</p>';
+    '<p class="editor-footer">Правки сохраняются в черновике автоматически. На сайте они появятся только после нажатия «Опубликовать».</p>';
 }
 function eventEditor(item, shared = false) {
-  return editorHead(shared ? 'ОБЩЕЕ СОБЫТИЕ' : 'СОБЫТИЕ', 'Настройка события',
+  return editorHead(shared ? 'ОБЩЕЕ СОБЫТИЕ' : 'СОБЫТИЕ', item.title,
     shared ? 'Это событие отображается на всех сценах.' : 'Отдельное событие в расписании.') +
     '<div class="editor-section editor-section--main">' +
     field('Название события', '', 'title', { main: true, type: 'textarea', rows: 2, placeholder: 'Например: кофе-брейк' }) +
@@ -691,14 +886,19 @@ function updateLiveLabels(item) {
   const time = row.querySelector('.listrow-time');
   if (title) title.textContent = item.title;
   if (time) time.textContent = item.time;
+  const heading = app.querySelector('.editor-head h2');
+  if (heading && currentSelection().item === item &&
+      (item.kind === 'session' || item.kind === 'event')) heading.textContent = item.title;
   row.dataset.search = (item.title + ' ' + item.time + ' ' + row.textContent).toLocaleLowerCase('ru-RU');
 }
 function renderError(message) {
   notice(message, true);
 }
-async function save() {
+async function save({ silent = false } = {}) {
   if (!state.dirty || state.busy) return;
+  clearAutosave();
   state.busy = true;
+  state.saveError = '';
   const version = state.editVersion;
   const snapshot = structuredClone(state.programme);
   refreshStatus();
@@ -708,16 +908,21 @@ async function save() {
     });
     state.revision = result.draft.revision;
     if (version === state.editVersion) {
-      state.programme = structuredClone(result.draft.programme);
+      // Preserve input and participant object identities while saving in the background.
       state.dirty = false;
-      render();
-      notice('Черновик сохранён. Сайт пока не изменился.');
+      if (!silent) notice('Черновик сохранён. Для изменения сайта нажмите «Опубликовать».');
+      refreshStatus();
     } else {
-      notice('Первая версия сохранена. Новые правки остались в редакторе — сохраните их ещё раз.');
+      if (!silent) notice('Первая версия сохранена. Новые правки будут сохранены отдельно.');
     }
+  } catch (error) {
+    state.saveError = error.message;
+    // Never replace in-memory changes with a failed or conflicting server response.
+    throw error;
   } finally {
     state.busy = false;
     refreshStatus();
+    if (state.dirty && !state.saveError) scheduleAutosave(750);
   }
 }
 function confirmAction(title, description, action = 'Продолжить', dangerous = false) {
@@ -759,9 +964,13 @@ async function publish() {
   const count = state.programme.stages.reduce((sum, stage) => sum + stage.entries.length, 0);
   if (!await confirmAction('Опубликовать программу?', 'На тестовом сайте появится текущая версия программы (' +
     state.programme.stages.length + ' сцен, ' + count + ' событий и сессий). ' +
-    (state.dirty ? 'Перед публикацией черновик будет сохранён.' : 'Черновик уже сохранён.'), 'Опубликовать')) return;
-  if (state.dirty) await save();
-  if (state.dirty) throw Error('Есть правки, сделанные во время сохранения. Сохраните их и повторите публикацию.');
+    (state.dirty ? 'Перед публикацией черновик будет сохранён.' : 'Черновик уже сохранён.'), 'Опубликовать')) {
+    scheduleAutosave();
+    return;
+  }
+  clearAutosave();
+  if (state.dirty) await save({ silent: true });
+  if (state.dirty) throw Error('Есть правки, сделанные во время сохранения. Дождитесь автосохранения.');
   const version = state.editVersion;
   state.busy = true;
   refreshStatus();
@@ -787,7 +996,7 @@ async function preview() {
   if (!opened) throw Error('Разрешите браузеру открывать вкладки предпросмотра.');
   opened.opener = null;
   try {
-    if (state.dirty) await save();
+    if (state.dirty) await save({ silent: true });
     if (state.dirty) throw Error('Есть новые несохранённые изменения. Повторите предпросмотр.');
     opened.location.href = '/programme-admin/preview#programme';
   } catch (error) {
@@ -796,16 +1005,27 @@ async function preview() {
   }
 }
 async function logout() {
-  if (state.dirty && !await confirmAction('Выйти без сохранения?', 'Несохранённые изменения будут потеряны, опубликованный сайт не изменится.', 'Выйти', true)) return;
+  clearAutosave();
+  if (state.dirty && !await confirmAction('Выйти без сохранения?', 'Несохранённые изменения будут потеряны, опубликованный сайт не изменится.', 'Выйти', true)) {
+    scheduleAutosave();
+    return;
+  }
   await request('/logout', 'POST', {});
   state.csrf = '';
   state.programme = null;
   loginPage();
 }
 async function restore(revision) {
-  if (state.dirty && !await confirmAction('Заменить несохранённые правки?', 'Перед восстановлением версии сохраните или отмените текущие изменения.', 'Продолжить', true)) return;
+  clearAutosave();
+  if (state.dirty && !await confirmAction('Заменить несохранённые правки?', 'Перед восстановлением версии сохраните или отмените текущие изменения.', 'Продолжить', true)) {
+    scheduleAutosave();
+    return;
+  }
   if (!await confirmAction('Восстановить версию №' + revision + '?',
-    'Эта версия будет загружена в черновик. Текущая опубликованная программа не изменится.', 'Восстановить')) return;
+    'Эта версия будет загружена в черновик. Текущая опубликованная программа не изменится.', 'Восстановить')) {
+    scheduleAutosave();
+    return;
+  }
   await request('/restore', 'POST', { revision, expectedRevision: state.revision });
   await loadState();
   notice('Версия №' + revision + ' восстановлена в черновик. Для публикации нажмите «Опубликовать».');
@@ -921,6 +1141,7 @@ function changePassword() {
       close();
       state.csrf = '';
       state.programme = null;
+      clearAutosave();
       loginPage();
       notice('Пароль изменён. Войдите с новым паролем.');
     } catch (problem) {
@@ -956,6 +1177,9 @@ async function dispatchAction(action) {
   if (action === 'import') return app.querySelector('#import-file')?.click();
   if (action === 'validate') return validateDraft();
   if (action === 'change-password') return changePassword();
+  if (action === 'library-moderator') return mediaGallery('people', 'moderator');
+  if (action.startsWith('library-person:')) return mediaGallery('people', action.slice('library-person:'.length));
+  if (action.startsWith('library-photo:')) return mediaGallery('photo', action.slice('library-photo:'.length));
   if (action === 'add-talk') return addTalk();
   if (action === 'add-moderator') {
     const item = currentSelection().item;
@@ -1028,6 +1252,16 @@ function onFieldInput(control) {
   if (!control.dataset.scope) updateLiveLabels(item);
 }
 app.addEventListener('click', (event) => {
+  const jump = event.target.closest('[data-jump]');
+  if (jump && app.contains(jump)) {
+    event.preventDefault();
+    const target = app.querySelector('#' + CSS.escape(jump.dataset.jump));
+    if (!target) return;
+    const panel = app.querySelector('.inspector');
+    if (panel) panel.scrollTo({ top: target.getBoundingClientRect().top -
+      panel.getBoundingClientRect().top + panel.scrollTop - 12, behavior: 'smooth' });
+    return;
+  }
   const action = event.target.closest('[data-action]');
   if (!action || !app.contains(action)) return;
   event.preventDefault();
@@ -1092,6 +1326,16 @@ app.addEventListener('drop', (event) => {
   render();
 });
 document.addEventListener('keydown', (event) => {
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k' && state.programme) {
+    event.preventDefault();
+    if (document.querySelector('.modal-wrap')) return;
+    if (state.mobileView !== 'agenda') {
+      state.mobileView = 'agenda';
+      render();
+    }
+    app.querySelector('#agenda-search')?.focus();
+    return;
+  }
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's' && state.programme) {
     event.preventDefault();
     if (!document.querySelector('.modal-wrap')) save().catch((error) => renderError(error.message));

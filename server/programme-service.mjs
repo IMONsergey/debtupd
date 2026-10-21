@@ -327,6 +327,19 @@ export async function createProgrammeServer({ distDir, adminDir, dataDir, origin
       const session = authenticated(request, response);
       if (!session) return;
 
+      if (method === 'GET' && pathname === '/api/programme/people') {
+        // Use the existing speaker directory; keep people data in one source of truth.
+        const entries = await readJson(join(distDir, '..', 'src', 'speakers.json')).catch(() => []);
+        const people = entries.filter((person) =>
+          typeof person.name === 'string' && person.name.trim()).map((person) => ({
+          name: person.name,
+          role: typeof person.role === 'string' ? person.role : '',
+          photo: typeof person.image === 'string' && /^[\w-]+\.png$/.test(person.image)
+            ? '/assets/figma/' + person.image.replace(/\.png$/, '.webp') : '',
+        }));
+        send(response, 200, { people });
+        return;
+      }
       if (method === 'GET' && pathname === '/api/programme/preview') {
         const draft = await readJson(draftPath);
         send(response, 200, { revision: draft.revision, programme: draft.programme });

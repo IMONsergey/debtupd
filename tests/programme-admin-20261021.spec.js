@@ -64,6 +64,7 @@ async function agree(page) {
 test('editor and API remain private without login', async ({ request }) => {
   expect((await request.get(base + '/api/programme/admin')).status()).toBe(401);
   expect((await request.get(base + '/api/programme/preview')).status()).toBe(401);
+  expect((await request.get(base + '/api/programme/people')).status()).toBe(401);
   expect((await request.get(base + '/programme-admin/preview')).status()).toBe(401);
   expect((await request.post(base + '/api/programme/validate', { data: {} })).status()).toBe(401);
   expect((await request.get(base + '/api/programme')).status()).toBe(200);
@@ -112,11 +113,11 @@ test('create session, edit talks and speakers inline, upload image, preview and 
   await page.getByRole('button', { name: '+ Спикер' }).click();
   await page.locator('.talk-card--open [data-field="name"]').fill('Тестовый Спикер');
   await page.locator('.talk-card--open [data-field="role"]').fill('Компания');
-  await page.locator('.photo-picker summary').last().click();
   await page.locator('.talk-card--open input.photo-upload').setInputFiles('public/assets/images/programme/ipatyev.webp');
   await expect(page.locator('.talk-card--open .photo-preview')).toHaveAttribute('src', /\/api\/programme\/image\//);
-  await page.getByRole('button', { name: 'Сохранить черновик' }).click();
-  await expect(page.locator('#save-state')).toHaveText('Все изменения сохранены');
+  if (await page.getByRole('button', { name: 'Сохранить черновик' }).isEnabled())
+    await page.getByRole('button', { name: 'Сохранить черновик' }).click();
+  await expect(page.locator('#save-state')).toContainText('Черновик сохранён');
   expect((await publicData(page)).programme.stages[0].entries).toHaveLength(before.programme.stages[0].entries.length);
   const pending = page.waitForEvent('popup');
   await page.getByRole('button', { name: 'Предпросмотр' }).click();
@@ -152,18 +153,21 @@ test('stage and shared events are discoverable, editable and movable without pub
   await expect(page.locator('.listpane .listrow')).toHaveCount(2);
   await page.getByRole('button', { name: '+ Добавить событие' }).click();
   await page.locator('.inspector [data-scope=""][data-field="title"]').fill('Тест общего события');
-  await page.getByRole('button', { name: 'Сохранить черновик' }).click();
+  if (await page.getByRole('button', { name: 'Сохранить черновик' }).isEnabled())
+    await page.getByRole('button', { name: 'Сохранить черновик' }).click();
   expect((await publicData(page)).programme.commonEvents).toHaveLength(2);
   await page.getByRole('button', { name: 'Большая сцена' }).click();
   await page.getByRole('button', { name: 'Настроить сцену' }).click();
   await page.locator('.inspector [data-field="status"]').selectOption('upcoming');
   await expect(page.locator('.agenda-head')).toContainText('Программа уточняется');
-  await page.getByRole('button', { name: 'Сохранить черновик' }).click();
+  if (await page.getByRole('button', { name: 'Сохранить черновик' }).isEnabled())
+    await page.getByRole('button', { name: 'Сохранить черновик' }).click();
   expect((await publicData(page)).programme.stages[0].status).toBe(original.programme.stages[0].status);
   await page.getByRole('button', { name: '+ Сцена' }).click();
   await page.locator('.inspector [data-field="title"]').fill('Новая тестовая сцена');
   await expect(page.locator('.stage-tab')).toHaveCount(5);
-  await page.getByRole('button', { name: 'Сохранить черновик' }).click();
+  if (await page.getByRole('button', { name: 'Сохранить черновик' }).isEnabled())
+    await page.getByRole('button', { name: 'Сохранить черновик' }).click();
   expect((await publicData(page)).programme.stages).toHaveLength(3);
 });
 
@@ -223,15 +227,17 @@ test('edits while saving stay in the editor, and can be saved in another revisio
     await wait;
     await route.continue();
   });
-  await page.getByRole('button', { name: 'Сохранить черновик' }).click();
+  if (await page.getByRole('button', { name: 'Сохранить черновик' }).isEnabled())
+    await page.getByRole('button', { name: 'Сохранить черновик' }).click();
   await signal;
   await title.fill('Вторая версия, введённая во время сохранения');
   release();
-  await expect(page.locator('#save-state')).toContainText('Есть несохранённые');
+  await expect(page.locator('#save-state')).toContainText(/Правки сохраняются автоматически|Сохраняем|Черновик сохранён/);
   await expect(title).toHaveValue('Вторая версия, введённая во время сохранения');
   await page.unroute('**/api/programme/draft');
-  await page.getByRole('button', { name: 'Сохранить черновик' }).click();
-  await expect(page.locator('#save-state')).toHaveText('Все изменения сохранены');
+  if (await page.getByRole('button', { name: 'Сохранить черновик' }).isEnabled())
+    await page.getByRole('button', { name: 'Сохранить черновик' }).click();
+  await expect(page.locator('#save-state')).toContainText('Черновик сохранён');
   const preview = await page.evaluate(async () => (await fetch('/api/programme/preview')).json());
   expect(preview.programme.stages[0].entries[0].title).toBe('Вторая версия, введённая во время сохранения');
 });
@@ -239,7 +245,6 @@ test('edits while saving stay in the editor, and can be saved in another revisio
 test('in-flight image upload remains attached to original speaker when switching sessions', async ({ page }) => {
   await login(page);
   await page.locator('.talk-pick').first().click();
-  await page.locator('.photo-picker summary').first().click();
   const first = page.locator('.talk-card--open .photo-upload').first();
   let release;
   let received;
