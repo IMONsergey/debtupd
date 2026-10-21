@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Minus, Plus, UserRound } from 'lucide-react';
 import speakers from '../speakers.json';
 import { forumProgramme } from '../programme-data.js';
@@ -23,11 +23,14 @@ const figmaPortraits = {
   'Антон Юдаев': 'yudaev.webp',
 };
 
-function ProgrammePortrait({ name }) {
+function ProgrammePortrait({ person }) {
   const [failed, setFailed] = useState(false);
-  const source = figmaPortraits[name]
-    ? assetUrl('assets/images/programme/' + figmaPortraits[name])
-    : portraits.get(name);
+  const source =
+    person.photo ||
+    (figmaPortraits[person.name]
+      ? assetUrl('assets/images/programme/' + figmaPortraits[person.name])
+      : portraits.get(person.name));
+  useEffect(() => setFailed(false), [source]);
   return (
     <span className="forum-programme__portrait" aria-hidden="true">
       {source && !failed ? (
@@ -46,7 +49,7 @@ function ProgrammePerson({ person, moderator = false }) {
         'forum-programme__person' + (moderator ? ' forum-programme__person--moderator' : '')
       }
     >
-      <ProgrammePortrait name={person.name} />
+      <ProgrammePortrait person={person} />
       <div className="forum-programme__person-copy">
         {moderator && <span className="forum-programme__person-label">Модератор</span>}
         <span className="forum-programme__person-name">{person.name}</span>
@@ -144,27 +147,31 @@ function ProgrammeSession({ session, expanded, onToggle }) {
           <small>{expanded ? 'Скрыть' : 'Подробнее'}</small>
         </span>
       </button>
-      <div className="forum-programme__session-body" id={contentId} hidden={!expanded}>
-        {expanded && (
-          <>
-            {session.talks.map((talk) => (
+      <div
+        className="forum-programme__session-body"
+        id={contentId}
+        aria-hidden={!expanded}
+        inert={!expanded}
+      >
+        <div className="forum-programme__session-body-inner">
+          {session.talks
+            .filter((talk) => talk.visible !== false)
+            .map((talk) => (
               <ProgrammeTalk talk={talk} key={talk.id} />
             ))}
-            {session.additionalNote && (
-              <p className="forum-programme__invited">
-                <span className="forum-programme__invited-dot" aria-hidden="true" />
-                {session.additionalNote}
-              </p>
-            )}
-          </>
-        )}
+          {session.additionalNote && (
+            <p className="forum-programme__invited">
+              <span className="forum-programme__invited-dot" aria-hidden="true" />
+              {session.additionalNote}
+            </p>
+          )}
+        </div>
       </div>
     </article>
   );
 }
 
-function ProgrammeStageTabs({ selected, onSelect }) {
-  const tabs = forumProgramme.stages;
+function ProgrammeStageTabs({ selected, onSelect, tabs }) {
   const tabRefs = useRef([]);
   function handleKeys(event, index) {
     let next = index;
@@ -215,13 +222,52 @@ function ProgrammeStageTabs({ selected, onSelect }) {
   );
 }
 
+function initialProgramme() {
+  return {
+    note: forumProgramme.note,
+    commonEvents: forumProgramme.timeline.slice(0, 2),
+    stages: forumProgramme.stages.map((item) => ({
+      ...item,
+      visible: true,
+      status: item.id === 'main' ? 'published' : 'upcoming',
+      entries: item.id === 'main' ? forumProgramme.timeline.slice(2) : [],
+    })),
+  };
+}
+
 export function ForumProgramme() {
+  const [programme, setProgramme] = useState(initialProgramme);
   const [stage, setStage] = useState('main');
   const [expanded, setExpanded] = useState('session-1');
-  const selectedStage = forumProgramme.stages.find((item) => item.id === stage);
-  const generalEvents = forumProgramme.timeline.filter(
-    (entry) => entry.kind === 'event' && (entry.id === 'welcome' || entry.id === 'opening'),
-  );
+  const isPreview = window.location.pathname === '/programme-admin/preview';
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(isPreview ? '/api/programme/preview' : '/api/programme', {
+      credentials: 'same-origin',
+      cache: 'no-store',
+      signal: controller.signal,
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('programme_fetch_' + response.status);
+        return response.json();
+      })
+      .then((payload) => {
+        if (payload.programme?.stages?.length) setProgramme(payload.programme);
+      })
+      .catch((error) => {
+        if (error.name !== 'AbortError') console.warn('Programme fallback data are in use.');
+      });
+    return () => controller.abort();
+  }, [isPreview]);
+
+  const stages = programme.stages.filter((item) => item.visible !== false);
+  const selectedStage = stages.find((item) => item.id === stage) || stages[0];
+  const stageEntries =
+    selectedStage?.status === 'published'
+      ? selectedStage.entries.filter((entry) => entry.visible !== false)
+      : [];
+  const generalEvents = programme.commonEvents.filter((entry) => entry.visible !== false);
 
   return (
     <section
@@ -231,14 +277,22 @@ export function ForumProgramme() {
     >
       <header className="forum-programme__header">
         <h2 id="forum-programme-title">Программа форума</h2>
-        <p>{forumProgramme.note}</p>
+        <p>{programme.note}</p>
       </header>
-      <ProgrammeStageTabs selected={stage} onSelect={setStage} />
+      <ProgrammeStageTabs
+        selected={selectedStage?.id}
+        tabs={stages}
+        onSelect={(next) => {
+          setStage(next);
+          setExpanded(null);
+        }}
+      />
 
       <div
+        key={selectedStage?.id}
         id="programme-stage-content"
         role="tabpanel"
-        aria-labelledby={'programme-tab-' + stage}
+        aria-labelledby={'programme-tab-' + selectedStage?.id}
         className="forum-programme__stage-content"
       >
         <div className="forum-programme__timeline" aria-label="Общие события">
@@ -247,42 +301,59 @@ export function ForumProgramme() {
           ))}
         </div>
 
-        {stage === 'main' ? (
-          <div className="forum-programme__sessions" aria-label="Программа большой сцены">
-            {forumProgramme.timeline
-              .slice(2)
-              .map((entry) =>
-                entry.kind === 'event' ? (
-                  <ProgrammeSharedEvent key={entry.id} entry={entry} />
-                ) : (
-                  <ProgrammeSession
-                    key={entry.id}
-                    session={entry}
-                    expanded={entry.id === expanded}
-                    onToggle={() => setExpanded((old) => (old === entry.id ? null : entry.id))}
-                  />
-                ),
-              )}
+        {selectedStage?.status === 'published' && stageEntries.length ? (
+          <div
+            className="forum-programme__sessions"
+            aria-label={'Программа: ' + selectedStage.title}
+          >
+            {stageEntries.map((entry) =>
+              entry.kind === 'event' ? (
+                <ProgrammeSharedEvent key={entry.id} entry={entry} />
+              ) : (
+                <ProgrammeSession
+                  key={entry.id}
+                  session={entry}
+                  expanded={entry.id === expanded}
+                  onToggle={() => setExpanded((old) => (old === entry.id ? null : entry.id))}
+                />
+              ),
+            )}
           </div>
         ) : (
           <div className="forum-programme__pending">
             <div className="forum-programme__pending-number" aria-hidden="true">
-              {stage === 'small' ? '02' : '03'}
+              {String(stages.findIndex((item) => item.id === selectedStage?.id) + 1).padStart(
+                2,
+                '0',
+              )}
             </div>
             <div>
-              <span className="forum-programme__pending-kicker">{selectedStage.title}</span>
+              <span className="forum-programme__pending-kicker">{selectedStage?.title}</span>
               <h3>Программа уточняется</h3>
               <p>
-                Темы и состав участников пока не представлены. Доступна подробная программа большой
-                сцены.
+                Темы и состав участников пока не представлены. Подробная программа появится после
+                подтверждения.
               </p>
-              <button
-                className="forum-programme__return"
-                type="button"
-                onClick={() => setStage('main')}
-              >
-                Посмотреть большую сцену <ArrowRight size={17} />
-              </button>
+              {stages.some((item) => item.status === 'published' && item.entries.length > 0) && (
+                <button
+                  className="forum-programme__return"
+                  type="button"
+                  onClick={() => {
+                    const first = stages.find(
+                      (item) => item.status === 'published' && item.entries.length,
+                    );
+                    setStage(first.id);
+                    setExpanded(
+                      first.entries.find((entry) => entry.kind === 'session')?.id || null,
+                    );
+                  }}
+                >
+                  {stages.some((item) => item.id === 'main' && item.status === 'published')
+                    ? 'Посмотреть большую сцену'
+                    : 'Посмотреть опубликованную сцену'}{' '}
+                  <ArrowRight size={17} />
+                </button>
+              )}
             </div>
           </div>
         )}

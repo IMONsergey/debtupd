@@ -55,6 +55,20 @@ for (const width of [320, 390, 600, 768, 1024, 1440, 1920]) {
     await expect(session1).toContainText('Валерий Зоткин');
     await expect(session1).toContainText('Спикеры от госорганов приглашены');
     await expect(session1.locator('.forum-programme__person-label')).toHaveText('Модератор');
+    const photoColumns = await session1.evaluate((session) => {
+      const moderator = session.querySelector(
+        '.forum-programme__session-moderator .forum-programme__portrait',
+      );
+      const speaker = session.querySelector('.forum-programme__talk .forum-programme__portrait');
+      return {
+        moderatorX: moderator.getBoundingClientRect().x,
+        speakerX: speaker.getBoundingClientRect().x,
+        moderatorWidth: moderator.getBoundingClientRect().width,
+        speakerWidth: speaker.getBoundingClientRect().width,
+      };
+    });
+    expect(Math.abs(photoColumns.moderatorX - photoColumns.speakerX)).toBeLessThanOrEqual(1);
+    expect(photoColumns.moderatorWidth).toBe(photoColumns.speakerWidth);
 
     const session2 = section.locator('[data-session-id="session-2"]');
     await session2.locator('.forum-programme__session-toggle').click();

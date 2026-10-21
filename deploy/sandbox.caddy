@@ -14,6 +14,15 @@ debtupd-sandbox.176.98.177.253.sslip.io {
         handle /api/lead {
             reverse_proxy 127.0.0.1:32027
         }
+        handle /api/programme* {
+            reverse_proxy 127.0.0.1:32029
+        }
+        handle /programme-admin {
+            reverse_proxy 127.0.0.1:32029
+        }
+        handle /programme-admin/* {
+            reverse_proxy 127.0.0.1:32029
+        }
         handle /api/* {
             respond "Not found" 404
         }

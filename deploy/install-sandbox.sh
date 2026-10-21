@@ -9,6 +9,9 @@ source="$root/releases/$release"
 test -s "$source/dist/index.html"
 test -s "$source/server/forms-telegram.mjs"
 test -s "$source/src/lib/ticket-pricing.js"
+test -s "$source/server/programme-admin.mjs"
+test -s "$source/admin/programme/index.html"
+test -s "$source/dist/data/programme-seed.json"
 test "$(id -u)" = 0
 
 install -d -m 700 "$root/env" "$root/backups"
@@ -21,6 +24,17 @@ printf '%s\n' 'HOST=127.0.0.1' 'PORT=32027' \
     'ALLOWED_ORIGINS=https://debtupd-sandbox.176.98.177.253.sslip.io' >> "$root/env/forms.env"
 chmod 600 "$root/env/forms.env"
 
+# Dedicated editor: persistent JSON data and credentials are outside releases.
+install -d -o www-data -g www-data -m 700 "$root/data" "$root/data/images" "$root/data/history"
+if [[ ! -s "$root/data/auth.json" ]]; then
+    /srv/imon/projects/debt-2026-lite/toolchain/node-v22/bin/node         "$source/server/programme-auth-setup.mjs"         "$root/data/auth.json" "$root/env/programme-admin-initial-password.txt"
+    chown www-data:www-data "$root/data/auth.json"
+    chmod 600 "$root/data/auth.json" "$root/env/programme-admin-initial-password.txt"
+fi
+install -m 600 /dev/null "$root/env/programme-admin.env"
+printf '%s\n' 'PORT=32029'     'PROGRAMME_ORIGIN=https://debtupd-sandbox.176.98.177.253.sslip.io'     "PROGRAMME_DATA_DIR=$root/data" > "$root/env/programme-admin.env"
+chmod 600 "$root/env/programme-admin.env"
+
 old_source=$(readlink "$root/source" || true)
 old_current=$(readlink "$root/current" || true)
 ln -sfn "$source" "$root/source.next"
@@ -31,11 +45,20 @@ install -m 644 "$source/deploy/debtupd-sandbox-forms.service" /etc/systemd/syste
 systemctl daemon-reload
 systemctl enable --now debtupd-sandbox-forms.service
 systemctl restart debtupd-sandbox-forms.service
+install -m 644 "$source/deploy/debtupd-sandbox-programme.service"     /etc/systemd/system/debtupd-sandbox-programme.service
+systemctl daemon-reload
+systemctl enable --now debtupd-sandbox-programme.service
+systemctl restart debtupd-sandbox-programme.service
 for attempt in {1..20}; do
     if curl --fail --silent http://127.0.0.1:32027/health; then break; fi
     sleep 1
 done
 curl --fail --silent http://127.0.0.1:32027/health
+for attempt in {1..20}; do
+    if curl --fail --silent http://127.0.0.1:32029/health; then break; fi
+    sleep 1
+done
+curl --fail --silent http://127.0.0.1:32029/health
 
 backup="$root/backups/Caddyfile-$(date -u +%Y%m%dT%H%M%SZ)"
 cp -a /etc/caddy/Caddyfile "$backup"
@@ -54,4 +77,4 @@ if ! systemctl reload caddy; then
     exit 1
 fi
 printf '\nSandbox release: %s\nPrevious source: %s\nPrevious frontend: %s\n' "$release" "$old_source" "$old_current"
-systemctl is-active debtupd-sandbox-forms.service debt-2026-lite-forms.service caddy
+systemctl is-active debtupd-sandbox-forms.service debtupd-sandbox-programme.service debt-2026-lite-forms.service caddy
