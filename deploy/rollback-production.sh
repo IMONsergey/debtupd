@@ -13,6 +13,9 @@ previous=$(<"$backup/previous-current")
 test -s "$previous/index.html"
 ln -sfn "$previous" "$root/current.rollback"
 mv -Tf "$root/current.rollback" "$root/current"
+if systemctl is-active --quiet debt-2026-lite-programme.service; then
+    systemctl restart debt-2026-lite-programme.service
+fi
 install -m 600 "$backup/forms.env" "$root/env/forms.env"
 if [[ -f "$backup/20-debtupd-release.conf" ]]; then
     install -m 644 "$backup/20-debtupd-release.conf" "$dropin"

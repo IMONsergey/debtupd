@@ -1,0 +1,24 @@
+[Unit]
+Description=DEBT TECH production programme editor (separate CMS)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/srv/imon/projects/debt-2026-lite/programme-runtime
+EnvironmentFile=/srv/imon/projects/debt-2026-lite/env/programme-admin.env
+ExecStart=/srv/imon/projects/debt-2026-lite/toolchain/node-v22/bin/node /srv/imon/projects/debt-2026-lite/programme-runtime/server/programme-admin.mjs
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/imon/projects/debt-2026-lite/programme-data
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

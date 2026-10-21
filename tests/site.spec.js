@@ -67,7 +67,8 @@ test('Production mobile menu closes on Escape, outside click and navigation', as
   const menu = page.getByRole('navigation', { name: 'Разделы сайта' });
   await trigger.click();
   await expect(menu).toBeVisible();
-  await expect(menu.getByRole('link')).toHaveCount(11);
+  await expect(menu.getByRole('link')).toHaveCount(12);
+  await expect(menu.getByRole('link', { name: 'Программа форума' })).toHaveAttribute('href', '#prog');
   await expect(menu.getByRole('link', { name: 'Зарегистрироваться' })).toHaveAttribute(
     'href',
     '#tariff-plans',

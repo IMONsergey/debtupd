@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
 import './styles.css';
 import './styles/production-menu.css';
+import './styles/forum-programme.css';
 import './styles/figma-fidelity.css';
 import './styles/other-conferences.css';
 import './styles/responsive-components.css';

@@ -4,6 +4,7 @@ import { content } from './content.js';
 import { Supporters } from './components/Supporters.jsx';
 import { ConferencePartners } from './components/ConferencePartners.jsx';
 import { FincifraSeminar } from './components/FincifraSeminar.jsx';
+import { ForumProgramme } from './components/ForumProgramme.jsx';
 import { featuredConferencePartner } from './conferencePartners.js';
 import { MobileCarouselControls } from './components/MobileCarouselControls.jsx';
 import { useSnapCarousel } from './lib/useSnapCarousel.js';
@@ -1049,6 +1050,7 @@ export default function App() {
           <TechnologyTags />
           <About />
           <Participants />
+          <ForumProgramme />
           <Services onRegister={() => openForm()} />
           <Topics />
           <FincifraSeminar

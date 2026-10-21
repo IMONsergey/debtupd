@@ -1,0 +1,356 @@
+{
+  "schemaVersion": 1,
+  "note": "Программа предварительная. Темы и состав участников могут уточняться.",
+  "commonEvents": [
+    {
+      "id": "welcome",
+      "kind": "event",
+      "time": "09:00–10:00",
+      "title": "Регистрация участников и приветственный фуршет",
+      "visible": true
+    },
+    {
+      "id": "opening",
+      "kind": "event",
+      "time": "10:00–10:15",
+      "title": "Торжественное открытие форума",
+      "visible": true
+    }
+  ],
+  "stages": [
+    {
+      "id": "main",
+      "title": "Большая сцена",
+      "description": "4 сессии · 10:00–18:30",
+      "visible": true,
+      "status": "published",
+      "entries": [
+        {
+          "id": "session-1",
+          "kind": "session",
+          "number": 1,
+          "time": "10:00–12:00",
+          "title": "Регулирование и тренды автоматизации 2026–2027",
+          "category": "Пленарная сессия · Панельная дискуссия",
+          "moderator": {
+            "name": "Евгений Новиков",
+            "role": "Руководитель Департамента финансового урегулирования, вице-президент ВТБ",
+            "photo": "/assets/images/programme/evgeniy-novikov.webp"
+          },
+          "talks": [
+            {
+              "id": "plenary-emelin",
+              "title": "Цифровизация взыскания в нормативно-правовом ключе",
+              "speakers": [
+                {
+                  "name": "Андрей Емелин",
+                  "role": "Председатель Национального совета финансового рынка",
+                  "photo": "/assets/images/programme/andrey-emelin.webp"
+                }
+              ],
+              "visible": true
+            },
+            {
+              "id": "plenary-debtprice",
+              "title": "Цифровизация и тренды на рынке цессий",
+              "speakers": [
+                {
+                  "name": "Владимир Вербицкий",
+                  "role": "Основатель DEBTPRICE",
+                  "photo": "/assets/images/programme/vladimir-verbitskiy.webp"
+                },
+                {
+                  "name": "Константин Виноградов",
+                  "role": "Основатель DEBTPRICE",
+                  "photo": "/assets/images/programme/konstantin-vinogradov.webp"
+                }
+              ],
+              "visible": true
+            },
+            {
+              "id": "plenary-zotkin",
+              "title": "Следующая точка роста коллекторского бизнеса — не технологии",
+              "speakers": [
+                {
+                  "name": "Валерий Зоткин",
+                  "role": "Генеральный директор АО «НИРУМ»",
+                  "photo": "/assets/images/programme/valeriy-zotkin.webp"
+                }
+              ],
+              "visible": true
+            }
+          ],
+          "additionalNote": "Спикеры от госорганов приглашены",
+          "visible": true
+        },
+        {
+          "id": "coffee-1",
+          "kind": "event",
+          "time": "12:00–12:30",
+          "title": "Кофе-брейк",
+          "visible": true
+        },
+        {
+          "id": "session-2",
+          "kind": "session",
+          "number": 2,
+          "time": "12:30–14:00",
+          "title": "Искусственный интеллект и коммуникации с клиентами",
+          "category": "Практическая сессия",
+          "moderator": {
+            "name": "Константин Ипатьев",
+            "role": "Руководитель Управления аналитики урегулирования и партнерских программ ДФУ ВТБ",
+            "photo": "/assets/images/programme/ipatyev.webp"
+          },
+          "talks": [
+            {
+              "id": "ai-kurtsev",
+              "title": "Переход от транзакта к цифре во взыскании: опыт ПАО «Ростелеком»",
+              "speakers": [
+                {
+                  "name": "Илья Курцев",
+                  "role": "Директор центра кредитного контроля ПАО «Ростелеком»",
+                  "photo": "/assets/figma/speaker-hd-07.webp"
+                }
+              ],
+              "visible": true
+            },
+            {
+              "id": "ai-epifanov",
+              "title": "Урегулирование как цифровой сервис: от контакта до решения вопроса",
+              "speakers": [
+                {
+                  "name": "Василий Епифанов",
+                  "role": "Руководитель Дирекции дистанционного урегулирования «Альфа-банка»",
+                  "photo": "/assets/figma/speaker-vasiliy-epifanov.webp"
+                },
+                {
+                  "name": "Александр Митрохин",
+                  "role": "Руководитель развития процессов урегулирования «Альфа-банка»",
+                  "photo": "/assets/figma/speaker-aleksandr-mitrokhin.webp"
+                }
+              ],
+              "visible": true
+            },
+            {
+              "id": "ai-lifentsev",
+              "title": "ИИ в ежедневной работе отдела взыскания: от подготовки к контакту до контроля качества",
+              "speakers": [
+                {
+                  "name": "Максим Лифенцев",
+                  "role": "Руководитель досудебного взыскания МКК «Займер»",
+                  "photo": "/assets/figma/speaker-maxim-lifentsev.webp"
+                }
+              ],
+              "visible": true
+            },
+            {
+              "id": "ai-zanevskiy",
+              "title": "Роль чатов в клиентском взаимодействии на всех стадиях работы с долгом",
+              "speakers": [
+                {
+                  "name": "Андрей Заневский",
+                  "role": "Заместитель генерального директора в финтех-группе «Свой»",
+                  "photo": "/assets/figma/speaker-hd-11.webp"
+                }
+              ],
+              "visible": true
+            }
+          ],
+          "visible": true
+        },
+        {
+          "id": "lunch",
+          "kind": "event",
+          "time": "14:00–15:00",
+          "title": "Обед",
+          "visible": true
+        },
+        {
+          "id": "session-3",
+          "kind": "session",
+          "number": 3,
+          "time": "15:00–16:30",
+          "title": "Искусственный интеллект в судебном взыскании и исполнительном производстве",
+          "category": "Практическая сессия",
+          "moderator": null,
+          "talks": [
+            {
+              "id": "court-avakyan",
+              "title": "Новый закон об ИИ и цифровизация судов: что ждет кредиторов, взыскателей, юристов и должников",
+              "speakers": [
+                {
+                  "name": "Елена Авакян",
+                  "role": "Вице-президент Гильдии Российских Адвокатов, руководитель цифровой трансформации адвокатуры России",
+                  "photo": "/assets/figma/speaker-hd-13.webp"
+                }
+              ],
+              "visible": true
+            },
+            {
+              "id": "court-bogomolov",
+              "title": "Youristo.pro: эволюция collection-систем с LLM",
+              "speakers": [
+                {
+                  "name": "Максим Богомолов",
+                  "role": "Основатель ПКО «АСВ» и Legar Resources",
+                  "photo": "/assets/figma/speaker-hd-06.webp"
+                }
+              ],
+              "visible": true
+            },
+            {
+              "id": "court-kuznetsova",
+              "title": "Вайбкодинг и работа с судебными документами",
+              "speakers": [
+                {
+                  "name": "Марина Кузнецова",
+                  "role": "Руководитель направления по судебной работе и исполнительному производству ООО «ПКО Управляющая Компания Траст»",
+                  "photo": "/assets/figma/speaker-marina-kuznetsova.webp"
+                }
+              ],
+              "visible": true
+            },
+            {
+              "id": "court-koshelyaeva",
+              "title": "Современные методы работы с документами – первый шаг к автоматизации в судебном делопроизводстве",
+              "speakers": [
+                {
+                  "name": "Наталья Кошеляева",
+                  "role": "Генеральный директор ООО «Декодика»",
+                  "photo": "/assets/figma/speaker-hd-10.webp"
+                }
+              ],
+              "visible": true
+            },
+            {
+              "id": "court-yuriev",
+              "title": null,
+              "note": "Тема уточняется",
+              "speakers": [
+                {
+                  "name": "Константин Юрьев",
+                  "role": "Генеральный директор АО «Агредатор»",
+                  "photo": "/assets/figma/speaker-konstantin-yuriev.webp"
+                }
+              ],
+              "visible": true
+            },
+            {
+              "id": "court-alekseev",
+              "title": "Новые практики по работе с проблемной задолженностью физических лиц на предбанкротном и банкротном этапе",
+              "speakers": [
+                {
+                  "name": "Игорь Алексеев",
+                  "role": "Управляющий партнер экосистемы для арбитражных управляющих и банкротных продуктов ПАО «Совкомбанк»",
+                  "photo": "/assets/figma/speaker-igor-alekseev.webp"
+                }
+              ],
+              "visible": true
+            }
+          ],
+          "visible": true
+        },
+        {
+          "id": "coffee-2",
+          "kind": "event",
+          "time": "16:30–17:00",
+          "title": "Кофе-брейк",
+          "visible": true
+        },
+        {
+          "id": "session-4",
+          "kind": "session",
+          "number": 4,
+          "time": "17:00–18:30",
+          "title": "Новые практики розничного взыскания 2026–2027",
+          "category": "Практическая сессия",
+          "moderator": {
+            "name": "Антон Юдаев",
+            "role": "Главный редактор СМИ «Рынок Взыскания»",
+            "photo": "/assets/images/programme/yudaev.webp"
+          },
+          "talks": [
+            {
+              "id": "retail-zolotareva",
+              "title": "Сегментация дебиторской базы на основе финансового состояния клиента и истории взаимодействия с ним",
+              "speakers": [
+                {
+                  "name": "Рената Золотарева",
+                  "role": "Руководитель отдела по управлению процессами дебиторской задолженности на массовом рынке ПАО «МегаФон»",
+                  "photo": "/assets/figma/speaker-renata-zolotareva.webp"
+                }
+              ],
+              "visible": true
+            },
+            {
+              "id": "retail-spatar",
+              "title": "Целевой голосовой трафик: борьба с автоответчиками и спам-звонками",
+              "speakers": [
+                {
+                  "name": "Роман Спатарь",
+                  "role": "Руководитель службы сопровождения и развития дистанционного урегулирования",
+                  "photo": "/assets/figma/speaker-roman-spotar.webp"
+                }
+              ],
+              "visible": true
+            },
+            {
+              "id": "retail-mironov",
+              "title": "Миллионы дохода в деталях: экономический эффект от автоматизации Legal на примере реального портфеля ПКО",
+              "speakers": [
+                {
+                  "name": "Максим Миронов",
+                  "role": "Генеральный директор ООО «Смарт Бизнес Лаб»",
+                  "photo": "/assets/figma/speaker-maxim-mironov.webp"
+                }
+              ],
+              "visible": true
+            },
+            {
+              "id": "retail-kayumov",
+              "title": "Технология внесудебной реализации движимого залогового имущества",
+              "speakers": [
+                {
+                  "name": "Денис Каюмов",
+                  "role": "Руководитель дирекции Банка «УРАЛСИБ»",
+                  "photo": "/assets/figma/speaker-hd-15.webp"
+                }
+              ],
+              "visible": true
+            },
+            {
+              "id": "retail-skvortsov",
+              "title": "Скоринг судебного взыскания: сегментация должников для определения целесообразности просуживания долга",
+              "speakers": [
+                {
+                  "name": "Илья Скворцов",
+                  "role": "Руководитель отдела развития сервисов монетизации данных АО «НБКИ»",
+                  "photo": "/assets/figma/speaker-ilya-skvortsov.webp"
+                }
+              ],
+              "visible": true
+            }
+          ],
+          "visible": true
+        }
+      ]
+    },
+    {
+      "id": "small",
+      "title": "Малая сцена",
+      "description": "Программа уточняется",
+      "visible": true,
+      "status": "upcoming",
+      "entries": []
+    },
+    {
+      "id": "product",
+      "title": "Продуктовая сцена",
+      "description": "Программа уточняется",
+      "visible": true,
+      "status": "upcoming",
+      "entries": []
+    }
+  ]
+}

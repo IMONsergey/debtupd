@@ -10,6 +10,10 @@ test "$(id -u)" = 0
 source="$root/releases/$release"
 test -s "$source/dist/index.html"
 test -s "$source/server/forms-telegram.mjs"
+test -s "$source/admin/programme/index.html"
+test -s "$source/dist/data/programme-seed.json"
+test -s "$source/server/programme-service.mjs"
+test -s "$source/src/speakers.json"
 test "$(readlink -f "$root/current")" = "$expected"
 node="$root/toolchain/node-v22/bin/node"
 "$node" --check "$source/server/forms-telegram.mjs"
@@ -70,6 +74,15 @@ done
 curl --fail --silent http://127.0.0.1:32026/health
 ln -sfn "$source/dist" "$root/current.next"
 mv -Tf "$root/current.next" "$root/current"
+# Keep the protected editor and its draft preview aligned with the new website release.
+if systemctl is-active --quiet debt-2026-lite-programme.service; then
+    systemctl restart debt-2026-lite-programme.service
+    for attempt in {1..20}; do
+        if curl --fail --silent http://127.0.0.1:32030/health; then break; fi
+        sleep 1
+    done
+    curl --fail --silent http://127.0.0.1:32030/health
+fi
 install -m 644 "$backup/Caddyfile.next" /etc/caddy/Caddyfile
 systemctl reload caddy
 systemctl is-active --quiet debt-2026-lite-forms.service
