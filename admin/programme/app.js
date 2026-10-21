@@ -8,48 +8,44 @@ const state = {
   history: [],
   portraits: [],
   stage: 'main',
+  view: 'stage',
   selection: { type: 'stage', id: 'main' },
+  expandedTalk: null,
+  editModerator: false,
+  query: '',
   dirty: false,
   busy: false,
   editVersion: 0,
-  mobileView: 'scenes',
+  mobileView: 'agenda',
 };
 let toastHandle;
 
 function escapeHtml(value = '') {
-  return String(value).replace(
-    /[&<>"']/g,
-    (character) =>
-      ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;',
-      })[character],
+  return String(value).replace(/[&<>"']/g, (character) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character],
   );
 }
 const e = escapeHtml;
-const findStage = () =>
-  state.programme.stages.find((x) => x.id === state.stage) || state.programme.stages[0];
 const makeId = (prefix) => {
   const bytes = new Uint8Array(5);
   crypto.getRandomValues(bytes);
-  return prefix + '-' + Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+  return prefix + '-' + [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('');
 };
-const label = (text) => `<span class="field-label">${e(text)}</span>`;
+const findStage = () => state.programme.stages.find((stage) => stage.id === state.stage) || state.programme.stages[0];
+const stageEntries = () => state.view === 'shared' ? state.programme.commonEvents : findStage().entries;
 const button = (caption, action, cls = 'subtle', extra = '') =>
-  `<button type="button" class="btn ${cls}" data-action="${e(action)}" ${extra}>${e(caption)}</button>`;
-const iconBtn = (symbol, action, extra = '') => button(symbol, action, 'icon small', extra);
+  '<button type="button" class="btn ' + cls + '" data-action="' + e(action) + '" ' + extra + '>' + e(caption) + '</button>';
+const orderButton = (caption, action, title, disabled = false) =>
+  button(caption, action, 'order-btn', 'aria-label="' + e(title) + '" title="' + e(title) + '"' + (disabled ? ' disabled' : ''));
 function notice(message, error = false) {
   document.querySelector('.toast')?.remove();
   const node = document.createElement('div');
   node.className = 'toast' + (error ? ' bad' : '');
   node.textContent = message;
-  node.role = 'status';
+  node.setAttribute('role', 'status');
   document.body.append(node);
   clearTimeout(toastHandle);
-  toastHandle = setTimeout(() => node.remove(), 4400);
+  toastHandle = setTimeout(() => node.remove(), 5500);
 }
 async function request(path, method = 'GET', payload, contentType = 'application/json') {
   const headers = {};
@@ -58,20 +54,11 @@ async function request(path, method = 'GET', payload, contentType = 'application
     headers['Content-Type'] = contentType;
   }
   const response = await fetch(API + path, {
-    method,
-    headers,
-    credentials: 'same-origin',
-    cache: 'no-store',
-    body:
-      payload === undefined
-        ? undefined
-        : contentType === 'application/json'
-          ? JSON.stringify(payload)
-          : payload,
+    method, headers, credentials: 'same-origin', cache: 'no-store',
+    body: payload === undefined ? undefined : contentType === 'application/json' ? JSON.stringify(payload) : payload,
   });
   const json = await response.json().catch(() => ({}));
-  if (!response.ok)
-    throw Error(json.error || 'Сервис временно недоступен (' + response.status + ').');
+  if (!response.ok) throw Error(json.error || 'Сервис недоступен (' + response.status + ').');
   return json;
 }
 function markDirty() {
@@ -80,16 +67,40 @@ function markDirty() {
   refreshStatus();
 }
 function refreshStatus() {
-  const text = document.getElementById('save-state');
-  const buttonSave = document.getElementById('save-draft');
-  if (text) text.textContent = state.dirty ? 'Есть несохранённые изменения' : 'Черновик сохранён';
-  if (buttonSave) buttonSave.disabled = !state.dirty || state.busy;
-  for (const id of ['publish-programme', 'preview-programme', 'logout-programme']) {
+  const status = document.getElementById('save-state');
+  const text = state.busy ? 'Выполняется действие…' :
+    state.dirty ? 'Есть несохранённые изменения' : 'Все изменения сохранены';
+  if (status) status.textContent = text;
+  const dot = document.querySelector('.save-indicator');
+  if (dot) dot.classList.toggle('is-dirty', state.dirty);
+  const save = document.getElementById('save-draft');
+  if (save) save.disabled = !state.dirty || state.busy;
+  for (const id of ['preview-programme', 'publish-programme', 'logout-programme']) {
     const control = document.getElementById(id);
     if (control) control.disabled = state.busy;
   }
 }
+function resetSelection() {
+  if (state.view === 'shared') {
+    const first = state.programme.commonEvents[0];
+    state.selection = first ? { type: 'common', id: first.id } : { type: 'shared', id: 'shared' };
+    return;
+  }
+  const entries = findStage().entries;
+  const first = entries.find((item) => item.kind === 'session') || entries[0];
+  state.selection = first ? { type: 'entry', id: first.id } : { type: 'stage', id: state.stage };
+}
+function selectionExists() {
+  const { type, id } = state.selection;
+  if (['history', 'settings'].includes(type)) return true;
+  if (type === 'shared') return state.view === 'shared';
+  if (type === 'stage') return !!state.programme.stages.find((item) => item.id === id);
+  if (type === 'common') return state.view === 'shared' && state.programme.commonEvents.some((item) => item.id === id);
+  if (type === 'entry') return state.view === 'stage' && findStage().entries.some((item) => item.id === id);
+  return false;
+}
 async function loadState() {
+  const firstLoad = !state.programme;
   const data = await request('/admin');
   state.programme = structuredClone(data.draft.programme);
   state.revision = data.draft.revision;
@@ -98,32 +109,30 @@ async function loadState() {
   state.portraits = data.portraits;
   state.dirty = false;
   state.editVersion += 1;
-  if (!state.programme.stages.some((s) => s.id === state.stage))
-    state.stage = state.programme.stages[0].id;
-  state.selection = { type: 'stage', id: state.stage };
-  render();
+  if (!state.programme.stages.some((item) => item.id === state.stage)) state.stage = state.programme.stages[0].id;
+  if (firstLoad || !selectionExists()) resetSelection();
+  render({ resetEditor: true });
 }
 function loginPage(error = '') {
-  app.innerHTML = `<div class="login-layout">
-    <section class="login-brand">
-      <p class="brand-mark">DEBT <strong>TECH</strong></p>
-      <h1>Управление <span>программой форума</span></h1>
-      <p>Сцены, расписание, темы и спикеры. От черновика до публикации — в одном редакторе.</p>
-    </section>
-    <section class="login-panel">
-      <h2>Вход в редактор</h2>
-      <p>Введите пароль для доступа к расписанию DEBT TECH 2026.</p>
-      <form id="login-form"><label class="field">Пароль
-        <input name="password" autocomplete="current-password" required type="password">
-      </label><div class="error" role="alert">${e(error)}</div>
-      <button class="btn primary full" type="submit">Войти</button></form>
-      <p class="muted login-note">Редактор не доступен через меню публичного сайта. Для изменений требуется авторизация.</p>
-    </section></div>`;
-  app.querySelector('#login-form').addEventListener('submit', async (evt) => {
-    evt.preventDefault();
-    const form = evt.currentTarget;
-    const btn = form.querySelector('button');
-    btn.disabled = true;
+  app.innerHTML = '<div class="login-layout">' +
+    '<section class="login-brand"><p class="brand-mark">DEBT <strong>TECH</strong></p>' +
+    '<div><span class="login-eyebrow">DEBT TECH 2026 / ПЕСОЧНИЦА</span>' +
+    '<h1>Программа под контролем.</h1>' +
+    '<p>Сцены, события и участники в одном понятном редакторе.</p></div>' +
+    '<span class="login-foot">Редактор доступен только по прямой ссылке.</span></section>' +
+    '<section class="login-panel"><div class="login-card"><span class="login-eyebrow">ПАНЕЛЬ УПРАВЛЕНИЯ</span>' +
+    '<h2>Войти в редактор</h2><p>Введите пароль, чтобы изменить расписание форума.</p>' +
+    '<form id="login-form"><label class="field"><span class="field-label">Пароль</span>' +
+    '<input name="password" type="password" autocomplete="current-password" placeholder="Пароль администратора" required>' +
+    '</label><p class="error" role="alert">' + e(error) + '</p>' +
+    '<button class="btn primary full" type="submit">Войти в админку →</button></form>' +
+    '<span class="login-hint">Изменения сначала попадают в черновик. Публикация — отдельное действие.</span>' +
+    '</div></section></div>';
+  app.querySelector('#login-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const submit = form.querySelector('button');
+    submit.disabled = true;
     try {
       const result = await request('/login', 'POST', { password: form.elements.password.value });
       state.csrf = result.csrf;
@@ -131,460 +140,561 @@ function loginPage(error = '') {
     } catch (err) {
       loginPage(err.message);
     } finally {
-      btn.disabled = false;
+      if (submit.isConnected) submit.disabled = false;
     }
   });
 }
-function mobileTabs() {
-  const options = [
-    ['scenes', 'Сцены'],
-    ['agenda', 'Расписание'],
-    ['editor', 'Редактор'],
-  ];
-  return (
-    '<nav class="mobile-workspace-tabs" aria-label="Разделы редактора">' +
-    options
-      .map(([key, title]) =>
-        button(title, 'view:' + key, 'mobile-tab' + (state.mobileView === key ? ' active' : '')),
-      )
-      .join('') +
-    '</nav>'
-  );
+function toolsMenu() {
+  return '<details class="tools-menu"><summary class="btn subtle" aria-label="Дополнительные действия">Ещё <span aria-hidden="true">⌄</span></summary>' +
+    '<div class="tools-menu__content">' +
+    button('История публикаций', 'history', 'menu-action') +
+    button('Настройки программы', 'settings', 'menu-action') +
+    button('Проверить данные', 'validate', 'menu-action') +
+    '<span class="menu-rule"></span>' +
+    button('Экспорт JSON', 'export', 'menu-action') +
+    button('Импорт JSON', 'import', 'menu-action') +
+    '<span class="menu-rule"></span>' +
+    button('Выйти из редактора', 'logout', 'menu-action', 'id="logout-programme"') +
+    '<input id="import-file" type="file" accept=".json,application/json">' +
+    '</div></details>';
+}
+function topBar() {
+  return '<header class="topbar">' +
+    '<div class="top-brand"><span class="brand-mark">DEBT <strong>TECH</strong></span>' +
+    '<span class="brand-divider"></span><div class="top-title"><h1>Программа форума</h1>' +
+    '<p>Редактор расписания <span class="environment">Песочница</span></p></div></div>' +
+    '<div class="toolbar"><div class="top-status"><span class="save-indicator"></span><span id="save-state"></span></div>' +
+    button('Предпросмотр', 'preview', 'subtle', 'id="preview-programme"') +
+    button('Сохранить', 'save', 'subtle save', 'id="save-draft" aria-label="Сохранить черновик"') +
+    button('Опубликовать', 'publish', 'primary', 'id="publish-programme"') +
+    toolsMenu() +
+    '</div></header>';
+}
+function sessionsCaption(amount) {
+  const last = amount % 10;
+  const teen = amount % 100;
+  const noun = teen >= 11 && teen <= 14 ? 'сессий' :
+    last === 1 ? 'сессия' : last >= 2 && last <= 4 ? 'сессии' : 'сессий';
+  return amount + ' ' + noun;
+}
+function stageStrip() {
+  return '<div class="stage-strip"><nav class="stage-tabs" aria-label="Сцены программы">' +
+    state.programme.stages.map((stage) => {
+      const active = state.view === 'stage' && stage.id === state.stage;
+      const status = stage.visible === false ? 'Скрыта' : stage.status === 'upcoming' ? 'Готовится' : sessionsCaption(stage.entries.filter((x) => x.kind === 'session').length);
+      return '<button type="button" class="stage-tab' + (active ? ' active' : '') + '" data-action="stage:' + e(stage.id) + '" aria-pressed="' + active + '">' +
+        '<span class="stage-tab__name">' + e(stage.title) + '</span><span class="stage-tab__meta">' + e(status) + '</span></button>';
+    }).join('') +
+    '<button type="button" class="stage-tab stage-tab--shared' + (state.view === 'shared' ? ' active' : '') +
+      '" data-action="shared" aria-pressed="' + (state.view === 'shared') + '">' +
+      '<span class="stage-tab__name">Общие события</span><span class="stage-tab__meta">Для всех сцен</span></button>' +
+    button('+ Сцена', 'add-stage', 'stage-add') +
+    '</nav></div>';
+}
+function viewTitle() {
+  return state.view === 'shared' ? 'Общие события' : findStage().title;
+}
+function liveStatus() {
+  const stage = findStage();
+  if (state.view === 'shared') return 'Эти события показываются на каждой сцене';
+  if (stage.visible === false) return 'Сцена скрыта с сайта';
+  if (stage.status === 'upcoming') return 'На сайте: «Программа уточняется»';
+  return 'Программа сцены опубликована';
+}
+function agendaCard(item, index) {
+  const active = state.selection.id === item.id &&
+    ['entry', 'common'].includes(state.selection.type);
+  const kind = item.kind === 'session' ? 'Сессия ' + item.number : 'Событие';
+  const extra = item.kind === 'session' ? item.talks.length + ' выступлений' : 'Событие программы';
+  const people = item.kind === 'session' ? [item.moderator?.name || '', ...item.talks.flatMap((talk) => talk.speakers.map((person) => person.name))].join(' ') : '';
+  const search = (item.time + ' ' + kind + ' ' + item.title + ' ' + people).toLocaleLowerCase('ru-RU');
+  const action = state.view === 'shared' ? 'common:' : 'entry:';
+  return '<article class="listrow' + (active ? ' selected' : '') + (item.visible === false ? ' ghosted' : '') + '" draggable="true" data-index="' + index + '" data-search="' + e(search) + '">' +
+    '<button type="button" class="listrow-main" data-action="' + action + e(item.id) + '" aria-current="' + active + '">' +
+    '<span class="listrow-top"><span class="listrow-time" data-time-label="' + e(item.id) + '">' + e(item.time) + '</span>' +
+    '<span class="listrow-kind">' + e(kind) + '</span></span>' +
+    '<strong class="listrow-title" data-title-label="' + e(item.id) + '">' + e(item.title) + '</strong>' +
+    '<span class="listrow-meta">' + (item.visible === false ? '<span class="hidden-dot">Скрыто</span>' : e(extra)) + '</span>' +
+    '</button><div class="listrow-order" aria-label="Изменить порядок">' +
+    orderButton('↑', 'move:' + index + ':-1', 'Переместить выше', index === 0) +
+    orderButton('↓', 'move:' + index + ':1', 'Переместить ниже', index === stageEntries().length - 1) +
+    '</div></article>';
+}
+function listPanel() {
+  const items = stageEntries();
+  const count = items.length;
+  return '<div class="agenda-head"><div><span class="eyebrow">РАСПИСАНИЕ</span>' +
+    '<h2>' + e(viewTitle()) + ' <span class="count">' + count + '</span></h2>' +
+    '<p class="panel-summary">' + e(liveStatus()) + '</p></div>' +
+    (state.view === 'stage' ? button('Настройки', 'scene-settings', 'text-button', 'aria-label="Настроить сцену"') : '') +
+    '</div>' +
+    '<div class="agenda-actions">' +
+      (state.view === 'shared'
+        ? button('+ Добавить событие', 'add-common', 'primary full')
+        : button('+ Сессия', 'add-session', 'primary') + button('+ Событие', 'add-event', 'subtle')) +
+    '</div>' +
+    '<div class="agenda-search"><span aria-hidden="true">⌕</span>' +
+    '<input id="agenda-search" type="search" placeholder="Найти событие или спикера" autocomplete="off" aria-label="Поиск по расписанию" value="' + e(state.query) + '"></div>' +
+    '<div class="card-list" aria-label="События в расписании">' +
+    (items.length
+      ? items.map(agendaCard).join('')
+      : '<div class="empty-list"><strong>Пока нет событий</strong><p>Добавьте первую сессию или событие — оно сразу появится в списке.</p></div>') +
+    '</div><div class="search-empty" hidden>Ничего не найдено. Измените запрос.</div>' +
+    '<p class="agenda-foot">Выберите элемент, чтобы изменить его. Порядок можно поменять стрелками или перетаскиванием.</p>';
+}
+function currentSelection() {
+  const { type, id } = state.selection;
+  if (type === 'settings') return { type, item: state.programme };
+  if (type === 'history') return { type, item: state.history };
+  if (type === 'shared') return { type, item: null };
+  if (type === 'stage') return { type, item: findStage() };
+  if (type === 'common') return { type, item: state.programme.commonEvents.find((x) => x.id === id) };
+  if (type === 'entry') return { type, item: findStage().entries.find((x) => x.id === id) };
+  return { type, item: null };
+}
+function scopedItem(scope = '') {
+  if (scope === 'programme') return state.programme;
+  const { item } = currentSelection();
+  if (!item) return null;
+  if (!scope) return item;
+  if (scope === 'moderator') return item.moderator;
+  if (scope.startsWith('talk:')) {
+    const talkId = scope.slice(5);
+    return item.talks?.find((talk) => talk.id === talkId);
+  }
+  if (scope.startsWith('speaker:')) {
+    const [talkId, index] = scope.slice(8).split(':');
+    const talk = item.talks?.find((candidate) => candidate.id === talkId);
+    return talk?.speakers[Number(index)];
+  }
+  return null;
+}
+function field(title, scope, name, options = {}) {
+  const item = scopedItem(scope);
+  const value = item?.[name] ?? '';
+  const attrs = 'data-scope="' + e(scope) + '" data-field="' + e(name) + '"';
+  const placeholder = options.placeholder ? ' placeholder="' + e(options.placeholder) + '"' : '';
+  const control = options.type === 'textarea'
+    ? '<textarea rows="' + (options.rows || 2) + '" ' + attrs + placeholder + '>' + e(value) + '</textarea>'
+    : options.select
+      ? '<select ' + attrs + '>' + options.select.map(([val, text]) =>
+          '<option value="' + e(val) + '"' + (value === val ? ' selected' : '') + '>' + e(text) + '</option>').join('') + '</select>'
+      : '<input type="' + (options.type || 'text') + '" value="' + e(value) + '" ' + attrs + placeholder +
+        (options.type === 'number' ? ' min="1" max="99" step="1"' : '') + '>';
+  return '<label class="field' + (options.main ? ' field--main' : '') + '"><span class="field-label">' + e(title) + '</span>' + control +
+    (options.hint ? '<span class="helper">' + e(options.hint) + '</span>' : '') + '</label>';
+}
+function timeField(item, scope = '') {
+  const [start, end] = String(item.time || '10:00–11:00').split(/\s*[–-]\s*/);
+  return '<div class="time-grid"><label class="field"><span class="field-label">Начало</span>' +
+    '<input type="text" inputmode="numeric" maxlength="5" pattern="(?:[01][0-9]|2[0-3]):[0-5][0-9]" placeholder="10:00" data-scope="' + e(scope) + '" data-time-part="start" value="' + e(start) + '" required></label>' +
+    '<span class="time-separator" aria-hidden="true">→</span>' +
+    '<label class="field"><span class="field-label">Окончание</span><input type="text" data-scope="' + e(scope) +
+    '" data-time-part="end" inputmode="numeric" maxlength="5" pattern="(?:[01][0-9]|2[0-3]):[0-5][0-9]" placeholder="11:00" value="' + e(end) + '" required></label></div>';
+}
+function checkbox(title, scope, property, item) {
+  return '<label class="visibility-toggle"><input type="checkbox" data-scope="' + e(scope) +
+    '" data-field="' + e(property) + '"' + (item?.[property] === false ? '' : ' checked') +
+    '><span class="visibility-switch" aria-hidden="true"></span><span>' + e(title) + '</span></label>';
+}
+function editorHead(type, title, subtitle = '', status = '') {
+  return '<div class="editor-head"><div class="editor-head__copy"><span class="eyebrow">' + e(type) + '</span><h2>' + e(title) +
+    '</h2>' + (subtitle ? '<p>' + e(subtitle) + '</p>' : '') + '</div>' +
+    (status ? '<span class="item-status">' + e(status) + '</span>' : '') + '</div>';
 }
 
-function topBar() {
-  return `<header class="topbar">
-    <div class="top-brand">
-      <span class="brand-mark">DEBT <strong >TECH</strong></span>
-      <span class="divider"></span><div><h1>Программа форума</h1>
-      <p>Редактор расписания · тестовый сайт</p></div>
-    </div>
-    <div class="toolbar">
-      <span class="top-status"><span class="dirty"></span><span class="muted" id="save-state"></span></span>
-      ${button('Сохранить черновик', 'save', 'subtle', 'id="save-draft"')}
-      ${button('Предпросмотр', 'preview', 'subtle', 'id="preview-programme"')}
-      ${button('Опубликовать', 'publish', 'primary', 'id="publish-programme"')}
-      ${button('Выйти', 'logout', 'subtle', 'id="logout-programme"')}
-    </div></header>`;
+function photoSource(person, scope) {
+  const source = person.photo || '';
+  const preview = source ? '<img class="photo-preview" src="' + e(source) + '" alt="Фото участника">' :
+    '<div class="photo-preview photo-placeholder" aria-label="Без фотографии">◯</div>';
+  const missing = source && !state.portraits.some((p) => p.url === source);
+  const groups = new Map();
+  for (const picture of state.portraits) {
+    const items = groups.get(picture.group) || [];
+    items.push('<option value="' + e(picture.url) + '"' + (source === picture.url ? ' selected' : '') + '>' + e(picture.name) + '</option>');
+    groups.set(picture.group, items);
+  }
+  let choices = '<option value=""' + (!source ? ' selected' : '') + '>Без фотографии</option>';
+  if (missing) choices += '<option value="' + e(source) + '" selected>Текущее изображение</option>';
+  for (const [group, options] of groups) choices += '<optgroup label="' + e(group) + '">' + options.join('') + '</optgroup>';
+  return '<div class="photo-control">' + preview +
+    '<div class="photo-actions"><span class="field-label">Фотография</span>' +
+    '<details class="photo-picker"><summary>Выбрать или загрузить фото <span aria-hidden="true">⌄</span></summary>' +
+    '<div class="photo-picker__fields"><label class="field"><span class="field-label">Из библиотеки</span>' +
+    '<select data-scope="' + e(scope) + '" data-field="photo">' + choices + '</select></label>' +
+    '<input class="photo-upload" type="file" accept=".jpg,.jpeg,.png,.webp,image/*" data-upload="' + e(scope) + '">' +
+    button('Загрузить с компьютера', 'upload:' + scope, 'subtle small') +
+    '</div></details></div></div>';
 }
-function select(type, id) {
-  state.selection = { type, id };
-  state.mobileView = type === 'stage' ? 'agenda' : 'editor';
-  render();
+function personEditor(person, scope) {
+  return '<div class="person-fields">' +
+    photoSource(person, scope) +
+    '<div class="person-fields__inputs">' +
+    field('Имя и фамилия', scope, 'name', { placeholder: 'Введите имя' }) +
+    field('Должность и организация', scope, 'role', { type: 'textarea', rows: 2, placeholder: 'Например: директор по развитию, компания' }) +
+    '</div></div>';
 }
-function move(items, index, direction) {
-  const next = index + direction;
-  if (next < 0 || next >= items.length) return;
-  [items[index], items[next]] = [items[next], items[index]];
-  markDirty();
-  render();
+function moderatorEditor(session) {
+  const person = session.moderator;
+  if (!person) {
+    return '<section class="editor-section"><div class="section-heading"><div><h3>Модератор</h3><p>Ведущий сессии</p></div>' +
+      button('+ Добавить', 'add-moderator', 'subtle small') +
+      '</div><div class="empty-inline">Модератор не указан. Можно добавить позже.</div></section>';
+  }
+  return '<section class="editor-section"><div class="section-heading"><div><h3>Модератор</h3><p>Ведущий сессии</p></div>' +
+    button(state.editModerator ? 'Готово' : 'Изменить', 'edit-moderator', 'subtle small') +
+    '</div>' +
+    (state.editModerator
+      ? '<div class="card-editor">' + personEditor(person, 'moderator') + '<div class="item-actions">' +
+        button('Убрать модератора', 'remove-moderator', 'text-danger small') + '</div></div>'
+      : '<div class="moderator-summary">' +
+        (person.photo ? '<img class="moderator-photo" src="' + e(person.photo) + '" alt="">' : '<span class="moderator-photo photo-placeholder">◯</span>') +
+        '<div><strong>' + e(person.name) + '</strong><span>' + e(person.role || 'Должность не указана') +
+        '</span></div></div>') + '</section>';
 }
-function stageSelect(id) {
-  state.stage = id;
-  select('stage', id);
+function talkCard(talk, index, session) {
+  const open = state.expandedTalk === talk.id;
+  const names = talk.speakers.map((person) => person.name).filter(Boolean);
+  let details = '';
+  if (open) {
+    details = '<div class="talk-editor">' +
+      field('Тема выступления', 'talk:' + talk.id, 'title', { type: 'textarea', rows: 2, main: true, placeholder: 'О чём будет выступление?' }) +
+      field('Дополнительная пометка', 'talk:' + talk.id, 'note', { placeholder: 'Если тема уточняется или на согласовании' }) +
+      checkbox('Показывать выступление на сайте', 'talk:' + talk.id, 'visible', talk) +
+      '<div class="section-heading section-heading--nested"><div><h4>Спикеры</h4><p>Люди, указанные в этом выступлении</p></div>' +
+      button('+ Спикер', 'add-speaker:' + talk.id, 'subtle small') + '</div>' +
+      (!talk.speakers.length ? '<div class="empty-inline">Спикеров пока нет. Добавьте участника.</div>' : '') +
+      talk.speakers.map((person, speakerIndex) =>
+        '<div class="speaker-editor"><div class="speaker-head"><strong>Спикер ' + (speakerIndex + 1) + '</strong>' +
+        '<div class="speaker-tools">' +
+        orderButton('↑', 'speaker-move:' + talk.id + ':' + speakerIndex + ':-1', 'Переместить спикера выше', speakerIndex === 0) +
+        orderButton('↓', 'speaker-move:' + talk.id + ':' + speakerIndex + ':1', 'Переместить спикера ниже', speakerIndex === talk.speakers.length - 1) +
+        button('Убрать', 'remove-speaker:' + talk.id + ':' + speakerIndex, 'text-danger small') +
+        '</div></div>' +
+        personEditor(person, 'speaker:' + talk.id + ':' + speakerIndex) + '</div>'
+      ).join('') +
+      '<div class="talk-footer"><div class="talk-order">' +
+      orderButton('↑', 'talk-move:' + talk.id + ':-1', 'Переместить выступление выше', index === 0) +
+      orderButton('↓', 'talk-move:' + talk.id + ':1', 'Переместить выступление ниже', index === session.talks.length - 1) +
+      '<span>Порядок выступлений</span></div>' +
+      button('Удалить выступление', 'delete-talk:' + talk.id, 'text-danger small') +
+      '</div></div>';
+  }
+  return '<article class="talk-card' + (open ? ' talk-card--open' : '') + '">' +
+    '<button type="button" class="talk-pick" data-action="expand-talk:' + e(talk.id) + '" aria-expanded="' + open + '">' +
+    '<span class="talk-number">' + String(index + 1).padStart(2, '0') + '</span>' +
+    '<span class="talk-heading"><strong>' + e(talk.title || talk.note || 'Тема пока не указана') + '</strong>' +
+    '<small>' + e(names.length ? names.join(', ') : 'Спикеры не добавлены') + '</small></span>' +
+    (talk.visible === false ? '<span class="item-hidden">Скрыто</span>' : '') +
+    '<span class="talk-chevron" aria-hidden="true">' + (open ? '−' : '+') + '</span></button>' +
+    details + '</article>';
 }
-function render() {
+function sessionEditor(session) {
+  const subtitle = 'Все настройки сессии, выступления и спикеры — прямо здесь, без переходов.';
+  return editorHead('СЕССИЯ ' + session.number, 'Настройка сессии', subtitle,
+    session.visible === false ? 'Скрыта' : 'В черновике') +
+    '<div class="editor-section editor-section--main">' +
+    field('Название сессии', '', 'title', { main: true, type: 'textarea', rows: 2, placeholder: 'Название сессии' }) +
+    '<div class="form-grid"><div>' + timeField(session) + '</div>' +
+    '<div class="form-grid__side">' + field('Номер сессии', '', 'number', { type: 'number' }) + '</div></div>' +
+    field('Формат', '', 'category', { placeholder: 'Например: пленарная дискуссия' }) +
+    checkbox('Показывать сессию на сайте', '', 'visible', session) +
+    '</div>' +
+    moderatorEditor(session) +
+    '<section class="editor-section"><div class="section-heading"><div><h3>Выступления <span class="count">' + session.talks.length + '</span></h3>' +
+    '<p>Нажмите на выступление, чтобы изменить тему и спикеров</p></div>' +
+    button('+ Выступление', 'add-talk', 'subtle small') +
+    '</div><div class="talk-list">' +
+    (session.talks.length ? session.talks.map((talk, index) => talkCard(talk, index, session)).join('') :
+      '<div class="empty-inline">Здесь пока нет выступлений. Добавьте первое.</div>') +
+    '</div></section>' +
+    '<section class="editor-section editor-section--extra">' +
+    '<details class="advanced-panel"><summary>Дополнительные настройки сессии <span>⌄</span></summary>' +
+    '<div class="advanced-content">' +
+    field('Примечание к сессии', '', 'additionalNote', { type: 'textarea', rows: 2 }) +
+    (state.programme.stages.length > 1 ?
+      '<label class="field"><span class="field-label">Перенести на другую сцену</span>' +
+      '<select id="transfer-stage">' + state.programme.stages.filter((stage) => stage.id !== state.stage).map((stage) =>
+        '<option value="' + e(stage.id) + '">' + e(stage.title) + '</option>').join('') + '</select></label>' +
+      button('Перенести на выбранную сцену', 'transfer-entry', 'subtle small') : '') +
+    '<div class="item-actions">' + button('Дублировать сессию', 'clone-session', 'subtle small') +
+    button('Удалить сессию', 'delete-session', 'text-danger small') + '</div>' +
+    '</div></details></section>' +
+    '<p class="editor-footer">Сначала сохраните черновик. Чтобы изменения появились на сайте, нажмите «Опубликовать».</p>';
+}
+function eventEditor(item, shared = false) {
+  return editorHead(shared ? 'ОБЩЕЕ СОБЫТИЕ' : 'СОБЫТИЕ', 'Настройка события',
+    shared ? 'Это событие отображается на всех сценах.' : 'Отдельное событие в расписании.') +
+    '<div class="editor-section editor-section--main">' +
+    field('Название события', '', 'title', { main: true, type: 'textarea', rows: 2, placeholder: 'Например: кофе-брейк' }) +
+    timeField(item) +
+    checkbox('Показывать событие на сайте', '', 'visible', item) +
+    '<div class="item-actions item-actions--separated">' +
+    button('Удалить событие', 'delete-event', 'text-danger small') + '</div></div>';
+}
+function stageEditor(stage) {
+  return editorHead('НАСТРОЙКИ СЦЕНЫ', stage.title, 'Управление названием, доступностью и отображением сцены.') +
+    '<div class="editor-section editor-section--main">' +
+    field('Название сцены', '', 'title', { main: true }) +
+    field('Краткая подпись', '', 'description', { placeholder: 'Что посетители увидят под названием сцены' }) +
+    field('Состояние программы', '', 'status', { select: [
+      ['published', 'Показывать расписание'],
+      ['upcoming', 'Программа уточняется'],
+    ] }) +
+    '<p class="helper helper--standalone">«Программа уточняется» скрывает расписание этой сцены от посетителей, но сохраняет все события в редакторе.</p>' +
+    checkbox('Показывать сцену на сайте', '', 'visible', stage) +
+    '<div class="item-actions item-actions--separated"><span class="field-label">Порядок сцен</span>' +
+    orderButton('↑', 'stage-move:' + state.programme.stages.indexOf(stage) + ':-1', 'Переместить сцену выше', stage === state.programme.stages[0]) +
+    orderButton('↓', 'stage-move:' + state.programme.stages.indexOf(stage) + ':1', 'Переместить сцену ниже', stage === state.programme.stages.at(-1)) + '</div>' +
+    (state.programme.stages.length > 1 ?
+      '<div class="item-actions">' + button('Удалить сцену', 'delete-stage', 'text-danger small') + '</div>' : '') +
+    '</div>';
+}
+function settingsEditor() {
+  return editorHead('ПАРАМЕТРЫ', 'Настройки программы', 'Общее описание и доступ к редактору.') +
+    '<div class="editor-section editor-section--main">' +
+    field('Текст под заголовком «Программа форума»', 'programme', 'note', {
+      type: 'textarea', rows: 3, placeholder: 'Краткое примечание для посетителей' }) +
+    '<div class="section-heading"><div><h3>Безопасность</h3><p>Смена пароля завершит все активные сеансы</p></div>' +
+    button('Сменить пароль', 'change-password', 'subtle small') + '</div>' +
+    '</div>';
+}
+function historyEditor() {
+  return editorHead('АРХИВ', 'История публикаций',
+    'Восстановленная версия попадёт только в черновик, без изменения сайта.') +
+    '<section class="editor-section editor-section--main">' +
+    (state.history.length ? state.history.map((record) =>
+      '<div class="history-row"><div><strong>Версия №' + record.revision + '</strong>' +
+      '<span>' + e(new Date(record.updatedAt).toLocaleString('ru-RU', { dateStyle: 'medium', timeStyle: 'short' })) +
+      '</span></div>' + button('Восстановить', 'restore:' + record.revision, 'subtle small') + '</div>').join('') :
+      '<div class="empty-inline">История появится после первой публикации.</div>') +
+    '</section>';
+}
+function sharedEditor() {
+  return editorHead('ДЛЯ ВСЕХ СЦЕН', 'Общие события', 'Регистрация, открытие и другие события, отображаемые на каждой сцене.') +
+    '<section class="editor-section editor-section--main"><div class="empty-inline">' +
+    'Выберите событие слева или создайте новое. Здесь можно изменить время, название и видимость.' +
+    '</div>' + button('+ Добавить событие', 'add-common', 'primary') + '</section>';
+}
+function inspectorPanel() {
+  const { type, item } = currentSelection();
+  if (type === 'settings') return settingsEditor();
+  if (type === 'history') return historyEditor();
+  if (type === 'shared') return sharedEditor();
+  if (type === 'stage') return stageEditor(findStage());
+  if (!item) return '<div class="empty-editor"><h2>Выберите событие</h2><p>Нажмите на сессию или событие в расписании слева.</p></div>';
+  if (type === 'common') return eventEditor(item, true);
+  if (item.kind === 'event') return eventEditor(item);
+  return sessionEditor(item);
+}
+function applySearch() {
+  const query = state.query.trim().toLocaleLowerCase('ru-RU');
+  let visible = 0;
+  for (const row of app.querySelectorAll('.listpane .listrow')) {
+    const matches = !query || row.dataset.search.includes(query);
+    row.hidden = !matches;
+    if (matches) visible += 1;
+  }
+  const empty = app.querySelector('.search-empty');
+  if (empty) empty.hidden = !query || visible > 0;
+}
+function mobileBar() {
+  return '<nav class="mobile-workspace-tabs" aria-label="Рабочие области">' +
+    button('Расписание', 'view:agenda', 'mobile-tab' + (state.mobileView === 'agenda' ? ' active' : '')) +
+    button('Редактор', 'view:editor', 'mobile-tab' + (state.mobileView === 'editor' ? ' active' : '')) +
+    '</nav>';
+}
+function render({ resetEditor = false } = {}) {
   if (!state.programme) return;
-  const positions = ['sidebar', 'listpane', 'inspector'].map(
-    (name) => document.querySelector('.' + name)?.scrollTop || 0,
-  );
-  app.innerHTML = `<div class="shell" data-mobile-view="${state.mobileView}">${topBar()}${mobileTabs()}<div class="workspace">
-    <aside class="panel sidebar">${sideBar()}</aside>
-    <section class="panel listpane">${listPanel()}</section>
-    <section class="panel inspector">${inspectorPanel()}</section>
-  </div></div>`;
-  ['sidebar', 'listpane', 'inspector'].forEach((name, i) => {
-    app.querySelector('.' + name).scrollTop = positions[i];
-  });
+  const agendaScroll = document.querySelector('.listpane')?.scrollTop || 0;
+  const editorScroll = resetEditor ? 0 : document.querySelector('.inspector')?.scrollTop || 0;
+  app.innerHTML = '<div class="shell" data-mobile-view="' + state.mobileView + '">' +
+    topBar() + stageStrip() + mobileBar() +
+    '<div class="workspace"><aside class="panel listpane" aria-label="Расписание">' + listPanel() + '</aside>' +
+    '<main class="panel inspector" aria-label="Редактирование"><div class="inspector-inner">' +
+    inspectorPanel() + '</div></main></div></div>';
+  const agenda = app.querySelector('.listpane');
+  const inspector = app.querySelector('.inspector');
+  if (agenda) agenda.scrollTop = agendaScroll;
+  if (inspector) inspector.scrollTop = editorScroll;
+  applySearch();
   refreshStatus();
 }
-function scopedItem(scope) {
-  if (scope === 'programme') return state.programme;
-  if (scope === 'moderator') return state.currentEdit?.moderator;
-  if (scope?.startsWith('speaker:')) {
-    const index = Number(scope.slice('speaker:'.length));
-    return state.currentEdit?.speakers?.[index];
-  }
-  return state.currentEdit;
-}
-
-function settingsField(title, scope, property, options = {}) {
-  const item = scope ? ` data-scope="${e(scope)}"` : '';
-  const ref = `${item} data-field="${e(property)}"`;
-  const value = scopedItem(scope)?.[property] ?? '';
-  let control = '';
-  if (options.type === 'textarea')
-    control = `<textarea rows="${options.rows || 3}" ${ref}>${e(value)}</textarea>`;
-  else if (options.select)
-    control = `<select ${ref}>${options.select
-      .map(([v, t]) => `<option value="${e(v)}" ${value === v ? 'selected' : ''}>${e(t)}</option>`)
-      .join('')}</select>`;
-  else
-    control = `<input type="${options.type || 'text'}" value="${e(value)}" ${ref}
-    ${options.placeholder ? `placeholder="${e(options.placeholder)}"` : ''}>`;
-  return `<label class="field">${label(title)}${control}${options.hint ? `<small class="helper">${e(options.hint)}</small>` : ''}</label>`;
-}
-function checkField(title, property, obj = state.currentEdit) {
-  return `<label class="switchlabel"><input type="checkbox" data-field="${e(property)}" ${obj[property] !== false ? 'checked' : ''}>${e(title)}</label>`;
-}
-function activeSelection() {
-  const id = state.selection.id;
-  if (state.selection.type === 'settings') return { type: 'settings', item: state.programme };
-  if (state.selection.type === 'stage') return { type: 'stage', item: findStage() };
-  if (state.selection.type === 'common')
-    return { type: 'common', item: state.programme.commonEvents.find((x) => x.id === id) };
-  const parent = findStage().entries.find((x) => x.id === id || x.talks?.some((t) => t.id === id));
-  if (state.selection.type === 'talk' && parent)
-    return { type: 'talk', item: parent.talks.find((t) => t.id === id), parent };
-  return { type: 'entry', item: parent || findStage() };
-}
-
-function sideBar() {
-  let html = `<p class="panel-kicker">Структура</p><h2>Сцены</h2>
-    <p class="panel-summary">Выберите сцену. Порядок и видимость меняются отдельно.</p>
-    <nav class="stage-nav">`;
-  state.programme.stages.forEach((item, index) => {
-    const selected = item.id === state.stage ? ' selected' : '';
-    html += `<div class="stage-entry${selected}">
-      <button class="stage-pick" data-action="stage:${e(item.id)}">
-        <span class="stage-title">${e(item.title)}</span>
-        <span class="stage-sub">${item.status === 'upcoming' ? 'Программа уточняется' : item.entries.length + ' элементов'}${item.visible === false ? ' · Скрыта' : ''}</span>
-      </button>
-      <div class="stage-order">${iconBtn('↑', 'stage-move:' + index + ':-1')}
-        ${iconBtn('↓', 'stage-move:' + index + ':1')}</div>
-    </div>`;
-  });
-  html += `</nav>${button('+ Добавить сцену', 'add-stage', 'full')}
-    <div class="sectionhead"><h3>Общие события</h3>
-      ${button('+', 'add-common', 'small')}</div><div class="stack">`;
-  state.programme.commonEvents.forEach((entry, index) => {
-    const selected =
-      state.selection.type === 'common' && state.selection.id === entry.id ? ' selected' : '';
-    html += `<div class="stage-entry${selected}"><button class="stage-pick" data-action="common:${e(entry.id)}">
-      <span class="stage-title">${e(entry.time)}</span>
-      <span class="stage-sub">${e(entry.title)}</span></button>
-      <div class="stage-order">${iconBtn('↑', 'common-move:' + index + ':-1')}
-        ${iconBtn('↓', 'common-move:' + index + ':1')}</div></div>`;
-  });
-  html += `</div><div class="sectionhead"><h3>Дополнительно</h3></div>
-    <div class="stack">${button('Настройки программы', 'settings', 'full')}
-      ${button('Проверить данные', 'validate', 'full')}
-      ${button('Экспорт JSON', 'export', 'full')}
-      ${button('Импорт JSON', 'import', 'full')}
-      <input type="file" id="import-file" accept=".json,application/json">
-    </div><div class="sectionhead"><h3>История публикаций</h3></div>`;
-  if (!state.history.length) html += `<p class="muted">Предыдущих версий пока нет.</p>`;
-  state.history.slice(0, 12).forEach((item) => {
-    html += `<div class="history-item"><div><strong>Версия ${item.revision}</strong>
-      <time>${e(new Date(item.updatedAt).toLocaleString('ru-RU'))}</time></div>
-      ${button('Вернуть', 'restore:' + item.revision, 'small')}</div>`;
-  });
-  html += `<p class="sidebar-foot">Сохранение черновика и публикация — разные действия.
-  Публичная версия не меняется, пока вы не нажмёте «Опубликовать».</p>`;
-  return html;
-}
-
-function entryCard(entry, index) {
-  const picked =
-    (state.selection.type === 'entry' && state.selection.id === entry.id) ||
-    (state.selection.type === 'talk' && entry.talks?.some((x) => x.id === state.selection.id));
-  return `<article class="listrow${picked ? ' selected' : ''}${entry.visible === false ? ' ghosted' : ''}"
-    draggable="true" data-index="${index}">
-    <button type="button" class="listrow-main" data-action="entry:${e(entry.id)}">
-      <span class="listrow-time">${e(entry.time)}
-        ${entry.kind === 'session' ? ' · СЕССИЯ ' + entry.number : ' · СОБЫТИЕ'}</span>
-      <span class="listrow-title">${e(entry.title)}</span>
-      <span class="listrow-meta">${
-        entry.visible === false
-          ? 'Скрыто на сайте'
-          : entry.kind === 'session'
-            ? entry.talks.length + ' выступлений'
-            : 'Общее событие'
-      }</span>
-    </button>
-    <div class="listrow-order">
-      ${iconBtn('↑', 'entry-move:' + index + ':-1')}
-      ${iconBtn('↓', 'entry-move:' + index + ':1')}
-    </div></article>`;
-}
-
-function listPanel() {
-  const selected = findStage();
-  return `<p class="panel-kicker">Расписание</p><h2>${e(selected.title)}</h2>
-    <p class="panel-summary">${
-      selected.status === 'upcoming'
-        ? 'Пока программа сцены уточняется. Подготовьте события, затем переключите статус в «Опубликована».'
-        : 'События отображаются сверху вниз. Меняйте порядок перетаскиванием или стрелками.'
-    }</p>
-    <div class="sectionhead"><h3>События и сессии</h3>
-      <span class="inline-actions">${button('+ Сессия', 'add-session', 'small')}
-        ${button('+ Событие', 'add-event', 'small')}</span></div>
-    <div class="card-list">${
-      selected.entries.length
-        ? selected.entries.map(entryCard).join('')
-        : '<p class="panel-summary">На этой сцене пока ничего нет. Создайте сессию или событие.</p>'
-    }
-    </div><p class="sidebar-foot">Можно подготовить программу заранее.
-    Скрытые элементы и неопубликованные сцены не видны посетителям.</p>`;
-}
-
-function editHeader(label, title) {
-  return `<div class="inspector-toolbar"><div>
-    <p class="kicker">${e(label)}</p><h2>${e(title)}</h2>
-    </div></div>`;
-}
-function peoplePhoto(person, scope) {
-  const src = person.photo || '';
-  const image = src
-    ? `<img class="photo-preview" src="${e(src)}" alt="Фото">`
-    : '<span class="photo-preview">Фото</span>';
-  const groups = new Map();
-  const missing = src && !state.portraits.some((p) => p.url === src);
-  state.portraits.forEach((item) => {
-    const group = groups.get(item.group) || [];
-    group.push(
-      `<option value="${e(item.url)}" ${src === item.url ? 'selected' : ''}>${e(item.name)}</option>`,
-    );
-    groups.set(item.group, group);
-  });
-  let options = `<option value="" ${!src ? 'selected' : ''}>По имени / заглушка</option>`;
-  if (missing) options += `<option selected value="${e(src)}">${e(src)}</option>`;
-  for (const [title, entries] of groups)
-    options += `<optgroup label="${e(title)}">${entries.join('')}</optgroup>`;
-  return `<div class="field"><label class="field-label">Фотография</label>
-    ${image}<select data-scope="${e(scope)}" data-field="photo">${options}</select>
-    <input type="file" accept=".jpg,.jpeg,.png,.webp,image/*" class="photo-upload" data-upload="${e(scope)}">
-    ${button('Загрузить фото', 'upload:' + scope, 'small')}
-    <small class="helper">До 4 МБ. При выборе файл загрузится в библиотеку.
-    Сохраните черновик, затем опубликуйте.</small></div>`;
-}
-
-function personFields(person, scope) {
-  return `${settingsField('Имя и фамилия', scope, 'name')}
-    ${settingsField('Должность и организация', scope, 'role', { type: 'textarea', rows: 2 })}
-    ${peoplePhoto(person, scope)}`;
-}
-
-function inspectorPanel() {
-  const { type, item, parent } = activeSelection();
-  state.currentEdit = item;
-  if (!item) return '<p class="editor-note">Элемент не найден. Выберите другой.</p>';
-  let html = '';
-  if (type === 'settings') {
-    html += editHeader('Программа', 'Общие настройки');
-    html += settingsField('Примечание под заголовком', 'programme', 'note', {
-      type: 'textarea',
-      rows: 3,
-    });
-    html +=
-      '<p class="editor-note">Черновик виден только редакторам, а посетители видят опубликованные данные.</p>';
-    html += button('Сменить пароль', 'change-password');
-  }
-  if (type === 'stage') {
-    html += editHeader('Сцена', item.title);
-    html += settingsField('Название сцены', '', 'title');
-    html += settingsField('Подпись под названием', '', 'description');
-    html += settingsField('Состояние на сайте', '', 'status', {
-      select: [
-        ['published', 'Программа опубликована'],
-        ['upcoming', 'Программа уточняется'],
-      ],
-    });
-    html += checkField('Показывать сцену', 'visible', item);
-    html +=
-      '<p class="editor-note inspector-note">Готовьте расписание заранее. Пока программа уточняется, посетители видят только заглушку.</p>';
-    if (state.programme.stages.length > 1)
-      html += button('Удалить сцену', 'delete-stage', 'danger');
-  }
-  if (type === 'common' || (type === 'entry' && item.kind === 'event')) {
-    html += editHeader(type === 'common' ? 'Общее событие' : 'Событие', item.title);
-    html += settingsField('Время (09:00–10:00)', '', 'time');
-    html += settingsField('Название события', '', 'title', { type: 'textarea', rows: 3 });
-    html += checkField('Показывать событие', 'visible', item);
-    html += '<div class="separator"></div>' + button('Удалить событие', 'delete-event', 'danger');
-  }
-
-  if (type === 'entry' && item.kind === 'session') {
-    html += editHeader('Сессия ' + item.number, item.title);
-    html += `<div class="form-grid">
-      ${settingsField('Время (10:00–12:00)', '', 'time')}
-      ${settingsField('Номер сессии', '', 'number', { type: 'number' })}
-    </div>`;
-    html += settingsField('Название сессии', '', 'title', { type: 'textarea', rows: 3 });
-    html += settingsField('Формат', '', 'category');
-    html += settingsField('Дополнительная заметка', '', 'additionalNote', {
-      type: 'textarea',
-      rows: 2,
-    });
-    html += checkField('Показывать сессию', 'visible', item);
-    html += `<div class="sectionhead"><h3>Модератор</h3><div class="inline-actions">${
-      item.moderator
-        ? button('Убрать', 'remove-moderator', 'small danger')
-        : button('+ Указать', 'add-moderator', 'small')
-    }</div></div>`;
-    if (item.moderator)
-      html += `<div class="boxed">${personFields(item.moderator, 'moderator')}</div>`;
-    else
-      html +=
-        '<p class="editor-note">Модератор не указан. На сайте будет нейтральная заглушка.</p>';
-    html += `<div class="sectionhead"><h3>Выступления</h3>
-      ${button('+ Выступление', 'add-talk', 'small')}</div>`;
-    html += '<div class="card-list">';
-    if (!item.talks.length) html += '<p class="panel-summary">Добавьте выступление и спикеров.</p>';
-    item.talks.forEach((talk, index) => {
-      html += `<article class="listrow${talk.visible === false ? ' ghosted' : ''}">
-        <button class="listrow-main" data-action="talk:${e(talk.id)}">
-          <span class="listrow-title">${e(talk.title || talk.note || 'Тема уточняется')}</span>
-          <span class="listrow-meta">${e(talk.speakers.map((x) => x.name).join(', ') || 'Без спикеров')}</span>
-        </button><div class="listrow-order">${iconBtn('↑', 'talk-move:' + index + ':-1')}
-        ${iconBtn('↓', 'talk-move:' + index + ':1')}</div></article>`;
-    });
-    html += '</div><div class="separator"></div>';
-    if (state.programme.stages.length > 1) {
-      html +=
-        '<label class="field">Перенести сессию в другую сцену<select id="transfer-stage">' +
-        state.programme.stages
-          .filter((x) => x.id !== state.stage)
-          .map((x) => '<option value="' + e(x.id) + '">' + e(x.title) + '</option>')
-          .join('') +
-        '</select></label>' +
-        button('Перенести в выбранную сцену', 'transfer-entry');
-    }
-    html += '<div class="inline-actions">';
-    html += button('Дублировать сессию', 'clone-session');
-    html += button('Удалить сессию', 'delete-session', 'danger');
-    html += '</div>';
-  }
-
-  if (type === 'talk') {
-    html += editHeader('Выступление', parent.title);
-    html +=
-      button('← Назад к сессии', 'entry:' + parent.id, 'small') + '<div class="separator"></div>';
-    html += settingsField('Тема выступления', '', 'title', {
-      type: 'textarea',
-      rows: 3,
-      hint: 'Если тема пока не согласована, можно оставить поле пустым.',
-    });
-    html += settingsField('Примечание', '', 'note', {
-      type: 'textarea',
-      rows: 2,
-      hint: 'Например, «Тема уточняется».',
-    });
-    html += checkField('Показывать выступление', 'visible', item);
-    html += `<div class="sectionhead"><h3>Спикеры</h3>
-      ${button('+ Спикер', 'add-speaker', 'small')}</div>`;
-    if (!item.speakers.length) html += '<p class="panel-summary">Здесь пока нет спикеров.</p>';
-    item.speakers.forEach((person, index) => {
-      html += `<div class="boxed"><div class="inspector-toolbar"><h3>Спикер ${index + 1}</h3>
-        ${button('Удалить', 'remove-speaker:' + index, 'small danger')}</div>
-        ${personFields(person, 'speaker:' + index)}
-        <div class="inline-actions">
-          ${button('↑ Выше', 'speaker-move:' + index + ':-1', 'small')}
-          ${button('↓ Ниже', 'speaker-move:' + index + ':1', 'small')}
-        </div></div>`;
-    });
-    html +=
-      '<div class="separator"></div>' + button('Удалить выступление', 'delete-talk', 'danger');
-  }
-  html +=
-    '<div class="footer-line">Сохраните черновик, проверьте его в предпросмотре и только затем опубликуйте.</div>';
-  return html;
-}
-
-function createEntry(kind, common = false) {
-  const item =
-    kind === 'session'
-      ? {
-          id: makeId('session'),
-          kind: 'session',
-          number: findStage().entries.filter((x) => x.kind === 'session').length + 1,
-          title: 'Новая сессия',
-          time: '10:00–11:00',
-          category: 'Практическая сессия',
-          moderator: null,
-          visible: true,
-          additionalNote: '',
-          talks: [],
-        }
-      : {
-          id: makeId('event'),
-          kind: 'event',
-          time: '12:00–12:30',
-          title: 'Новое событие',
-          visible: true,
-        };
-  (common ? state.programme.commonEvents : findStage().entries).push(item);
-  state.selection = { type: common ? 'common' : 'entry', id: item.id };
+function choose(type, id, { resetTalk = true } = {}) {
+  state.selection = { type, id };
+  if (resetTalk) state.expandedTalk = null;
+  state.editModerator = false;
   state.mobileView = 'editor';
+  render({ resetEditor: true });
+}
+function stageSelect(id) {
+  state.view = 'stage';
+  state.stage = id;
+  state.query = '';
+  resetSelection();
+  state.expandedTalk = null;
+  state.editModerator = false;
+  state.mobileView = 'agenda';
+  render({ resetEditor: true });
+}
+function sharedSelect() {
+  state.view = 'shared';
+  state.query = '';
+  resetSelection();
+  state.expandedTalk = null;
+  state.mobileView = 'agenda';
+  render({ resetEditor: true });
+}
+
+function move(items, index, direction) {
+  const target = index + direction;
+  if (!Number.isInteger(index) || !Number.isInteger(direction) || index < 0 || target < 0 || target >= items.length) return;
+  [items[index], items[target]] = [items[target], items[index]];
   markDirty();
   render();
 }
-function removeEntry(item, type) {
-  const list = type === 'common' ? state.programme.commonEvents : findStage().entries;
-  const index = list.findIndex((x) => x.id === item.id);
-  if (index < 0 || !confirm('Удалить «' + item.title + '» из черновика?')) return;
-  list.splice(index, 1);
-  state.selection = { type: 'stage', id: state.stage };
+function addEntry(kind, shared = false) {
+  const entries = shared ? state.programme.commonEvents : findStage().entries;
+  const sessionCount = findStage().entries.filter((entry) => entry.kind === 'session').length;
+  const item = kind === 'session' ? {
+    id: makeId('session'), kind: 'session', number: sessionCount + 1,
+    title: 'Новая сессия', time: '10:00–11:00', category: 'Дискуссия',
+    moderator: null, visible: true, talks: [], additionalNote: '',
+  } : { id: makeId('event'), kind: 'event', title: 'Новое событие', time: '12:00–12:30', visible: true };
+  entries.push(item);
+  state.view = shared ? 'shared' : 'stage';
+  state.selection = { type: shared ? 'common' : 'entry', id: item.id };
+  state.expandedTalk = null;
+  state.mobileView = 'editor';
+  state.query = '';
   markDirty();
-  render();
+  render({ resetEditor: true });
+  app.querySelector('.inspector [data-field="title"][data-scope=""]')?.focus();
 }
-function deleteStage() {
-  if (state.programme.stages.length <= 1) return notice('Нельзя удалить последнюю сцену.', true);
-  if (!confirm('Удалить сцену и все её события из черновика?')) return;
-  const index = state.programme.stages.findIndex((s) => s.id === state.stage);
-  state.programme.stages.splice(index, 1);
+async function deleteEntry() {
+  const { item, type } = currentSelection();
+  if (!item) return;
+  const yes = await confirmAction('Удалить «' + item.title + '»?', 'Элемент исчезнет из черновика. На опубликованном сайте ничего не изменится до публикации.', 'Удалить', true);
+  if (!yes) return;
+  const entries = type === 'common' ? state.programme.commonEvents : findStage().entries;
+  const index = entries.findIndex((entry) => entry.id === item.id);
+  if (index < 0) return;
+  entries.splice(index, 1);
+  resetSelection();
+  state.expandedTalk = null;
+  markDirty();
+  render({ resetEditor: true });
+  notice('Элемент удалён из черновика. На сайте он пока остаётся.');
+}
+async function deleteStage() {
+  if (state.programme.stages.length <= 1) return notice('Последнюю сцену удалить нельзя.', true);
+  const stage = findStage();
+  const yes = await confirmAction('Удалить сцену «' + stage.title + '»?', 'Все сессии и события этой сцены будут удалены из черновика. Опубликованная программа пока не изменится.', 'Удалить сцену', true);
+  if (!yes) return;
+  state.programme.stages.splice(state.programme.stages.indexOf(stage), 1);
   state.stage = state.programme.stages[0].id;
-  state.selection = { type: 'stage', id: state.stage };
+  resetSelection();
   markDirty();
-  render();
-}
-function duplicateSession(item) {
-  const copy = structuredClone(item);
-  copy.id = makeId('session');
-  copy.talks.forEach((t) => (t.id = makeId('talk')));
-  const list = findStage().entries;
-  list.splice(list.indexOf(item) + 1, 0, copy);
-  state.selection = { type: 'entry', id: copy.id };
-  markDirty();
-  render();
+  render({ resetEditor: true });
 }
 function addStage() {
-  if (state.programme.stages.length >= 8) return notice('Не больше восьми сцен.', true);
-  const next = {
-    id: makeId('stage'),
-    title: 'Новая сцена',
-    description: 'Программа уточняется',
-    visible: true,
-    status: 'upcoming',
-    entries: [],
-  };
-  state.programme.stages.push(next);
-  state.stage = next.id;
-  state.selection = { type: 'stage', id: next.id };
-  state.mobileView = 'agenda';
-  markDirty();
-  render();
-}
-function addTalk(session) {
-  const talk = {
-    id: makeId('talk'),
-    title: 'Новое выступление',
-    note: '',
-    visible: true,
-    speakers: [],
-  };
-  session.talks.push(talk);
-  state.selection = { type: 'talk', id: talk.id };
+  if (state.programme.stages.length >= 8) return notice('Максимум восемь сцен.', true);
+  const stage = { id: makeId('stage'), title: 'Новая сцена', description: '', visible: true, status: 'upcoming', entries: [] };
+  state.programme.stages.push(stage);
+  state.stage = stage.id;
+  state.view = 'stage';
+  state.selection = { type: 'stage', id: stage.id };
   state.mobileView = 'editor';
+  state.query = '';
+  markDirty();
+  render({ resetEditor: true });
+  app.querySelector('.inspector [data-field="title"]')?.focus();
+}
+function duplicateSession() {
+  const { item } = currentSelection();
+  if (!item || item.kind !== 'session') return;
+  const clone = structuredClone(item);
+  clone.id = makeId('session');
+  clone.number = Math.min(99, Math.max(...findStage().entries.filter((entry) => entry.kind === 'session').map((entry) => entry.number), 0) + 1);
+  clone.title += ' — копия';
+  clone.talks.forEach((talk) => (talk.id = makeId('talk')));
+  const entries = findStage().entries;
+  entries.splice(entries.indexOf(item) + 1, 0, clone);
+  state.selection = { type: 'entry', id: clone.id };
+  state.expandedTalk = null;
+  markDirty();
+  render({ resetEditor: true });
+}
+async function transferSession() {
+  const session = currentSelection().item;
+  const destinationId = app.querySelector('#transfer-stage')?.value;
+  const destination = state.programme.stages.find((stage) => stage.id === destinationId);
+  if (!destination || session?.kind !== 'session' || destination.id === state.stage) return;
+  const yes = await confirmAction('Перенести сессию?', '«' + session.title + '» → «' + destination.title + '». В опубликованную программу изменения пока не попадут.', 'Перенести');
+  if (!yes) return;
+  const entries = findStage().entries;
+  entries.splice(entries.indexOf(session), 1);
+  destination.entries.push(session);
+  state.stage = destination.id;
+  state.selection = { type: 'entry', id: session.id };
+  state.expandedTalk = null;
+  markDirty();
+  render({ resetEditor: true });
+  notice('Сессия перенесена в черновике.');
+}
+function addTalk() {
+  const session = currentSelection().item;
+  if (session?.kind !== 'session') return;
+  const talk = { id: makeId('talk'), title: '', note: '', visible: true, speakers: [] };
+  session.talks.push(talk);
+  state.expandedTalk = talk.id;
+  markDirty();
+  render();
+  app.querySelector('.talk-card--open [data-field="title"]')?.focus();
+}
+async function deleteTalk(talkId) {
+  const session = currentSelection().item;
+  if (!session?.talks) return;
+  const talk = session.talks.find((entry) => entry.id === talkId);
+  if (!talk) return;
+  if (!await confirmAction('Удалить выступление?', 'Из черновика будет удалена тема вместе с привязанными спикерами.', 'Удалить', true)) return;
+  session.talks.splice(session.talks.indexOf(talk), 1);
+  if (state.expandedTalk === talkId) state.expandedTalk = null;
   markDirty();
   render();
 }
-function removeTalk(talk, session) {
-  if (!confirm('Удалить выступление из сессии?')) return;
-  session.talks.splice(session.talks.indexOf(talk), 1);
-  state.selection = { type: 'entry', id: session.id };
+function addSpeaker(talkId) {
+  const talk = scopedItem('talk:' + talkId);
+  if (!talk || talk.speakers.length >= 8) return notice('В одном выступлении может быть не больше восьми спикеров.', true);
+  talk.speakers.push({ name: 'Новый спикер', role: '', photo: '' });
+  state.expandedTalk = talkId;
   markDirty();
   render();
+  const fields = app.querySelectorAll('.talk-card--open [data-field="name"]');
+  fields[fields.length - 1]?.focus();
+}
+async function removeSpeaker(talkId, index) {
+  const talk = scopedItem('talk:' + talkId);
+  if (!talk?.speakers[index]) return;
+  const name = talk.speakers[index].name;
+  if (!await confirmAction('Убрать спикера?', '«' + name + '» будет удалён только из этого выступления в черновике.', 'Убрать', true)) return;
+  talk.speakers.splice(index, 1);
+  markDirty();
+  render();
+}
+function updateLiveLabels(item) {
+  if (!item?.id) return;
+  const row = [...app.querySelectorAll('.listpane .listrow')].find((node) =>
+    node.querySelector('[data-title-label]')?.dataset.titleLabel === item.id);
+  if (!row) return;
+  const title = row.querySelector('.listrow-title');
+  const time = row.querySelector('.listrow-time');
+  if (title) title.textContent = item.title;
+  if (time) time.textContent = item.time;
+  row.dataset.search = (item.title + ' ' + item.time + ' ' + row.textContent).toLocaleLowerCase('ru-RU');
+}
+function renderError(message) {
+  notice(message, true);
 }
 async function save() {
   if (!state.dirty || state.busy) return;
@@ -593,45 +703,78 @@ async function save() {
   const snapshot = structuredClone(state.programme);
   refreshStatus();
   try {
-    const payload = await request('/draft', 'PUT', {
-      expectedRevision: state.revision,
-      programme: snapshot,
+    const result = await request('/draft', 'PUT', {
+      expectedRevision: state.revision, programme: snapshot,
     });
-    state.revision = payload.draft.revision;
+    state.revision = result.draft.revision;
     if (version === state.editVersion) {
-      state.programme = structuredClone(payload.draft.programme);
+      state.programme = structuredClone(result.draft.programme);
       state.dirty = false;
       render();
-      notice('Черновик сохранён. На сайте пока ничего не изменилось.');
+      notice('Черновик сохранён. Сайт пока не изменился.');
     } else {
-      notice('Первая версия сохранена. Новые правки остались в редакторе — сохраните ещё раз.');
+      notice('Первая версия сохранена. Новые правки остались в редакторе — сохраните их ещё раз.');
     }
   } finally {
     state.busy = false;
     refreshStatus();
   }
 }
+function confirmAction(title, description, action = 'Продолжить', dangerous = false) {
+  return new Promise((resolve) => {
+    const previousFocus = document.activeElement;
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-wrap';
+    overlay.innerHTML = '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">' +
+      '<div class="modal-icon" aria-hidden="true">' + (dangerous ? '!' : '✓') + '</div>' +
+      '<h2 id="modal-title">' + e(title) + '</h2><p class="modal-copy">' + e(description) + '</p>' +
+      '<div class="modal-actions"><button type="button" class="btn subtle" data-modal-cancel>Отмена</button>' +
+      '<button type="button" class="btn ' + (dangerous ? 'destructive' : 'primary') + '" data-modal-confirm>' + e(action) + '</button></div></div>';
+    document.body.append(overlay);
+    function close(result) {
+      overlay.remove();
+      document.removeEventListener('keydown', onKey);
+      if (previousFocus?.isConnected) previousFocus.focus();
+      resolve(result);
+    }
+    function onKey(event) {
+      if (event.key === 'Escape') { event.preventDefault(); close(false); }
+      if (event.key !== 'Tab') return;
+      const controls = [...overlay.querySelectorAll('button')];
+      if (event.shiftKey && document.activeElement === controls[0]) {
+        event.preventDefault(); controls.at(-1).focus();
+      } else if (!event.shiftKey && document.activeElement === controls.at(-1)) {
+        event.preventDefault(); controls[0].focus();
+      }
+    }
+    overlay.querySelector('[data-modal-cancel]').addEventListener('click', () => close(false));
+    overlay.querySelector('[data-modal-confirm]').addEventListener('click', () => close(true));
+    overlay.addEventListener('click', (event) => { if (event.target === overlay) close(false); });
+    document.addEventListener('keydown', onKey);
+    overlay.querySelector('[data-modal-cancel]').focus();
+  });
+}
 async function publish() {
   if (state.busy) return;
+  const count = state.programme.stages.reduce((sum, stage) => sum + stage.entries.length, 0);
+  if (!await confirmAction('Опубликовать программу?', 'На тестовом сайте появится текущая версия программы (' +
+    state.programme.stages.length + ' сцен, ' + count + ' событий и сессий). ' +
+    (state.dirty ? 'Перед публикацией черновик будет сохранён.' : 'Черновик уже сохранён.'), 'Опубликовать')) return;
   if (state.dirty) await save();
-  if (state.dirty)
-    throw Error('Во время сохранения появились новые правки. Сохраните их перед публикацией.');
-  if (!confirm('Опубликовать программу в тестовой песочнице? Изменения станут видны посетителям.'))
-    return;
+  if (state.dirty) throw Error('Есть правки, сделанные во время сохранения. Сохраните их и повторите публикацию.');
   const version = state.editVersion;
   state.busy = true;
   refreshStatus();
   try {
     const result = await request('/publish', 'POST', {
-      expectedRevision: state.revision,
-      expectedPublishedRevision: state.published.revision,
+      expectedRevision: state.revision, expectedPublishedRevision: state.published.revision,
     });
     state.published = result.published;
     if (version === state.editVersion) {
       await loadState();
       notice('Программа опубликована в песочнице.');
     } else {
-      notice('Сохранённая версия опубликована. Новые правки остались в черновике.');
+      notice('Опубликована сохранённая версия. Новые изменения остались в черновике.');
     }
   } finally {
     state.busy = false;
@@ -641,11 +784,11 @@ async function publish() {
 async function preview() {
   if (state.busy) return;
   const opened = window.open('about:blank', '_blank');
-  if (!opened) throw Error('Разрешите открытие вкладок для предпросмотра.');
+  if (!opened) throw Error('Разрешите браузеру открывать вкладки предпросмотра.');
   opened.opener = null;
   try {
     if (state.dirty) await save();
-    if (state.dirty) throw Error('Новые правки ещё не сохранены. Повторите предпросмотр.');
+    if (state.dirty) throw Error('Есть новые несохранённые изменения. Повторите предпросмотр.');
     opened.location.href = '/programme-admin/preview#programme';
   } catch (error) {
     opened.close();
@@ -653,23 +796,19 @@ async function preview() {
   }
 }
 async function logout() {
-  if (state.dirty && !confirm('Есть несохранённые изменения. Выйти без сохранения?')) return;
+  if (state.dirty && !await confirmAction('Выйти без сохранения?', 'Несохранённые изменения будут потеряны, опубликованный сайт не изменится.', 'Выйти', true)) return;
   await request('/logout', 'POST', {});
-  state.programme = null;
   state.csrf = '';
+  state.programme = null;
   loginPage();
 }
 async function restore(revision) {
-  if (state.dirty && !confirm('Несохранённые изменения будут потеряны. Продолжить?')) return;
-  if (
-    !confirm(
-      'Восстановить версию ' + revision + ' в черновик? Опубликованная программа не изменится.',
-    )
-  )
-    return;
+  if (state.dirty && !await confirmAction('Заменить несохранённые правки?', 'Перед восстановлением версии сохраните или отмените текущие изменения.', 'Продолжить', true)) return;
+  if (!await confirmAction('Восстановить версию №' + revision + '?',
+    'Эта версия будет загружена в черновик. Текущая опубликованная программа не изменится.', 'Восстановить')) return;
   await request('/restore', 'POST', { revision, expectedRevision: state.revision });
   await loadState();
-  notice('Прошлая версия загружена в черновик.');
+  notice('Версия №' + revision + ' восстановлена в черновик. Для публикации нажмите «Опубликовать».');
 }
 function exportJson() {
   const blob = new Blob([JSON.stringify(state.programme, null, 2)], { type: 'application/json' });
@@ -681,73 +820,115 @@ function exportJson() {
   link.click();
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
+  document.querySelector('.tools-menu')?.removeAttribute('open');
 }
 async function importJson(file) {
   if (!file) return;
-  if (file.size > 1_000_000) throw Error('JSON-файл превышает 1 МБ.');
+  if (file.size > 1_000_000) throw Error('Размер файла не должен превышать 1 МБ.');
   let json;
-  try {
-    json = JSON.parse(await file.text());
-  } catch {
-    throw Error('Файл не содержит корректный JSON.');
-  }
+  try { json = JSON.parse(await file.text()); }
+  catch { throw Error('Файл не содержит корректный JSON.'); }
   const { programme } = await request('/validate', 'POST', { programme: json });
-  if (!confirm('Заменить текущие изменения проверенными данными из файла?')) return;
+  if (!await confirmAction('Импортировать программу?', 'Текущие правки в редакторе заменятся содержимым файла. Публикация не произойдёт.', 'Импортировать')) return;
   state.programme = programme;
   state.stage = programme.stages[0].id;
-  state.selection = { type: 'stage', id: state.stage };
+  state.view = 'stage';
+  state.query = '';
+  resetSelection();
   markDirty();
-  render();
-  notice('Файл проверен и загружен в черновик. Сохраните его для предпросмотра.');
+  render({ resetEditor: true });
+  notice('Файл проверен и загружен. Сохраните черновик для предпросмотра.');
 }
 async function validateDraft() {
   const { programme } = await request('/validate', 'POST', { programme: state.programme });
-  const count = programme.stages.reduce((total, stage) => total + stage.entries.length, 0);
-  notice('Проверка пройдена: ' + programme.stages.length + ' сцен, ' + count + ' событий и сессий. Данные не публиковались.');
-}
-
-async function changePassword() {
-  const oldPassword = prompt('Текущий пароль');
-  if (!oldPassword) return;
-  const newPassword = prompt('Новый пароль (от 14 до 128 символов)');
-  if (!newPassword) return;
-  if (newPassword.length < 14 || newPassword.length > 128)
-    throw Error('Пароль должен содержать от 14 до 128 символов.');
-  await request('/change-password', 'POST', { oldPassword, newPassword });
-  state.csrf = '';
-  state.programme = null;
-  loginPage();
-  notice('Пароль обновлён. Войдите ещё раз с новым паролем.');
+  const count = programme.stages.reduce((sum, stage) => sum + stage.entries.length, 0);
+  document.querySelector('.tools-menu')?.removeAttribute('open');
+  notice('Данные корректны: ' + programme.stages.length + ' сцен, ' + count + ' событий и сессий. Публикация не выполнялась.');
 }
 async function uploadPhoto(scope, input) {
   const file = input.files?.[0];
   if (!file) return;
-  if (file.size > 4_000_000) throw Error('Максимальный размер фотографии — 4 МБ.');
+  if (file.size > 4_000_000) throw Error('Фото должно быть меньше 4 МБ.');
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type))
-    throw Error('Поддерживаются JPG, PNG, WebP.');
+    throw Error('Поддерживаются JPG, PNG и WebP.');
   const selection = { ...state.selection };
-  const current = activeSelection().item;
-  const person =
-    scope === 'moderator' ? current?.moderator : current?.speakers?.[Number(scope.split(':')[1])];
-  if (!person) throw Error('Выберите модератора или спикера для загрузки.');
+  const person = scopedItem(scope);
+  if (!person) throw Error('Спикер или модератор не найден.');
   input.disabled = true;
   try {
     const result = await request('/upload', 'POST', file, file.type);
-    const stillPresent = state.programme.stages.some((stage) =>
-      stage.entries.some((entry) =>
-        entry.moderator === person ||
-        entry.talks?.some((talk) => talk.speakers.includes(person)),
-      ),
-    );
-    if (!stillPresent) throw Error('Участник был удалён во время загрузки. Фото осталось в библиотеке.');
+    const present = state.programme.stages.some((stage) => stage.entries.some((entry) =>
+      entry.moderator === person || entry.talks?.some((talk) => talk.speakers.includes(person))));
+    if (!present) throw Error('Участник был удалён. Файл сохранён в библиотеке, но не привязан.');
     person.photo = result.url;
     state.portraits.unshift({ group: 'Загруженные фотографии', name: file.name, url: result.url });
     markDirty();
     if (state.selection.id === selection.id && state.selection.type === selection.type) render();
-    notice('Фотография привязана к выбранному участнику. Сохраните черновик.');
+    notice('Фото обновлено. Сохраните черновик.');
   } finally {
     if (input.isConnected) input.disabled = false;
   }
+}
+
+function changePassword() {
+  if (document.querySelector('.modal-wrap')) return;
+  if (state.dirty) return notice('Сначала сохраните черновик, затем меняйте пароль.', true);
+  const previousFocus = document.activeElement;
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-wrap';
+  overlay.innerHTML = '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="password-title">' +
+    '<h2 id="password-title">Сменить пароль</h2>' +
+    '<p class="modal-copy">Пароль не меньше 14 символов. После смены потребуется снова войти.</p>' +
+    '<form id="password-form">' +
+    '<label class="field"><span class="field-label">Текущий пароль</span><input type="password" name="oldPassword" autocomplete="current-password" required></label>' +
+    '<label class="field"><span class="field-label">Новый пароль</span><input type="password" name="newPassword" autocomplete="new-password" minlength="14" maxlength="128" required></label>' +
+    '<label class="field"><span class="field-label">Повторите новый пароль</span><input type="password" name="confirmation" autocomplete="new-password" required></label>' +
+    '<p class="error" role="alert" aria-live="polite"></p><div class="modal-actions">' +
+    '<button type="button" class="btn subtle" data-cancel>Отмена</button><button class="btn primary" type="submit">Сохранить пароль</button>' +
+    '</div></form></div>';
+  document.body.append(overlay);
+  function close() {
+    document.removeEventListener('keydown', onKey);
+    overlay.remove();
+    if (previousFocus?.isConnected) previousFocus.focus();
+  }
+  function onKey(event) {
+    if (event.key === 'Escape') { event.preventDefault(); close(); }
+    if (event.key !== 'Tab') return;
+    const items = [...overlay.querySelectorAll('input:not(:disabled),button:not(:disabled)')];
+    if (event.shiftKey && document.activeElement === items[0]) {
+      event.preventDefault(); items.at(-1).focus();
+    } else if (!event.shiftKey && document.activeElement === items.at(-1)) {
+      event.preventDefault(); items[0].focus();
+    }
+  }
+  document.addEventListener('keydown', onKey);
+  overlay.querySelector('[data-cancel]').addEventListener('click', close);
+  overlay.addEventListener('click', (event) => { if (event.target === overlay) close(); });
+  const form = overlay.querySelector('form');
+  form.elements.namedItem('oldPassword').focus();
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const oldPassword = form.elements.namedItem('oldPassword').value;
+    const newPassword = form.elements.namedItem('newPassword').value;
+    const confirmation = form.elements.namedItem('confirmation').value;
+    const error = form.querySelector('.error');
+    if (newPassword !== confirmation) return (error.textContent = 'Пароли не совпадают.');
+    const submit = form.querySelector('[type="submit"]');
+    submit.disabled = true;
+    try {
+      await request('/change-password', 'POST', { oldPassword, newPassword });
+      close();
+      state.csrf = '';
+      state.programme = null;
+      loginPage();
+      notice('Пароль изменён. Войдите с новым паролем.');
+    } catch (problem) {
+      error.textContent = problem.message;
+    } finally {
+      submit.disabled = false;
+    }
+  });
 }
 async function dispatchAction(action) {
   if (action.startsWith('view:')) {
@@ -756,167 +937,168 @@ async function dispatchAction(action) {
     return;
   }
   if (action === 'save') return save();
-  if (action === 'publish') return publish();
   if (action === 'preview') return preview();
+  if (action === 'publish') return publish();
   if (action === 'logout') return logout();
-  if (action === 'settings') return select('settings', 'settings');
+  if (action === 'history') return choose('history', 'history');
+  if (action === 'settings') return choose('settings', 'settings');
+  if (action === 'scene-settings') return choose('stage', state.stage);
+  if (action === 'shared') return sharedSelect();
   if (action === 'add-stage') return addStage();
-  if (action === 'add-event') return createEntry('event');
-  if (action === 'add-session') return createEntry('session');
-  if (action === 'add-common') return createEntry('event', true);
-  if (action === 'change-password') return changePassword();
-  if (action === 'transfer-entry') {
-    const targetId = document.getElementById('transfer-stage')?.value;
-    const destination = state.programme.stages.find((x) => x.id === targetId);
-    const oldStage = findStage();
-    const item = activeSelection().item;
-    if (!destination || item?.kind !== 'session') throw Error('Невозможно перенести сессию.');
-    if (!confirm('Перенести «' + item.title + '» в «' + destination.title + '»?')) return;
-    oldStage.entries.splice(oldStage.entries.indexOf(item), 1);
-    destination.entries.push(item);
-    state.stage = destination.id;
-    state.selection = { type: 'entry', id: item.id };
-    state.mobileView = 'editor';
-    markDirty();
-    render();
-    return;
-  }
+  if (action === 'add-session') return addEntry('session');
+  if (action === 'add-event') return addEntry('event');
+  if (action === 'add-common') return addEntry('event', true);
+  if (action === 'delete-event' || action === 'delete-session') return deleteEntry();
   if (action === 'delete-stage') return deleteStage();
+  if (action === 'clone-session') return duplicateSession();
+  if (action === 'transfer-entry') return transferSession();
   if (action === 'export') return exportJson();
-  if (action === 'import') return document.getElementById('import-file')?.click();
+  if (action === 'import') return app.querySelector('#import-file')?.click();
   if (action === 'validate') return validateDraft();
-  if (action.startsWith('stage:')) return stageSelect(action.slice(6));
-  if (action.startsWith('common:')) return select('common', action.slice(7));
-  if (action.startsWith('entry:')) return select('entry', action.slice(6));
-  if (action.startsWith('talk:')) return select('talk', action.slice(5));
-  if (action.startsWith('restore:')) return restore(Number(action.split(':')[1]));
-  if (action.startsWith('upload:'))
-    return document.querySelector(`[data-upload="${CSS.escape(action.slice(7))}"]`)?.click();
-  const parts = action.split(':');
-  const code = parts[0],
-    index = Number(parts[1]),
-    delta = Number(parts[2]);
-  if (code === 'stage-move') return move(state.programme.stages, index, delta);
-  if (code === 'common-move') return move(state.programme.commonEvents, index, delta);
-  if (code === 'entry-move') return move(findStage().entries, index, delta);
-  const { type, item, parent } = activeSelection();
-  if (code === 'delete-event') return removeEntry(item, type);
-  if (code === 'delete-session') return removeEntry(item, 'entry');
-  if (code === 'clone-session') return duplicateSession(item);
-  if (code === 'add-moderator') {
+  if (action === 'change-password') return changePassword();
+  if (action === 'add-talk') return addTalk();
+  if (action === 'add-moderator') {
+    const item = currentSelection().item;
+    if (!item || item.kind !== 'session') return;
     item.moderator = { name: 'Новый модератор', role: '', photo: '' };
-    markDirty();
+    state.editModerator = true;
+    markDirty(); render();
+    return;
+  }
+  if (action === 'edit-moderator') {
+    state.editModerator = !state.editModerator;
     render();
     return;
   }
-  if (code === 'remove-moderator') {
-    if (!confirm('Убрать модератора из черновика?')) return;
-    item.moderator = null;
-    markDirty();
+  if (action === 'remove-moderator') {
+    if (!await confirmAction('Убрать модератора?', 'Он исчезнет из этой сессии только в черновике.', 'Убрать', true)) return;
+    const item = currentSelection().item;
+    if (item?.kind === 'session') { item.moderator = null; state.editModerator = false; markDirty(); render(); }
+    return;
+  }
+  if (action.startsWith('stage:')) return stageSelect(action.slice(6));
+  if (action.startsWith('entry:')) return choose('entry', action.slice(6));
+  if (action.startsWith('common:')) return choose('common', action.slice(7));
+  if (action.startsWith('restore:')) return restore(Number(action.slice(8)));
+  if (action.startsWith('upload:')) {
+    const scope = action.slice(7);
+    return app.querySelector('[data-upload="' + CSS.escape(scope) + '"]')?.click();
+  }
+  if (action.startsWith('expand-talk:')) {
+    const talkId = action.slice(12);
+    state.expandedTalk = state.expandedTalk === talkId ? null : talkId;
     render();
     return;
   }
-  if (code === 'add-talk') return addTalk(item);
-  if (code === 'delete-talk') return removeTalk(item, parent);
-  if (code === 'talk-move') return move(item.talks, index, delta);
-  if (code === 'add-speaker') {
-    item.speakers.push({ name: 'Новый спикер', role: '', photo: '' });
-    markDirty();
-    render();
+  const parts = action.split(':');
+  const op = parts[0];
+  if (op === 'move') return move(stageEntries(), Number(parts[1]), Number(parts[2]));
+  if (op === 'stage-move') return move(state.programme.stages, Number(parts[1]), Number(parts[2]));
+  if (op === 'talk-move') {
+    const session = currentSelection().item;
+    const index = session?.talks?.findIndex((talk) => talk.id === parts[1]);
+    if (index >= 0) move(session.talks, index, Number(parts[2]));
     return;
   }
-  if (code === 'speaker-move') return move(item.speakers, index, delta);
-  if (code === 'remove-speaker') {
-    if (!confirm('Удалить спикера из выступления?')) return;
-    item.speakers.splice(index, 1);
-    markDirty();
-    render();
-    return;
+  if (op === 'delete-talk') return deleteTalk(parts[1]);
+  if (op === 'add-speaker') return addSpeaker(parts[1]);
+  if (op === 'remove-speaker') return removeSpeaker(parts[1], Number(parts[2]));
+  if (op === 'speaker-move') {
+    const talk = scopedItem('talk:' + parts[1]);
+    if (talk) move(talk.speakers, Number(parts[2]), Number(parts[3]));
   }
 }
-app.addEventListener('click', (event) => {
-  const button = event.target.closest('[data-action]');
-  if (!button || !app.contains(button)) return;
-  event.preventDefault();
-  Promise.resolve(dispatchAction(button.dataset.action)).catch((error) =>
-    notice(error.message, true),
-  );
-});
-app.addEventListener('input', (event) => {
-  const control = event.target;
-  if (
-    !control.matches('[data-field]') ||
-    control.type === 'checkbox' ||
-    control.tagName === 'SELECT'
-  )
+function onFieldInput(control) {
+  if (control.hasAttribute('data-time-part')) {
+    const item = scopedItem(control.dataset.scope);
+    if (!item) return;
+    const [start, end] = String(item.time || '10:00–11:00').split(/\s*[–-]\s*/);
+    const updated = control.dataset.timePart === 'start' ? [control.value, end] : [start, control.value];
+    if (!updated[0] || !updated[1]) return;
+    item.time = updated.join('–');
+    markDirty();
+    updateLiveLabels(item);
     return;
-  const scope = control.dataset.scope;
-  const item = scopedItem(scope);
+  }
+  if (!control.matches('[data-field]') || control.type === 'checkbox' || control.tagName === 'SELECT') return;
+  const item = scopedItem(control.dataset.scope);
   if (!item) return;
   item[control.dataset.field] = control.type === 'number' ? Number(control.value) : control.value;
   markDirty();
+  if (!control.dataset.scope) updateLiveLabels(item);
+}
+app.addEventListener('click', (event) => {
+  const action = event.target.closest('[data-action]');
+  if (!action || !app.contains(action)) return;
+  event.preventDefault();
+  Promise.resolve(dispatchAction(action.dataset.action)).catch((error) => renderError(error.message));
+});
+app.addEventListener('input', (event) => {
+  const input = event.target;
+  if (input.id === 'agenda-search') {
+    state.query = input.value;
+    applySearch();
+    return;
+  }
+  onFieldInput(input);
 });
 app.addEventListener('change', (event) => {
   const control = event.target;
   if (control.id === 'import-file') {
-    Promise.resolve(importJson(control.files?.[0])).catch((err) => notice(err.message, true));
+    importJson(control.files?.[0]).catch((error) => renderError(error.message));
     return;
   }
-  if (control.classList.contains('photo-upload')) {
-    Promise.resolve(uploadPhoto(control.dataset.upload, control)).catch((err) =>
-      notice(err.message, true),
-    );
+  if (control.matches('[data-upload]')) {
+    uploadPhoto(control.dataset.upload, control).catch((error) => renderError(error.message));
     return;
   }
   if (!control.matches('[data-field]')) return;
-  const scope = control.dataset.scope;
-  const item = scopedItem(scope);
+  if (control.type !== 'checkbox' && control.tagName !== 'SELECT') return;
+  const item = scopedItem(control.dataset.scope);
   if (!item) return;
-  item[control.dataset.field] =
-    control.type === 'checkbox'
-      ? control.checked
-      : control.type === 'number'
-        ? Number(control.value)
-        : control.value;
-  markDirty();
-  if (control.type === 'checkbox' || control.tagName === 'SELECT') render();
-});
-app.addEventListener('dragstart', (event) => {
-  const row = event.target.closest('[data-index]');
-  if (row) {
-    event.dataTransfer.setData('text/plain', row.dataset.index);
-    event.dataTransfer.effectAllowed = 'move';
-  }
-});
-app.addEventListener('dragover', (event) => {
-  if (event.target.closest('[data-index]')) event.preventDefault();
-});
-app.addEventListener('drop', (event) => {
-  const row = event.target.closest('[data-index]');
-  if (!row) return;
-  event.preventDefault();
-  const from = Number(event.dataTransfer.getData('text/plain')),
-    to = Number(row.dataset.index);
-  const entries = findStage().entries;
-  if (
-    !Number.isInteger(from) ||
-    from < 0 ||
-    from >= entries.length ||
-    !Number.isInteger(to) ||
-    to < 0 ||
-    to >= entries.length ||
-    from === to
-  )
-    return;
-  entries.splice(to, 0, entries.splice(from, 1)[0]);
+  item[control.dataset.field] = control.type === 'checkbox' ? control.checked : control.value;
   markDirty();
   render();
 });
-window.addEventListener('beforeunload', (event) => {
-  if (state.dirty) {
+app.addEventListener('error', (event) => {
+  const image = event.target;
+  if (!(image instanceof HTMLImageElement) || !image.matches('.photo-preview, .moderator-photo')) return;
+  const placeholder = document.createElement('span');
+  placeholder.className = image.className + ' photo-placeholder';
+  placeholder.setAttribute('aria-label', 'Фото недоступно');
+  placeholder.textContent = '◯';
+  image.replaceWith(placeholder);
+}, true);
+app.addEventListener('dragstart', (event) => {
+  const row = event.target.closest('.listrow[data-index]');
+  if (!row) return;
+  event.dataTransfer.setData('text/plain', row.dataset.index);
+  event.dataTransfer.effectAllowed = 'move';
+});
+app.addEventListener('dragover', (event) => {
+  if (event.target.closest('.listrow[data-index]')) event.preventDefault();
+});
+app.addEventListener('drop', (event) => {
+  const row = event.target.closest('.listrow[data-index]');
+  if (!row) return;
+  event.preventDefault();
+  const from = Number(event.dataTransfer.getData('text/plain'));
+  const to = Number(row.dataset.index);
+  const items = stageEntries();
+  if (!Number.isInteger(from) || from < 0 || from >= items.length ||
+      !Number.isInteger(to) || to < 0 || to >= items.length || from === to) return;
+  items.splice(to, 0, items.splice(from, 1)[0]);
+  markDirty();
+  render();
+});
+document.addEventListener('keydown', (event) => {
+  if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's' && state.programme) {
     event.preventDefault();
-    event.returnValue = '';
+    if (!document.querySelector('.modal-wrap')) save().catch((error) => renderError(error.message));
   }
+});
+window.addEventListener('beforeunload', (event) => {
+  if (state.dirty) { event.preventDefault(); event.returnValue = ''; }
 });
 (async () => {
   try {
