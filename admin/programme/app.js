@@ -998,7 +998,7 @@ async function preview() {
   try {
     if (state.dirty) await save({ silent: true });
     if (state.dirty) throw Error('Есть новые несохранённые изменения. Повторите предпросмотр.');
-    opened.location.href = '/programme-admin/preview#programme';
+    opened.location.href = '/programme-admin/preview#prog';
   } catch (error) {
     opened.close();
     throw error;

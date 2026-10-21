@@ -71,7 +71,7 @@ test('Production mobile menu closes on Escape, outside click and navigation', as
   await expect(menu.getByRole('link')).toHaveCount(destinations.length + 1);
   await expect(menu.getByRole('link', { name: 'Программа форума' })).toHaveAttribute(
     'href',
-    '#programme',
+    '#prog',
   );
   await expect(menu.getByRole('link', { name: 'Зарегистрироваться' })).toHaveAttribute(
     'href',

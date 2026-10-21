@@ -49,23 +49,23 @@ test('public programme honours published visibility and supports more scenes', a
         body: JSON.stringify({ revision: 42, programme: published }),
       }),
   );
-  await page.goto('/#programme', { waitUntil: 'domcontentloaded' });
+  await page.goto('/#prog', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 20000 });
-  await expect(page.locator('#programme .forum-programme__header')).toContainText(
+  await expect(page.locator('#prog .forum-programme__header')).toContainText(
     'Данные редактора опубликованы',
   );
-  await expect(page.locator('#programme .forum-programme__session')).toHaveCount(3);
+  await expect(page.locator('#prog .forum-programme__session')).toHaveCount(3);
   await expect(page.locator('[data-session-id="session-2"]')).toHaveCount(0);
   await page
-    .locator('#programme')
+    .locator('#prog')
     .getByRole('tab', { name: /Малая сцена/ })
     .click();
-  await expect(page.locator('#programme')).toContainText('Тестовая тема опубликованной сцены');
-  await expect(page.locator('#programme')).toContainText('Тестовый Модератор');
+  await expect(page.locator('#prog')).toContainText('Тестовая тема опубликованной сцены');
+  await expect(page.locator('#prog')).toContainText('Тестовый Модератор');
   await page
-    .locator('#programme')
+    .locator('#prog')
     .getByRole('button', { name: /Подробнее о сессии 1/ })
     .click();
-  await expect(page.locator('#programme')).toContainText('Тестовый доклад');
-  await expect(page.locator('#programme')).toContainText('Тестовый Спикер');
+  await expect(page.locator('#prog')).toContainText('Тестовый доклад');
+  await expect(page.locator('#prog')).toContainText('Тестовый Спикер');
 });

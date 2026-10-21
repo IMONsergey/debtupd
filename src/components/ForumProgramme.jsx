@@ -282,7 +282,7 @@ export function ForumProgramme() {
 
   return (
     <section
-      id="programme"
+      id="prog"
       className="section forum-programme"
       aria-labelledby="forum-programme-title"
     >

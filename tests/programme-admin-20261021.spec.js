@@ -123,7 +123,7 @@ test('create session, edit talks and speakers inline, upload image, preview and 
   await page.getByRole('button', { name: 'Предпросмотр' }).click();
   const preview = await pending;
   await expect(preview).toHaveURL(/\/programme-admin\/preview/);
-  await expect(preview.locator('#programme')).toContainText('UX тестовая сессия', { timeout: 20000 });
+  await expect(preview.locator('#prog')).toContainText('UX тестовая сессия', { timeout: 20000 });
   await preview.close();
   await page.getByRole('button', { name: 'Опубликовать' }).click();
   await agree(page);

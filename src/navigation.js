@@ -3,7 +3,7 @@
 export const destinations = [
   { id: 'about-forum', label: 'О форуме' },
   { id: 'participants', label: 'Программа и форматы' },
-  { id: 'programme', label: 'Программа форума' },
+  { id: 'prog', label: 'Программа форума' },
   { id: 'services', label: 'Услуги участникам' },
   { id: 'topics', label: 'Ключевые темы' },
   { id: 'fincifra-seminar', label: 'ФИНЦИФРА-2026', featured: true },

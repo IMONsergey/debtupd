@@ -6,10 +6,10 @@ for (const width of [390, 1440]) {
     await page.route('https://kinescope.io/**', (route) =>
       route.fulfill({ contentType: 'text/html', body: '<html></html>' }),
     );
-    await page.goto('/#programme', { waitUntil: 'domcontentloaded' });
+    await page.goto('/#prog', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 20000 });
     await page.evaluate(() => document.fonts.ready);
-    const section = page.locator('#programme');
+    const section = page.locator('#prog');
     await section.scrollIntoViewIfNeeded();
     await section.screenshot({
       path: 'test-results/editorial-visual/programme-' + width + '-collapsed.png',

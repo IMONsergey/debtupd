@@ -20,9 +20,9 @@ for (const width of [320, 390, 600, 768, 1024, 1440, 1920]) {
     await page.setViewportSize({ width, height: 900 });
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
-    await page.goto('/#programme', { waitUntil: 'domcontentloaded' });
+    await page.goto('/#prog', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 20000 });
-    const section = page.locator('#programme');
+    const section = page.locator('#prog');
     await section.scrollIntoViewIfNeeded();
 
     await expect(section.getByRole('heading', {
@@ -204,9 +204,9 @@ for (const width of [320, 390, 600, 768, 1024, 1440, 1920]) {
 
 test('programme keyboard navigation and Figma portraits', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/#programme', { waitUntil: 'domcontentloaded' });
+  await page.goto('/#prog', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 20000 });
-  const programme = page.locator('#programme');
+  const programme = page.locator('#prog');
   const first = programme.getByRole('tab', { name: /Большая сцена/ });
   await first.focus();
   await page.keyboard.press('ArrowRight');
@@ -247,6 +247,21 @@ test('programme keyboard navigation and Figma portraits', async ({ page }) => {
   await expect(
     programme.locator('[data-session-id="session-4"] .forum-programme__session-moderator img'),
   ).toHaveAttribute('src', /\/assets\/images\/programme\/yudaev\.webp$/);
-  const links = page.locator('a[href="#programme"]');
+  const links = page.locator('a[href="#prog"]');
   expect(await links.count()).toBeGreaterThan(0);
 });
+
+for (const width of [390, 1440]) {
+  test('programme deep-link and menu use #prog at ' + width + 'px', async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/#prog', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 20000 });
+    await expect(page.locator('section#prog')).toBeVisible();
+    await expect(page.locator('a[href="#programme"]')).toHaveCount(0);
+    expect(await page.locator('a[href="#prog"]').count()).toBeGreaterThan(0);
+    await expect.poll(async () => page.locator('section#prog')
+      .evaluate((section) => section.getBoundingClientRect().top), { timeout: 15000 })
+      .toBeLessThan(130);
+    await expect(page.locator('section#prog')).toContainText('ВСЕЛЕННАЯ ТЕХНОЛОГИЙ');
+  });
+}
