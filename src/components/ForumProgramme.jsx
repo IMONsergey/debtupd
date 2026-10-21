@@ -42,7 +42,7 @@ function ProgrammePortrait({ person }) {
   );
 }
 
-function ProgrammePerson({ person, moderator = false }) {
+function ProgrammePerson({ person, moderator = false, speakerLabel = null }) {
   return (
     <div
       className={
@@ -51,7 +51,11 @@ function ProgrammePerson({ person, moderator = false }) {
     >
       <ProgrammePortrait person={person} />
       <div className="forum-programme__person-copy">
-        {moderator && <span className="forum-programme__person-label">Модератор</span>}
+        {(moderator || speakerLabel) && (
+          <span className="forum-programme__person-label">
+            {moderator ? 'Модератор' : speakerLabel}
+          </span>
+        )}
         <span className="forum-programme__person-name">{person.name}</span>
         <span className="forum-programme__person-role">{person.role}</span>
       </div>
@@ -72,19 +76,25 @@ function ProgrammeTalk({ talk }) {
   return (
     <div className="forum-programme__talk" data-talk-id={talk.id}>
       <div className="forum-programme__talk-content">
-        <span className="forum-programme__talk-kicker">Тема выступления</span>
+        <span className="forum-programme__talk-kicker">Тема выступления:</span>
         {talk.title ? (
           <h4>{talk.title}</h4>
         ) : (
           <p className="forum-programme__talk-unconfirmed">
-            {talk.note || 'Тема в документе не указана'}
+            {talk.note || 'Тема уточняется'}
           </p>
         )}
-        {talk.note && talk.title && <p className="forum-programme__talk-note">{talk.note}</p>}
+        {talk.note && talk.title && talk.note !== 'Формулировка на согласовании' && (
+          <p className="forum-programme__talk-note">{talk.note}</p>
+        )}
       </div>
       <div className="forum-programme__talk-people">
-        {talk.speakers.map((person) => (
-          <ProgrammePerson key={person.name} person={person} />
+        {talk.speakers.map((person, index) => (
+          <ProgrammePerson
+            key={person.name}
+            person={person}
+            speakerLabel={index === 0 ? (talk.speakers.length > 1 ? 'Спикеры' : 'Спикер') : null}
+          />
         ))}
       </div>
     </div>
@@ -138,7 +148,7 @@ function ProgrammeSession({ session, expanded, onToggle }) {
               </span>
               <div>
                 <span className="forum-programme__person-label">Модератор</span>
-                <span className="forum-programme__person-role">В документе не указан</span>
+                <span className="forum-programme__person-role">Информация уточняется</span>
               </div>
             </div>
           )}
@@ -239,7 +249,7 @@ function initialProgramme() {
 export function ForumProgramme() {
   const [programme, setProgramme] = useState(initialProgramme);
   const [stage, setStage] = useState('main');
-  const [expanded, setExpanded] = useState('session-1');
+  const [expanded, setExpanded] = useState(null);
   const isPreview = window.location.pathname === '/programme-admin/preview';
 
   useEffect(() => {
@@ -277,7 +287,12 @@ export function ForumProgramme() {
       aria-labelledby="forum-programme-title"
     >
       <header className="forum-programme__header">
-        <h2 id="forum-programme-title">Программа форума</h2>
+        <h2 id="forum-programme-title">
+          <span className="forum-programme__heading-intro">
+            Деловая программа форума-выставки DEBT TECH 2026
+          </span>
+          <span className="forum-programme__heading-main">ВСЕЛЕННАЯ ТЕХНОЛОГИЙ</span>
+        </h2>
         <p>{programme.note}</p>
       </header>
       <ProgrammeStageTabs
@@ -344,9 +359,7 @@ export function ForumProgramme() {
                       (item) => item.status === 'published' && item.entries.length,
                     );
                     setStage(first.id);
-                    setExpanded(
-                      first.entries.find((entry) => entry.kind === 'session')?.id || null,
-                    );
+                    setExpanded(null);
                   }}
                 >
                   {stages.some((item) => item.id === 'main' && item.status === 'published')

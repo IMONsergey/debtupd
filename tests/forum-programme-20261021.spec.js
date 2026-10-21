@@ -25,7 +25,9 @@ for (const width of [320, 390, 600, 768, 1024, 1440, 1920]) {
     const section = page.locator('#programme');
     await section.scrollIntoViewIfNeeded();
 
-    await expect(section.getByRole('heading', { name: 'Программа форума' })).toBeVisible();
+    await expect(section.getByRole('heading', {
+      name: /Деловая программа форума-выставки DEBT TECH 2026 ВСЕЛЕННАЯ ТЕХНОЛОГИЙ/,
+    })).toBeVisible();
     // The CMS has no public navigation entry: it is opened only by direct URL.
     await expect(page.locator('a[href*="programme-admin"]')).toHaveCount(0);
     await expect(section.getByRole('tab')).toHaveCount(3);
@@ -47,14 +49,17 @@ for (const width of [320, 390, 600, 768, 1024, 1440, 1920]) {
       await expect(event).toContainText(label);
     }
     await expect(section.locator('.forum-programme__session')).toHaveCount(4);
-    await expect(section.locator('.forum-programme__session--open')).toHaveCount(1);
+    await expect(section.locator('.forum-programme__session--open')).toHaveCount(0);
+    await expect(section.locator('.forum-programme__session-toggle[aria-expanded="false"]')).toHaveCount(4);
 
     const session1 = section.locator('[data-session-id="session-1"]');
+    await session1.locator('.forum-programme__session-toggle').click();
+    await expect(session1.locator('.forum-programme__session-toggle')).toHaveAttribute('aria-expanded', 'true');
     await expect(session1.locator('.forum-programme__talk')).toHaveCount(3);
     await expect(session1.locator('.forum-programme__talk-kicker')).toHaveText([
-      'Тема выступления',
-      'Тема выступления',
-      'Тема выступления',
+      'Тема выступления:',
+      'Тема выступления:',
+      'Тема выступления:',
     ]);
     const readingOrder = await session1
       .locator('.forum-programme__talk')
@@ -76,7 +81,23 @@ for (const width of [320, 390, 600, 768, 1024, 1440, 1920]) {
     await expect(session1).toContainText('Константин Виноградов');
     await expect(session1).toContainText('Валерий Зоткин');
     await expect(session1).toContainText('Спикеры от госорганов приглашены');
-    await expect(session1.locator('.forum-programme__person-label')).toHaveText('Модератор');
+    await expect(session1.locator('.forum-programme__session-moderator .forum-programme__person-label')).toHaveText('Модератор');
+    await expect(session1.locator('.forum-programme__talk-people .forum-programme__person-label')).toHaveText([
+      'Спикер', 'Спикеры', 'Спикер',
+    ]);
+    await expect(session1).not.toContainText('Формулировка на согласовании');
+    const emphasis = await session1.locator('.forum-programme__session-kind').evaluate((node) => {
+      const css = getComputedStyle(node);
+      return { font: parseFloat(css.fontSize), border: parseFloat(css.borderLeftWidth) };
+    });
+    expect(emphasis.font).toBeGreaterThanOrEqual(11);
+    expect(emphasis.border).toBeGreaterThanOrEqual(2);
+    const invitation = await session1.locator('.forum-programme__invited').evaluate((node) => {
+      const css = getComputedStyle(node);
+      return { font: parseFloat(css.fontSize), border: parseFloat(css.borderTopWidth) };
+    });
+    expect(invitation.font).toBeGreaterThanOrEqual(13);
+    expect(invitation.border).toBeGreaterThanOrEqual(1);
     const photoColumns = await session1.evaluate((session) => {
       const moderator = session.querySelector(
         '.forum-programme__session-moderator .forum-programme__portrait',
@@ -102,7 +123,15 @@ for (const width of [320, 390, 600, 768, 1024, 1440, 1920]) {
       'aria-expanded',
       'true',
     );
-    await expect(session2.locator('.forum-programme__talk')).toHaveCount(5);
+    await expect(session2.locator('.forum-programme__talk')).toHaveCount(4);
+    const shared = session2.locator('[data-talk-id="ai-epifanov"]');
+    await expect(shared).toContainText('Василий Епифанов');
+    await expect(shared).toContainText('Александр Митрохин');
+    await expect(shared).toContainText('Урегулирование как цифровой сервис: от контакта до решения вопроса');
+    await expect(shared.locator('.forum-programme__person')).toHaveCount(2);
+    await expect(shared.locator('.forum-programme__person-label')).toHaveText('Спикеры');
+    await expect(session2.locator('[data-talk-id="ai-mitrokhin"]')).toHaveCount(0);
+    await expect(session2).toContainText('Заместитель генерального директора в финтех-группе «Свой»');
     for (const name of [
       'Илья Курцев',
       'Василий Епифанов',
@@ -112,13 +141,13 @@ for (const width of [320, 390, 600, 768, 1024, 1440, 1920]) {
     ]) {
       await expect(session2).toContainText(name);
     }
-    await expect(session2).toContainText('Тема в документе не указана');
-    await expect(session2).toContainText('Урегулирование как цифровой сервис');
+    await expect(session2).not.toContainText('Тема в документе не указана');
 
     const session3 = section.locator('[data-session-id="session-3"]');
     await session3.locator('.forum-programme__session-toggle').click();
     await expect(session3.locator('.forum-programme__talk')).toHaveCount(6);
-    await expect(session3).toContainText('В документе не указан');
+    await expect(session3).toContainText('Информация уточняется');
+    await expect(session3).not.toContainText('В документе не указан');
     for (const name of [
       'Елена Авакян',
       'Максим Богомолов',
@@ -156,6 +185,7 @@ for (const width of [320, 390, 600, 768, 1024, 1440, 1920]) {
     await expect(section.getByRole('tabpanel')).toContainText('Программа уточняется');
     await section.getByRole('button', { name: 'Посмотреть большую сцену' }).click();
     await expect(section.locator('.forum-programme__session')).toHaveCount(4);
+    await expect(section.locator('.forum-programme__session--open')).toHaveCount(0);
 
     const layout = await section.evaluate((root) => {
       const bounds = root.getBoundingClientRect();
@@ -191,6 +221,7 @@ test('programme keyboard navigation and Figma portraits', async ({ page }) => {
   await expect(first).toBeFocused();
   await expect(first).toHaveAttribute('aria-selected', 'true');
 
+  await programme.locator('[data-session-id="session-1"] .forum-programme__session-toggle').click();
   const imgs = programme.locator('[data-session-id="session-1"] .forum-programme__portrait img');
   await expect(imgs).toHaveCount(5);
   for (let i = 0; i < 5; i++) {
