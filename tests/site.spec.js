@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { destinations } from '../src/navigation.js';
 const widths = [320, 360, 390, 430, 600, 768, 1024, 1180, 1181, 1280, 1440, 1920, 2048, 2560];
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => sessionStorage.setItem('debt2026-early-booking-dismissed', '1'));
@@ -67,7 +68,11 @@ test('Production mobile menu closes on Escape, outside click and navigation', as
   const menu = page.getByRole('navigation', { name: 'Разделы сайта' });
   await trigger.click();
   await expect(menu).toBeVisible();
-  await expect(menu.getByRole('link')).toHaveCount(11);
+  await expect(menu.getByRole('link')).toHaveCount(destinations.length + 1);
+  await expect(menu.getByRole('link', { name: 'Программа форума' })).toHaveAttribute(
+    'href',
+    '#programme',
+  );
   await expect(menu.getByRole('link', { name: 'Зарегистрироваться' })).toHaveAttribute(
     'href',
     '#tariff-plans',

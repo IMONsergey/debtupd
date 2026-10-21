@@ -23,6 +23,7 @@ import './styles/fincifra-seminar.css';
 import './styles/online-tariff.css';
 import './styles/venue-directions.css';
 import './styles/welcome-pass.css';
+import './styles/forum-programme.css';
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />
