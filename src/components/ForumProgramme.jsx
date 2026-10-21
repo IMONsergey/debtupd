@@ -19,6 +19,8 @@ const figmaPortraits = {
   'Владимир Вербицкий': 'vladimir-verbitskiy.webp',
   'Константин Виноградов': 'konstantin-vinogradov.webp',
   'Валерий Зоткин': 'valeriy-zotkin.webp',
+  'Константин Ипатьев': 'ipatyev.webp',
+  'Антон Юдаев': 'yudaev.webp',
 };
 
 function ProgrammePortrait({ name }) {

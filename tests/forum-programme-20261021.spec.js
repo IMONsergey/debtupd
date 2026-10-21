@@ -165,6 +165,21 @@ test('programme keyboard navigation and Figma portraits', async ({ page }) => {
       .poll(() => imgs.nth(i).evaluate((img) => img.complete && img.naturalWidth > 0))
       .toBe(true);
   }
+  // Moderator portraits must match the Figma design, not legacy generic speaker art.
+  await programme
+    .locator('[data-session-id="session-2"] .forum-programme__portrait img')
+    .first()
+    .evaluate(async (img) => img.decode());
+  await programme
+    .locator('[data-session-id="session-4"] .forum-programme__portrait img')
+    .first()
+    .evaluate(async (img) => img.decode());
+  await expect(
+    programme.locator('[data-session-id="session-2"] .forum-programme__session-moderator img'),
+  ).toHaveAttribute('src', /\/assets\/images\/programme\/ipatyev\.webp$/);
+  await expect(
+    programme.locator('[data-session-id="session-4"] .forum-programme__session-moderator img'),
+  ).toHaveAttribute('src', /\/assets\/images\/programme\/yudaev\.webp$/);
   const links = page.locator('a[href="#programme"]');
   expect(await links.count()).toBeGreaterThan(0);
 });
