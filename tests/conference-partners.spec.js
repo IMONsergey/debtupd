@@ -8,7 +8,7 @@ for (const width of [1440, 1180, 1024, 768, 760, 390, 320]) {
     await page.goto('/#partners', { waitUntil: 'domcontentloaded' });
 
     const cards = page.locator('.sponsor-panel--partner');
-    await expect(cards).toHaveCount(10);
+    await expect(cards).toHaveCount(11);
     // Client-approved order: Smart Business Lab immediately precedes Intel Collect.
     await expect(cards.locator('.conference-partner-name')).toHaveText([
       'АО «НИРУМ»',
@@ -21,15 +21,17 @@ for (const width of [1440, 1180, 1024, 768, 760, 390, 320]) {
       'ООО «Автослед ЕМ групп»',
       'ПКО «А.Сторм»',
       'ПКО «Бустер.Ру»',
+      'Юнисервис Капитал',
     ]);
     await expect(page.locator('#partners > .sponsor-panel')).toHaveCount(2);
-    await expect(cards.locator('.conference-partner-planet')).toHaveCount(10);
+    await expect(cards.locator('.conference-partner-planet')).toHaveCount(11);
     const planetNames = [
       'planet-gold.webp',
       'planet-strategic.webp',
       'planet-diamond.webp',
       'planet-silver.webp',
       'planet-special.webp',
+      'planet-standard.webp',
       'planet-standard.webp',
       'planet-standard.webp',
       'planet-standard.webp',
@@ -69,7 +71,7 @@ for (const width of [1440, 1180, 1024, 768, 760, 390, 320]) {
     expect(tierTypography.transform).toBe('uppercase');
 
     const logos = cards.locator('.conference-partner-logo img');
-    for (let index = 0; index < 10; index++) {
+    for (let index = 0; index < 11; index++) {
       const logo = logos.nth(index);
       await logo.scrollIntoViewIfNeeded();
       await expect
@@ -146,11 +148,11 @@ for (const width of [1440, 1180, 1024, 768, 760, 390, 320]) {
       await page
         .locator('.conference-partners-list')
         .evaluate((el) => el.scrollTo({ left: 0, behavior: 'instant' }));
-      await expect(counter).toContainText('01 / 10');
+      await expect(counter).toContainText('01 / 11');
       await nav.getByRole('button', { name: 'Следующий партнер' }).click();
-      await expect(counter).toContainText('02 / 10');
+      await expect(counter).toContainText('02 / 11');
       await nav.getByRole('button', { name: 'Предыдущий партнер' }).click();
-      await expect(counter).toContainText('01 / 10');
+      await expect(counter).toContainText('01 / 11');
     }
     expect(pageErrors).toEqual([]);
   });

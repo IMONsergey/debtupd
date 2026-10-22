@@ -20,7 +20,7 @@ test('Three partner additions preserve order, names, descriptions, websites, and
   await expect(mig).toContainText('Installment Loan, PDL и POS');
   await expect(mig).toContainText('финансовая экосистема');
   await expect(mig.locator('a.featured-partner-logo')).toHaveAttribute('href', 'https://migcredit.ru/');
-  await expect(section.locator('.conference-partners-list > article')).toHaveCount(10);
+  await expect(section.locator('.conference-partners-list > article')).toHaveCount(11);
   const autosled = section.locator('.sponsor-panel--partner').filter({hasText:'ООО «Автослед ЕМ групп»'});
   await expect(autosled).toContainText('более 60 регионов');
   await expect(autosled.locator('a')).toHaveAttribute('href', 'https://autosledrf.ru/');

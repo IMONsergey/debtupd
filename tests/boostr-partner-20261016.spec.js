@@ -20,8 +20,8 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 20000 });
     const section = page.locator('#partners');
     const cards = section.locator('.conference-partners-list > article');
-    await expect(cards).toHaveCount(10);
-    const card = cards.last();
+    await expect(cards).toHaveCount(11);
+    const card = cards.filter({ has: page.getByRole('heading', { name }) });
     await expect(card.getByRole('heading', { name })).toHaveCount(1);
     await expect(card.locator('.conference-partner-tier')).toHaveText('Партнер');
     await expect(card.locator('.conference-partner-copy')).toHaveText(description);
@@ -57,10 +57,10 @@ test('mobile carousel reaches tenth partner and can navigate back', async ({ pag
   const rail = page.locator('.conference-partners-list');
   await rail.scrollIntoViewIfNeeded();
   await rail.evaluate(node => node.scrollTo({ left: 0, behavior: 'instant' }));
-  await expect(counter).toContainText('01 / 10');
+  await expect(counter).toContainText('01 / 11');
   await rail.evaluate(node => node.scrollTo({ left: node.scrollWidth, behavior: 'instant' }));
-  await expect(counter).toContainText('10 / 10');
+  await expect(counter).toContainText('11 / 11');
   await expect(rail.locator('article').last()).toBeInViewport({ ratio: 0.5 });
   await controls.getByRole('button', { name: 'Предыдущий партнер' }).click();
-  await expect(counter).toContainText('09 / 10');
+  await expect(counter).toContainText('10 / 11');
 });
