@@ -11,6 +11,7 @@ import './styles/experience.css';
 import './styles/motion.css';
 import './styles/hero-scene.css';
 import './styles/ticket-offer.css';
+import './styles/welcome-discount.css';
 import './styles/buttons.css';
 import './styles/fluid-experience.css';
 import './styles/partner-review.css';

@@ -25,6 +25,7 @@ import { goal } from './lib/forms.js';
 import { Cosmos } from './components/Cosmos.jsx';
 import { HeroScene } from './components/hero/HeroScene.jsx';
 import { DelayedTicketOffer } from './components/TicketOffer.jsx';
+import { WelcomeDiscountOffer } from './components/WelcomeDiscountOffer.jsx';
 import { useExperienceMotion } from './lib/useExperienceMotion.js';
 import { useAmbientMotion } from './lib/useAmbientMotion.js';
 import { getPricingPhase, getScheduledTariffs, PRICING_SWITCH_AT } from './lib/ticket-pricing.js';
@@ -1099,6 +1100,7 @@ export default function App() {
         </footer>
       </div>
       {SHOW_TIMED_BOOKING_OFFER && <DelayedTicketOffer blocked={!!form || !!media} />}
+      <WelcomeDiscountOffer blocked={!!form || !!media || directionsOpen} />
       {form && <ApplicationModal {...form} onClose={closeForm} />}{' '}
       {media && <MediaModal kind={media} onClose={closeMedia} />}
       {directionsOpen && <VenueDirectionsDialog onClose={closeDirections} />}
