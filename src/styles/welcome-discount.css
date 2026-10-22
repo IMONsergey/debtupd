@@ -24,13 +24,13 @@
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  width: min(1040px, 100%);
-  min-height: min(850px, calc(100dvh - 44px));
+  width: min(680px, 100%);
+  min-height: min(600px, calc(100dvh - 32px));
   max-height: calc(100dvh - 30px);
   overflow: auto;
   scrollbar-width: thin;
   overscroll-behavior: contain;
-  padding: clamp(28px, 4vw, 62px) clamp(24px, 5vw, 64px) clamp(27px, 3.7vw, 50px);
+  padding: 30px 35px 27px;
   border: 1px solid rgba(131, 199, 255, .45);
   background: radial-gradient(ellipse at 89% 76%, rgba(0, 101, 249, .84), transparent 49%),
               radial-gradient(ellipse at 0 0, rgba(0, 118, 214, .75), transparent 39%),
@@ -65,12 +65,12 @@
 .welcome-discount__close {
   position: absolute;
   z-index: 9;
-  right: clamp(20px, 4vw, 56px);
-  top: clamp(18px, 4vw, 42px);
+  right: 20px;
+  top: 18px;
   display: grid;
   place-items: center;
-  width: clamp(46px, 5.3vw, 68px);
-  height: clamp(46px, 5.3vw, 68px);
+  width: 43px;
+  height: 43px;
   padding: 0;
   border: 1px solid rgba(41, 133, 222, .18);
   border-radius: 5px;
@@ -86,14 +86,14 @@
 .welcome-discount__intro {
   position: relative;
   z-index: 3;
-  width: min(61%, 560px);
+  width: min(59%, 360px);
 }
 .welcome-discount__heading {
   margin: 0;
   color: #fff;
   font-family: Bounded, Arial, sans-serif;
   font-weight: 600;
-  font-size: clamp(27px, 3.45vw, 46px);
+  font-size: clamp(23px, 2.6vw, 29px);
   letter-spacing: .02em;
   line-height: 1.16;
   text-transform: uppercase;
@@ -108,18 +108,18 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-family: 'IBM Plex Sans', Arial, sans-serif;
-  font-size: clamp(91px, 13vw, 182px);
-  font-weight: 200;
-  line-height: .91;
-  letter-spacing: -.075em;
+  font-family: Bounded, Arial, sans-serif;
+  font-size: clamp(75px, 7.2vw, 94px);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -.06em;
   font-variant-numeric: lining-nums tabular-nums;
 }
 .welcome-discount__description {
   max-width: 480px;
   margin: 0;
   color: rgba(255, 255, 255, .96);
-  font-size: clamp(17px, 1.65vw, 23px);
+  font-size: clamp(13px, 1.1vw, 15px);
   font-weight: 400;
   line-height: 1.46;
   text-wrap: pretty;
@@ -135,9 +135,9 @@
 .welcome-discount__astronaut {
   position: absolute;
   z-index: 2;
-  right: clamp(-25px, -1.2vw, -12px);
-  top: clamp(122px, 14.2%, 170px);
-  width: clamp(435px, 58%, 625px);
+  right: -14px;
+  top: 116px;
+  width: 54%;
   max-width: none;
   height: auto;
   object-fit: contain;
@@ -151,13 +151,13 @@
   z-index: 4;
   width: 100%;
   margin-top: auto;
-  padding-top: clamp(45px, 5.8vw, 85px);
+  padding-top: 65px;
 }
 .welcome-discount__promo-heading {
-  margin: 0 0 clamp(12px, 2vw, 21px);
+  margin: 0 0 9px;
   color: #88ccff;
   font-family: Bounded, Arial, sans-serif;
-  font-size: clamp(14px, 1.4vw, 19px);
+  font-size: 12px;
   font-weight: 500;
   letter-spacing: .22em;
   text-transform: uppercase;
@@ -167,9 +167,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: clamp(104px, 10vw, 140px);
+  min-height: 78px;
   width: 100%;
-  padding: 5px clamp(13px, 3.2vw, 35px) 6px;
+  padding: 5px 18px 6px;
   background: linear-gradient(110deg, rgba(37, 94, 153, .78), rgba(5, 74, 161, .89) 65%, rgba(9, 94, 195, .88));
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
@@ -195,10 +195,10 @@
   min-width: 0;
   color: #55d9ff;
   font-family: 'Bebas Neue', 'IBM Plex Sans', sans-serif;
-  font-size: clamp(63px, 8vw, 120px);
+  font-size: clamp(50px, 5.5vw, 69px);
   font-weight: 400;
   line-height: 1;
-  letter-spacing: clamp(.085em, 1.7vw, .21em);
+  letter-spacing: .13em;
   text-align: center;
   user-select: all;
   white-space: nowrap;
@@ -210,10 +210,10 @@
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  min-width: 62px;
-  height: 68px;
+  min-width: 42px;
+  height: 54px;
   padding: 10px;
-  margin-left: clamp(5px, 2vw, 28px);
+  margin-left: 7px;
   border: 1px solid transparent;
   border-radius: 8px;
   background: transparent;
@@ -249,17 +249,17 @@
   transform: translateX(-50%) translateY(0);
 }
 .welcome-discount__copy-status {
-  min-height: 21px;
-  margin: 6px 0 2px;
+  min-height: 15px;
+  margin: 4px 0 0;
   color: #77d9ff;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 500;
   line-height: 1.5;
 }
 .welcome-discount__terms {
-  margin: 1px 0 clamp(17px, 2.6vw, 31px);
+  margin: 3px 0 15px;
   color: rgba(224, 239, 255, .68);
-  font-size: clamp(12px, 1.22vw, 17px);
+  font-size: 11px;
   font-weight: 400;
   line-height: 1.45;
 }
@@ -268,15 +268,15 @@
   align-items: center;
   justify-content: space-between;
   gap: 40px;
-  width: min(405px, 100%);
-  min-height: clamp(61px, 6vw, 78px);
-  padding: 15px clamp(19px, 3vw, 35px);
+  width: min(275px, 100%);
+  min-height: 53px;
+  padding: 11px 19px;
   border: 1px solid rgba(35, 143, 255, .8);
   border-radius: 8px;
   background: linear-gradient(105deg, #0851b6, #0877dc);
   color: #fff;
   font-family: 'IBM Plex Sans', Arial, sans-serif;
-  font-size: clamp(16px, 1.6vw, 23px);
+  font-size: 14px;
   font-weight: 600;
   text-align: left;
   text-transform: uppercase;
@@ -317,119 +317,102 @@
 }
 .welcome-discount-reopen:hover { filter: brightness(1.16); }
 
+
 @media (max-width: 900px) {
   .welcome-discount {
-    min-height: min(740px, calc(100dvh - 28px));
-    padding: 34px 30px 30px;
+    min-height: min(585px, calc(100dvh - 28px));
+    padding: 28px 29px 25px;
   }
-  .welcome-discount__intro { width: min(60%, 440px); }
-  .welcome-discount__heading { font-size: clamp(25px, 4vw, 35px); }
-  .welcome-discount__percent { font-size: clamp(103px, 16vw, 155px); }
-  .welcome-discount__astronaut {
-    right: -16px;
-    width: 59%;
-    top: 17%;
-  }
-  .welcome-discount__bottom { padding-top: clamp(65px, 8vw, 96px); }
-  .welcome-discount__code { font-size: clamp(58px, 9.6vw, 94px); }
+  .welcome-discount__intro { width: 59%; }
+  .welcome-discount__heading { font-size: 25px; }
+  .welcome-discount__percent { font-size: clamp(72px, 10vw, 89px); }
+  .welcome-discount__astronaut { right: -13px; top: 19%; width: 54%; }
+  .welcome-discount__bottom { padding-top: 60px; }
+  .welcome-discount__code { font-size: clamp(47px, 7vw, 63px); }
 }
-
 @media (max-width: 600px) {
-  .welcome-discount-overlay { padding: 9px; }
+  .welcome-discount-overlay { padding: 10px; }
   .welcome-discount {
     width: 100%;
-    min-height: min(700px, calc(100dvh - 18px));
-    max-height: calc(100dvh - 18px);
-    padding: 24px 21px 24px;
+    min-height: min(575px, calc(100dvh - 20px));
+    max-height: calc(100dvh - 20px);
+    padding: 22px 18px 20px;
     border-radius: 0;
   }
   .welcome-discount__close {
-    top: 17px;
-    right: 17px;
-    width: 45px;
-    height: 45px;
+    top: 14px; right: 14px;
+    width: 40px; height: 40px;
   }
-  .welcome-discount__close svg { width: 23px; }
-  .welcome-discount__intro { width: min(74%, 310px); }
-  .welcome-discount__heading { font-size: clamp(22px, 6.4vw, 30px); }
+  .welcome-discount__close svg { width: 21px; }
+  .welcome-discount__intro { width: 76%; }
+  .welcome-discount__heading { font-size: clamp(19px, 5.5vw, 23px); }
   .welcome-discount__percent {
-    margin: 13px 0 15px;
-    font-size: clamp(82px, 23vw, 128px);
-    line-height: .9;
+    margin: 7px 0 9px;
+    font-size: clamp(54px, 17vw, 72px);
+    line-height: 1.08;
+    letter-spacing: -.055em;
   }
   .welcome-discount__description {
-    max-width: 295px;
-    font-size: clamp(13px, 3.7vw, 16px);
-    line-height: 1.45;
+    max-width: 246px;
+    font-size: clamp(12px, 3.3vw, 13px);
+    line-height: 1.43;
   }
-  .welcome-discount__description span { margin-top: 6px; }
+  .welcome-discount__description span { margin-top: 4px; }
   .welcome-discount__astronaut {
     z-index: 2;
-    right: -8%;
+    right: -9%;
     top: 27%;
-    width: 82%;
+    width: 81%;
     opacity: .94;
   }
-  .welcome-discount__bottom {
-    margin-top: auto;
-    padding-top: clamp(110px, 30vw, 185px);
-  }
+  .welcome-discount__bottom { margin-top: auto; padding-top: 58px; }
   .welcome-discount__promo-heading {
-    margin-bottom: 12px;
-    font-size: 12px;
-    letter-spacing: .15em;
+    margin-bottom: 8px;
+    font-size: 10px;
+    letter-spacing: .14em;
   }
-  .welcome-discount__promo {
-    min-height: 90px;
-    padding: 9px 11px;
-  }
+  .welcome-discount__promo { min-height: 67px; padding: 7px 9px; }
   .welcome-discount__code {
-    font-size: clamp(46px, 13.7vw, 75px);
-    letter-spacing: clamp(.08em, 1.55vw, .15em);
+    font-size: clamp(38px, 10.5vw, 49px);
+    letter-spacing: .095em;
   }
   .welcome-discount__copy {
-    min-width: 37px;
-    width: 43px;
-    height: 52px;
-    margin-left: 3px;
-    padding: 7px 5px;
+    min-width: 37px; width: 40px; height: 42px;
+    margin-left: 3px; padding: 5px;
   }
-  .welcome-discount__copy svg { width: 22px; }
+  .welcome-discount__copy svg { width: 21px; }
   .welcome-discount__copy-status {
-    min-height: 18px;
-    margin: 4px 0 0;
-    font-size: 11px;
+    min-height: 14px;
+    margin: 2px 0 0;
+    font-size: 10px;
   }
-  .welcome-discount__terms {
-    margin-bottom: 21px;
-    font-size: 11px;
-  }
+  .welcome-discount__terms { margin: 2px 0 13px; font-size: 10px; }
   .welcome-discount__cta {
-    width: 100%;
-    min-height: 59px;
+    width: min(258px, 100%);
+    min-height: 49px;
     gap: 12px;
-    padding: 13px 19px;
-    font-size: 16px;
+    padding: 10px 14px;
+    font-size: 13px;
   }
-  .welcome-discount__cta svg { width: 24px; }
+  .welcome-discount__cta svg { width: 22px; }
   .welcome-discount-reopen {
     right: 13px;
     bottom: max(13px, env(safe-area-inset-bottom));
   }
 }
-
 @media (max-width: 370px) {
-  .welcome-discount { padding: 22px 14px 20px; }
-  .welcome-discount__intro { width: min(81%, 250px); }
-  .welcome-discount__astronaut { right: -13%; top: 29%; width: 90%; }
-  .welcome-discount__bottom { padding-top: 110px; }
-  .welcome-discount__promo { padding-inline: 5px; min-height: 76px; }
-  .welcome-discount__code { font-size: clamp(40px, 13.3vw, 49px); }
-  .welcome-discount__description { font-size: 12px; }
+  .welcome-discount { padding: 19px 13px 17px; }
+  .welcome-discount__intro { width: 82%; }
+  .welcome-discount__percent { font-size: clamp(50px, 16.5vw, 62px); }
+  .welcome-discount__astronaut { right: -12%; top: 30%; width: 84%; }
+  .welcome-discount__bottom { padding-top: 44px; }
+  .welcome-discount__promo { padding-inline: 6px; min-height: 64px; }
+  .welcome-discount__code { font-size: clamp(40px, 11vw, 45px); letter-spacing: .065em; }
+  .welcome-discount__description { font-size: 11.5px; }
 }
 @media (max-height: 690px) and (min-width: 601px) {
   .welcome-discount { min-height: 0; }
-  .welcome-discount__bottom { padding-top: 110px; }
+  .welcome-discount__bottom { padding-top: 48px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .welcome-discount-overlay,

@@ -20,15 +20,14 @@ async function show(page) {
   await expect(page.getByRole('dialog', { name: 'Скидка' })).toBeVisible();
 }
 
-test('the new offer opens once after 60 seconds, never immediately, and is not the retired popup', async ({ page }) => {
+test('the new offer opens once after a fresh 60 seconds, never immediately, and is not the retired popup', async ({ page }) => {
+  // Emulate the stale session timestamp that caused the previous immediate popup.
+  await page.addInitScript(() => sessionStorage.setItem('debt2026-welcome50-entry-at', '1'));
   await ready(page);
   await expect(page.locator(promo)).toHaveCount(0);
-  const remaining = await page.evaluate(() => 60_000 -
-    (Date.now() - Number(sessionStorage.getItem('debt2026-welcome50-entry-at'))));
-  expect(remaining).toBeGreaterThan(2200);
-  await page.clock.fastForward(remaining - 1500);
+  await page.clock.fastForward(50_000);
   await expect(page.locator(promo)).toHaveCount(0);
-  await page.clock.fastForward(1750);
+  await page.clock.fastForward(10_200);
   await expect(page.locator(promo)).toHaveCount(1);
   await expect(page.locator('.ticket-offer-modal')).toHaveCount(0);
   await expect(page.locator('.welcome-discount__percent')).toHaveText('50%');
@@ -47,8 +46,23 @@ test('the new offer opens once after 60 seconds, never immediately, and is not t
   await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 30000 });
   await expect(page.locator(promo)).toHaveCount(0);
+  await expect(page.locator(closedBadge)).toHaveCount(0);
+  await page.clock.fastForward(60_200);
+  await expect(page.locator(promo)).toHaveCount(0);
   await expect(page.locator(closedBadge)).toBeVisible();
   await page.getByRole('button', { name: 'Открыть предложение со скидкой 50%' }).click();
+  await expect(page.locator(promo)).toBeVisible();
+});
+
+test('reloading the page starts a new full minute even when the popup was previously visible', async ({ page }) => {
+  await ready(page);
+  await show(page);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 30000 });
+  await expect(page.locator(promo)).toHaveCount(0);
+  await page.clock.fastForward(50_000);
+  await expect(page.locator(promo)).toHaveCount(0);
+  await page.clock.fastForward(10_200);
   await expect(page.locator(promo)).toBeVisible();
 });
 
@@ -94,6 +108,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     await expect.poll(async () => image.evaluate((element) =>
       element.complete && element.naturalWidth === 897 && element.naturalHeight === 861
     ), { timeout: 18000 }).toBe(true);
+    await image.evaluate((element) => element.decode());
     const geometry = await page.locator(promo).evaluate((root) => {
       const dialog = root.getBoundingClientRect();
       const code = root.querySelector('.welcome-discount__code').getBoundingClientRect();
@@ -105,6 +120,8 @@ for (const width of [320, 390, 768, 1024, 1440]) {
         documentOverflow: document.documentElement.scrollWidth - innerWidth,
         left: dialog.left, right: dialog.right,
         width: dialog.width,
+        height: dialog.height,
+        bounded50: getComputedStyle(root.querySelector('.welcome-discount__percent')).fontFamily.includes('Bounded'),
         promoCodeFits: code.left >= promoPanel.left - 2 && code.right <= copy.left + 1,
         copyInPromo: copy.left >= promoPanel.left - 2 && copy.right <= promoPanel.right + 2,
         ctaWidth: cta.width,
@@ -115,6 +132,9 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     expect(geometry.documentOverflow).toBeLessThanOrEqual(2);
     expect(geometry.left).toBeGreaterThanOrEqual(0);
     expect(geometry.right).toBeLessThanOrEqual(width + 1);
+    expect(geometry.width).toBeLessThanOrEqual(width > 900 ? 700 : width - 12);
+    expect(geometry.height).toBeLessThanOrEqual(width > 600 ? 690 : 590);
+    expect(geometry.bounded50).toBe(true);
     expect(geometry.promoCodeFits).toBe(true);
     expect(geometry.copyInPromo).toBe(true);
     expect(geometry.ctaWidth).toBeGreaterThanOrEqual(200);

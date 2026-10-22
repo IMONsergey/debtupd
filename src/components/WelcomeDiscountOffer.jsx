@@ -6,7 +6,6 @@ import { useDialog } from '../lib/useDialog.js';
 
 export const DISCOUNT_PROMO_CODE = 'WELCOME';
 export const DISCOUNT_DELAY_MS = 60_000;
-const START_KEY = 'debt2026-welcome50-entry-at';
 const DISMISSED_KEY = 'debt2026-welcome50-dismissed';
 
 function readSession(key) {
@@ -23,14 +22,6 @@ function writeSession(key, value) {
     // Private browsing may deny storage: the offer still works in this document.
   }
 }
-function initialEntryTime() {
-  const saved = Number(readSession(START_KEY));
-  if (Number.isFinite(saved) && saved > 0 && saved <= Date.now()) return saved;
-  const started = Date.now();
-  writeSession(START_KEY, started);
-  return started;
-}
-
 async function copyPromoCode() {
   if (navigator.clipboard?.writeText) {
     try {
@@ -166,23 +157,42 @@ function DiscountDialog({ onClose, onTariffs }) {
 }
 
 export function WelcomeDiscountOffer({ blocked = false }) {
-  const [entryAt] = useState(initialEntryTime);
-  const [due, setDue] = useState(() => Date.now() - entryAt >= DISCOUNT_DELAY_MS);
+  // A new document load always starts a fresh 60-second countdown. In particular,
+  // do not reuse a timestamp from sessionStorage: it made returning users see the
+  // offer immediately after refreshing or reopening the site in the same tab.
+  const [due, setDue] = useState(false);
   const [dismissed, setDismissed] = useState(() => readSession(DISMISSED_KEY) === '1');
   const [reopened, setReopened] = useState(false);
   const [ready, setReady] = useState(() => !document.getElementById('site-preloader'));
 
   useEffect(() => {
-    const wait = Math.max(0, DISCOUNT_DELAY_MS - (Date.now() - entryAt));
-    const timeout = setTimeout(() => setDue(true), wait);
+    // Decode the hero image during the countdown, rather than flashing an empty
+    // right-hand area when the dialog is first opened on an uncached visit.
+    const hero = new Image();
+    hero.decoding = 'async';
+    hero.src = assetUrl('assets/promotions/welcome-astronaut.png');
+    hero.decode?.().catch(() => {});
+    let timeout;
+    const armCountdown = () => {
+      clearTimeout(timeout);
+      setDue(false);
+      timeout = setTimeout(() => setDue(true), DISCOUNT_DELAY_MS);
+    };
+    armCountdown();
+    // Restoring an old document from the back-forward cache counts as a new visit.
+    const onPageShow = (event) => {
+      if (event.persisted) armCountdown();
+    };
     const preloaderDone = () => setReady(true);
+    window.addEventListener('pageshow', onPageShow);
     document.addEventListener('debt:preloader-closed', preloaderDone);
     if (!document.getElementById('site-preloader')) setReady(true);
     return () => {
       clearTimeout(timeout);
+      window.removeEventListener('pageshow', onPageShow);
       document.removeEventListener('debt:preloader-closed', preloaderDone);
     };
-  }, [entryAt]);
+  }, []);
 
   const close = useCallback(() => {
     writeSession(DISMISSED_KEY, '1');
