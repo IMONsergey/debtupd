@@ -24,13 +24,13 @@
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  width: min(680px, 100%);
-  min-height: min(600px, calc(100dvh - 32px));
+  width: min(580px, 100%);
+  min-height: min(550px, calc(100dvh - 32px));
   max-height: calc(100dvh - 30px);
   overflow: auto;
   scrollbar-width: thin;
   overscroll-behavior: contain;
-  padding: 30px 35px 27px;
+  padding: 30px 35px 45px;
   border: 1px solid rgba(131, 199, 255, .45);
   background: radial-gradient(ellipse at 89% 76%, rgba(0, 101, 249, .84), transparent 49%),
               radial-gradient(ellipse at 0 0, rgba(0, 118, 214, .75), transparent 39%),
@@ -104,16 +104,16 @@
   width: max-content;
   max-width: none;
   overflow: visible;
-  margin: 4px 0 9px;
-  padding: .08em .06em .12em .02em;
+  margin: 0 0 0;
+  padding: .02em .045em .05em .015em;
   background: linear-gradient(105deg, #78baff 9%, #4fdaff 57%, #52a6ff 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   font-family: Bounded, Arial, sans-serif;
-  font-size: clamp(67px, 6.2vw, 82px);
+  font-size: clamp(75px, 7.5vw, 94px);
   font-weight: 300;
-  line-height: 1.16;
+  line-height: .98;
   letter-spacing: -.035em;
   white-space: nowrap;
   font-variant-numeric: lining-nums tabular-nums;
@@ -144,9 +144,9 @@
 .welcome-discount__astronaut {
   position: absolute;
   z-index: 2;
-  right: -14px;
-  top: 116px;
-  width: 54%;
+  right: -10px;
+  top: 59px;
+  width: 57%;
   max-width: none;
   height: auto;
   object-fit: contain;
@@ -160,7 +160,7 @@
   z-index: 4;
   width: 100%;
   margin-top: auto;
-  padding-top: 65px;
+  padding-top: 51px;
 }
 .welcome-discount__promo-heading {
   margin: 0 0 9px;
@@ -176,9 +176,9 @@
   display: grid;
   grid-template-columns: 44px minmax(0, 1fr) 44px;
   align-items: center;
-  min-height: 80px;
+  min-height: 88px;
   width: 100%;
-  padding: 7px 16px;
+  padding: 3px 16px;
   background: linear-gradient(110deg, rgba(37, 94, 153, .78), rgba(5, 74, 161, .89) 65%, rgba(9, 94, 195, .88));
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
@@ -209,13 +209,13 @@
   grid-column: 2;
   width: 100%;
   min-width: 0;
-  padding: .08em 0 .04em;
+  padding: .03em 0 .02em;
   color: #55d9ff;
   font-family: 'Bebas Neue', 'IBM Plex Sans', sans-serif;
-  font-size: clamp(47px, 5.1vw, 63px);
+  font-size: clamp(65px, 7.1vw, 84px);
   font-weight: 400;
-  line-height: 1.12;
-  letter-spacing: .12em;
+  line-height: .93;
+  letter-spacing: .245em;
   text-align: center;
   user-select: all;
   white-space: nowrap;
@@ -286,9 +286,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 40px;
-  width: min(275px, 100%);
-  min-height: 53px;
-  padding: 11px 19px;
+  width: min(225px, 100%);
+  min-height: 49px;
+  padding: 9px 19px;
   border: 1px solid rgba(35, 143, 255, .8);
   border-radius: 8px;
   background: linear-gradient(105deg, #0851b6, #0877dc);
@@ -338,15 +338,15 @@
 
 @media (max-width: 900px) {
   .welcome-discount {
-    min-height: min(585px, calc(100dvh - 28px));
-    padding: 28px 29px 25px;
+    min-height: min(550px, calc(100dvh - 28px));
+    padding: 30px 35px 45px;
   }
   .welcome-discount__intro { width: 59%; }
-  .welcome-discount__heading { font-size: 25px; }
-  .welcome-discount__percent { font-size: clamp(64px, 8.4vw, 78px); }
-  .welcome-discount__astronaut { right: -13px; top: 19%; width: 54%; }
-  .welcome-discount__bottom { padding-top: 60px; }
-  .welcome-discount__code { font-size: clamp(44px, 6.4vw, 58px); }
+  .welcome-discount__heading { font-size: clamp(25px, 4.2vw, 28px); }
+  .welcome-discount__percent { font-size: clamp(76px, 13vw, 92px); }
+  .welcome-discount__astronaut { right: -10px; top: 11%; width: 57%; }
+  .welcome-discount__bottom { padding-top: 48px; }
+  .welcome-discount__code { font-size: 84px; }
 }
 @media (max-width: 600px) {
   .welcome-discount-overlay { padding: 10px; }
@@ -390,14 +390,15 @@
   }
   .welcome-discount__promo {
     min-height: 68px;
-    padding: 7px 8px;
+    padding: 4px 8px;
     grid-template-columns: 36px minmax(0, 1fr) 36px;
   }
   .welcome-discount__promo-spacer { width: 36px; }
   .welcome-discount__code {
-    font-size: clamp(40px, 10.5vw, 46px);
-    line-height: 1.14;
-    letter-spacing: .06em;
+    /* Interpolate naturally between a 320px phone and the 580px card. */
+    font-size: clamp(40px, calc(16.5vw - 13px), 85px);
+    line-height: .94;
+    letter-spacing: .18em;
   }
   .welcome-discount__copy {
     min-width: 36px; width: 36px; height: 42px;
@@ -431,8 +432,12 @@
   .welcome-discount__bottom { padding-top: 44px; }
   .welcome-discount__promo { padding-inline: 6px; min-height: 65px; grid-template-columns: 34px minmax(0, 1fr) 34px; }
   .welcome-discount__promo-spacer, .welcome-discount__copy { width: 34px; min-width: 34px; }
-  .welcome-discount__code { font-size: clamp(40px, 11vw, 43px); letter-spacing: .055em; }
+  .welcome-discount__code { font-size: 40px; letter-spacing: .17em; }
   .welcome-discount__description { font-size: 11.5px; }
+}
+@media (min-width: 501px) and (max-width: 600px) {
+  /* Do not let the astronaut force an internal scrollbar on wide phones. */
+  .welcome-discount__astronaut { right: -4%; top: 24%; width: min(72%, 420px); }
 }
 @media (max-height: 690px) and (min-width: 601px) {
   .welcome-discount { min-height: 0; }

@@ -133,7 +133,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
           percent.right <= intro.right + 2 &&
           percent.bottom <= description.getBoundingClientRect().top + 1,
         percentHasSafeLineBox: percent.height >=
-          parseFloat(getComputedStyle(percentElement).fontSize) * 1.25,
+          parseFloat(getComputedStyle(percentElement).fontSize) * 0.98,
         codeHorizontalCenterError: Math.abs(
           (code.left + code.width / 2) - (promoPanel.left + promoPanel.width / 2)
         ),
@@ -153,8 +153,8 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     expect(geometry.documentOverflow).toBeLessThanOrEqual(2);
     expect(geometry.left).toBeGreaterThanOrEqual(0);
     expect(geometry.right).toBeLessThanOrEqual(width + 1);
-    expect(geometry.width).toBeLessThanOrEqual(width > 900 ? 700 : width - 12);
-    expect(geometry.height).toBeLessThanOrEqual(width > 600 ? 690 : 590);
+    expect(geometry.width).toBeLessThanOrEqual(width > 900 ? 590 : width - 12);
+    expect(geometry.height).toBeLessThanOrEqual(width > 600 ? 575 : 590);
     expect(geometry.bounded50).toBe(true);
     expect(geometry.percentWeight).toBe('300');
     expect(geometry.percentHasBreathingRoom).toBe(true);
@@ -175,5 +175,95 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     await page.keyboard.press('Escape');
     await expect(page.locator(promo)).toHaveCount(0);
     await expect(page.locator(closedBadge)).toBeVisible();
+  });
+}
+
+
+test('reference composition at 658×700 is 580×550 with the centered full-size WELCOME', async ({ page }) => {
+  await page.setViewportSize({ width: 658, height: 700 });
+  await ready(page);
+  await show(page);
+  await page.evaluate(() => document.fonts.ready);
+  const geometry = await page.locator(promo).evaluate((root) => {
+    const r = (name) => root.querySelector('.welcome-discount__' + name).getBoundingClientRect();
+    const frame = root.getBoundingClientRect();
+    const line = root.querySelector('.welcome-discount__code');
+    const range = document.createRange();
+    range.selectNodeContents(line);
+    const textRect = range.getBoundingClientRect();
+    const code = r('code');
+    const band = r('promo');
+    const intro = r('intro');
+    const person = r('astronaut');
+    const button = r('cta');
+    return {
+      width: frame.width,
+      height: frame.height,
+      leftInset: intro.left - frame.left,
+      labelTop: r('promo-heading').top - frame.top,
+      promoTop: band.top - frame.top,
+      promoHeight: band.height,
+      promoTextFits: textRect.left >= code.left - 1 && textRect.right <= code.right + 1,
+      promoTextSize: parseFloat(getComputedStyle(line).fontSize),
+      textCenterOffset: (textRect.left + textRect.width / 2) - (band.left + band.width / 2),
+      astronautFits: person.top >= frame.top + 35 && person.right <= frame.right + 14,
+      buttonWidth: button.width,
+      buttonVisible: button.bottom <= frame.bottom - 20,
+      descriptionLineHeight: parseFloat(getComputedStyle(root.querySelector('.welcome-discount__description')).lineHeight),
+      scroll: root.scrollHeight - root.clientHeight,
+    };
+  });
+  expect(geometry.width).toBeCloseTo(580, 0);
+  expect(geometry.height).toBeCloseTo(550, 0);
+  expect(geometry.leftInset).toBeGreaterThanOrEqual(32);
+  expect(geometry.leftInset).toBeLessThanOrEqual(38);
+  expect(geometry.labelTop).toBeGreaterThanOrEqual(275);
+  expect(geometry.labelTop).toBeLessThanOrEqual(300);
+  expect(geometry.promoTop).toBeGreaterThanOrEqual(305);
+  expect(geometry.promoTop).toBeLessThanOrEqual(330);
+  expect(geometry.promoHeight).toBeGreaterThanOrEqual(84);
+  expect(geometry.promoHeight).toBeLessThanOrEqual(96);
+  expect(geometry.promoTextFits).toBe(true);
+  expect(geometry.promoTextSize).toBeGreaterThanOrEqual(82);
+  expect(Math.abs(geometry.textCenterOffset)).toBeLessThanOrEqual(2);
+  expect(geometry.astronautFits).toBe(true);
+  expect(geometry.buttonWidth).toBeGreaterThanOrEqual(220);
+  expect(geometry.buttonWidth).toBeLessThanOrEqual(230);
+  expect(geometry.buttonVisible).toBe(true);
+  expect(geometry.descriptionLineHeight).toBeGreaterThanOrEqual(20);
+  expect(geometry.scroll).toBeLessThanOrEqual(2);
+  await mkdir('test-results/welcome-discount', { recursive: true });
+  await page.locator(promo).screenshot({
+    path: 'test-results/welcome-discount/reference-658.png',
+    animations: 'disabled',
+  });
+});
+
+for (const width of [320, 390, 500, 600]) {
+  test('mobile WELCOME remains centered without internal scrolling at ' + width + 'px', async ({ page }) => {
+    await page.setViewportSize({ width, height: 780 });
+    await ready(page);
+    await show(page);
+    const geometry = await page.locator(promo).evaluate((root) => {
+      const code = root.querySelector('.welcome-discount__code');
+      const band = root.querySelector('.welcome-discount__promo');
+      const range = document.createRange();
+      range.selectNodeContents(code);
+      const text = range.getBoundingClientRect();
+      const field = code.getBoundingClientRect();
+      const bg = band.getBoundingClientRect();
+      return {
+        visible: field.left >= bg.left && field.right <= bg.right,
+        textFits: text.left >= field.left - 2 && text.right <= field.right + 2,
+        centered: Math.abs(text.left + text.width / 2 - (bg.left + bg.width / 2)) <= 2,
+        scroll: root.scrollHeight - root.clientHeight,
+        overflow: document.documentElement.scrollWidth - innerWidth,
+      };
+    });
+    expect(geometry.visible).toBe(true);
+    expect(geometry.textFits).toBe(true);
+    expect(geometry.centered).toBe(true);
+    expect(geometry.scroll).toBeLessThanOrEqual(2);
+    expect(geometry.overflow).toBeLessThanOrEqual(2);
   });
 }
