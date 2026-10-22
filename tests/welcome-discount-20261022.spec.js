@@ -115,13 +115,34 @@ for (const width of [320, 390, 768, 1024, 1440]) {
       const promoPanel = root.querySelector('.welcome-discount__promo').getBoundingClientRect();
       const copy = root.querySelector('.welcome-discount__copy').getBoundingClientRect();
       const cta = root.querySelector('.welcome-discount__cta').getBoundingClientRect();
+      const intro = root.querySelector('.welcome-discount__intro').getBoundingClientRect();
+      const percentElement = root.querySelector('.welcome-discount__percent');
+      const percent = percentElement.getBoundingClientRect();
+      const description = root.querySelector('.welcome-discount__description');
+      const descriptionLines = [...description.querySelectorAll('.welcome-discount__description-line')];
+      const descriptionRects = descriptionLines.map((line) => line.getBoundingClientRect());
       return {
         viewport: innerWidth,
         documentOverflow: document.documentElement.scrollWidth - innerWidth,
         left: dialog.left, right: dialog.right,
         width: dialog.width,
         height: dialog.height,
-        bounded50: getComputedStyle(root.querySelector('.welcome-discount__percent')).fontFamily.includes('Bounded'),
+        bounded50: getComputedStyle(percentElement).fontFamily.includes('Bounded'),
+        percentWeight: getComputedStyle(percentElement).fontWeight,
+        percentHasBreathingRoom: percent.left >= intro.left - 1 &&
+          percent.right <= intro.right + 2 &&
+          percent.bottom <= description.getBoundingClientRect().top + 1,
+        percentHasSafeLineBox: percent.height >=
+          parseFloat(getComputedStyle(percentElement).fontSize) * 1.25,
+        codeHorizontalCenterError: Math.abs(
+          (code.left + code.width / 2) - (promoPanel.left + promoPanel.width / 2)
+        ),
+        codeVerticalCenterError: Math.abs(
+          (code.top + code.height / 2) - (promoPanel.top + promoPanel.height / 2)
+        ),
+        descriptionLinesAligned: descriptionLines.length === 2 &&
+          descriptionRects.every((rect) => Math.abs(rect.left - descriptionRects[0].left) <= 1) &&
+          Math.abs(descriptionRects[1].top - descriptionRects[0].bottom) <= 1,
         promoCodeFits: code.left >= promoPanel.left - 2 && code.right <= copy.left + 1,
         copyInPromo: copy.left >= promoPanel.left - 2 && copy.right <= promoPanel.right + 2,
         ctaWidth: cta.width,
@@ -135,6 +156,12 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     expect(geometry.width).toBeLessThanOrEqual(width > 900 ? 700 : width - 12);
     expect(geometry.height).toBeLessThanOrEqual(width > 600 ? 690 : 590);
     expect(geometry.bounded50).toBe(true);
+    expect(geometry.percentWeight).toBe('300');
+    expect(geometry.percentHasBreathingRoom).toBe(true);
+    expect(geometry.percentHasSafeLineBox).toBe(true);
+    expect(geometry.codeHorizontalCenterError).toBeLessThanOrEqual(1);
+    expect(geometry.codeVerticalCenterError).toBeLessThanOrEqual(1);
+    expect(geometry.descriptionLinesAligned).toBe(true);
     expect(geometry.promoCodeFits).toBe(true);
     expect(geometry.copyInPromo).toBe(true);
     expect(geometry.ctaWidth).toBeGreaterThanOrEqual(200);
