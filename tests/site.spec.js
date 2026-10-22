@@ -68,7 +68,10 @@ test('Production mobile menu closes on Escape, outside click and navigation', as
   await trigger.click();
   await expect(menu).toBeVisible();
   await expect(menu.getByRole('link')).toHaveCount(12);
-  await expect(menu.getByRole('link', { name: 'Программа форума' })).toHaveAttribute('href', '#prog');
+  await expect(menu.getByRole('link', { name: 'Что ждет участников' })).toHaveAttribute('href', '#participants');
+  await expect(menu.getByRole('link', { name: 'Деловая программа' })).toHaveAttribute('href', '#prog');
+  await expect(menu.getByRole('link', { name: 'Программа и форматы' })).toHaveCount(0);
+  await expect(menu.getByRole('link', { name: 'Программа форума' })).toHaveCount(0);
   await expect(menu.getByRole('link', { name: 'Зарегистрироваться' })).toHaveAttribute(
     'href',
     '#tariff-plans',

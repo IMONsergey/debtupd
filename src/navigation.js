@@ -2,8 +2,8 @@
 // Venue information belongs to Contacts; gallery is an action beside the video, not a section.
 export const destinations = [
   { id: 'about-forum', label: 'О форуме' },
-  { id: 'participants', label: 'Программа и форматы' },
-  { id: 'prog', label: 'Программа форума' },
+  { id: 'participants', label: 'Что ждет участников' },
+  { id: 'prog', label: 'Деловая программа' },
   { id: 'services', label: 'Услуги участникам' },
   { id: 'topics', label: 'Ключевые темы' },
   { id: 'fincifra-seminar', label: 'ФИНЦИФРА-2026', featured: true },
