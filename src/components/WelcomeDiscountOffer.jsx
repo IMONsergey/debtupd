@@ -105,8 +105,10 @@ function DiscountDialog({ onClose, onTariffs }) {
           </h2>
           <strong className="welcome-discount__percent" aria-label="50 процентов">50%</strong>
           <p id="welcome-discount-copy" className="welcome-discount__description">
-            на один билет любого тарифа
-            <span>
+            <span className="welcome-discount__description-line">
+              на один билет любого тарифа
+            </span>
+            <span className="welcome-discount__description-line">
               для представителя компании, которая{' '}
               <strong>впервые</strong> участвует в DEBT TECH.
             </span>
@@ -123,6 +125,7 @@ function DiscountDialog({ onClose, onTariffs }) {
         <div className="welcome-discount__bottom">
           <div className="welcome-discount__promo-heading">По промокоду</div>
           <div className="welcome-discount__promo">
+            <span className="welcome-discount__promo-spacer" aria-hidden="true" />
             <span className="welcome-discount__code" aria-label="Промокод WELCOME">
               {DISCOUNT_PROMO_CODE}
             </span>
