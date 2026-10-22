@@ -42,9 +42,6 @@ debt-2026-lite.176.98.177.253.sslip.io, debt-tech.ru, www.debt-tech.ru {
         }
         # /2/ is an alias for the exact active production release, not a second copy.
         # All CMS, form and asset requests use the same host-root paths and services.
-        handle /2 {
-            redir /2/ 308
-        }
         handle_path /2/* {
             # strip /2 and serve from the SAME current release symlink as /
             try_files {path} /index.html

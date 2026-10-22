@@ -5,7 +5,7 @@ Live alias: https://debt-tech.ru/2/
 
 ## How it works
 
-The /2/ page is not a copied project and does not have a separate deployment or database. Caddy's production route handles /2/* by stripping the /2 prefix and serving from exactly the same current frontend symlink as /. This includes the HTML entry point and any prefixed static resources. A request to /2 (without slash) redirects to /2/. SPA deep links and hash links stay on the /2/ URL.
+The /2/ page is not a copied project and does not have a separate deployment or database. Caddy's production route handles /2/* by stripping the /2 prefix and serving from exactly the same current frontend symlink as /. This includes the HTML entry point and any prefixed static resources. The requested /2/ URL is the supported alias entry point. The slashless /2 URL still resolves through the main SPA fallback. SPA deep links and hash links stay on the /2/ URL.
 
 The Vite application uses absolute /assets/... resources, /api/lead, /api/programme and /api/speakers, so forms, the programme, speakers and other CMS-backed content share the same live services and data on both page addresses. Updates to the main site's current symlink or CMS are reflected on /2/ automatically with no synchronization job.
 
