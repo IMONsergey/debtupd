@@ -81,7 +81,23 @@ function session(value, ids) {
       speakers: item.speakers.map((speaker) => person(speaker, 'спикер')),
     };
   });
-  return {
+  // Retain the original moderator field so all existing CMS records and
+  // published revisions remain valid without migration.
+  const additional = value.additionalModerators ?? [];
+  if (!Array.isArray(additional) || additional.length > 2)
+    fail('В сессии может быть не более трёх модераторов.');
+  if (additional.length && !value.moderator)
+    fail('Сначала укажите основного модератора сессии.');
+  const primary = value.moderator ? person(value.moderator, 'модератор') : null;
+  const extra = additional.map((item, index) => person(item, 'модератор ' + (index + 2)));
+  const keys = new Set();
+  for (const moderator of [primary, ...extra].filter(Boolean)) {
+    const key = moderator.name.toLocaleLowerCase('ru-RU').replace(/\s+/g, ' ');
+    if (keys.has(key))
+      fail('Модератор «' + moderator.name + '» добавлен в сессию несколько раз.');
+    keys.add(key);
+  }
+  const result = {
     id: id(value.id, 'сессия', ids),
     kind: 'session',
     number: (() => {
@@ -92,11 +108,14 @@ function session(value, ids) {
     time,
     title: text(value.title, 'название сессии', 440, true),
     category: text(value.category ?? '', 'формат сессии', 200),
-    moderator: value.moderator ? person(value.moderator, 'модератор') : null,
+    moderator: primary,
     additionalNote: text(value.additionalNote ?? '', 'примечание к сессии', 600),
     visible: value.visible !== false,
     talks,
   };
+  // Omit the new field when empty to preserve the legacy record shape.
+  if (extra.length) result.additionalModerators = extra;
+  return result;
 }
 
 export function validateProgramme(value) {

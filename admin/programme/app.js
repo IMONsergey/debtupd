@@ -12,6 +12,7 @@ const state = {
   selection: { type: 'stage', id: 'main' },
   expandedTalk: null,
   editModerator: false,
+  editAdditionalModerator: null,
   query: '',
   dirty: false,
   busy: false,
@@ -254,7 +255,10 @@ function agendaCard(item, index) {
     ['entry', 'common'].includes(state.selection.type);
   const kind = item.kind === 'session' ? 'Сессия ' + item.number : 'Событие';
   const extra = item.kind === 'session' ? item.talks.length + ' выступлений' : 'Событие программы';
-  const people = item.kind === 'session' ? [item.moderator?.name || '', ...item.talks.flatMap((talk) => talk.speakers.map((person) => person.name))].join(' ') : '';
+  const people = item.kind === 'session'
+    ? [item.moderator?.name || '', ...(item.additionalModerators || []).map((p) => p.name),
+      ...item.talks.flatMap((talk) => talk.speakers.map((person) => person.name))].join(' ')
+    : '';
   const search = (item.time + ' ' + kind + ' ' + item.title + ' ' + people).toLocaleLowerCase('ru-RU');
   const action = state.view === 'shared' ? 'common:' : 'entry:';
   return '<article class="listrow' + (active ? ' selected' : '') + (item.visible === false ? ' ghosted' : '') + '" draggable="true" data-index="' + index + '" data-search="' + e(search) + '">' +
@@ -306,6 +310,10 @@ function scopedItem(scope = '') {
   if (!item) return null;
   if (!scope) return item;
   if (scope === 'moderator') return item.moderator;
+  if (scope.startsWith('additional-moderator:')) {
+    const index = Number(scope.slice('additional-moderator:'.length));
+    return Number.isInteger(index) ? item.additionalModerators?.[index] : null;
+  }
   if (scope.startsWith('talk:')) {
     const talkId = scope.slice(5);
     return item.talks?.find((talk) => talk.id === talkId);
@@ -377,6 +385,7 @@ function allPeople() {
     for (const entry of stage.entries) {
       if (entry.kind !== 'session') continue;
       if (entry.moderator) add(entry.moderator, true);
+      for (const person of entry.additionalModerators || []) add(person, true);
       for (const talk of entry.talks) for (const person of talk.speakers) add(person, true);
     }
   }
@@ -497,9 +506,27 @@ function mediaGallery(kind, scope = '') {
     }
     const { type, item } = currentSelection();
     if (type !== 'entry' || item?.kind !== 'session') return close();
-    if (scope === 'moderator') {
-      item.moderator = { ...chosen };
+    if (scope === 'moderator' || scope === 'moderator-new' ||
+        scope.startsWith('additional-moderator:')) {
+      const extra = item.additionalModerators || (item.additionalModerators = []);
+      const index = scope.startsWith('additional-moderator:')
+        ? Number(scope.slice('additional-moderator:'.length)) : null;
+      const all = [item.moderator, ...extra].filter(Boolean);
+      const previous = index === null ? (scope === 'moderator' ? item.moderator : null) : extra[index];
+      if (all.some((person) => person !== previous &&
+          person.name.toLocaleLowerCase('ru-RU').trim() === chosen.name.toLocaleLowerCase('ru-RU').trim())) {
+        return notice('Этот человек уже назначен модератором сессии.', true);
+      }
+      if (scope === 'moderator') item.moderator = { ...chosen };
+      else if (scope === 'moderator-new') {
+        if (all.length >= 3) return notice('В сессии может быть не более трёх модераторов.', true);
+        if (!item.moderator) item.moderator = { ...chosen };
+        else extra.push({ ...chosen });
+      } else if (Number.isInteger(index) && index >= 0 && index < extra.length) {
+        extra[index] = { ...chosen };
+      } else return notice('Модератор не найден.', true);
       state.editModerator = false;
+      state.editAdditionalModerator = null;
     } else {
       const talk = item.talks.find((t) => t.id === scope);
       if (!talk || talk.speakers.length >= 8) return close();
@@ -524,25 +551,61 @@ function personEditor(person, scope) {
     field('Должность и организация', scope, 'role', { type: 'textarea', rows: 2, placeholder: 'Например: директор по развитию, компания' }) +
     '</div></div>';
 }
+function moderatorSummary(person) {
+  return '<div class="moderator-summary">' +
+    (person.photo
+      ? '<img class="moderator-photo" src="' + e(person.photo) + '" alt="">'
+      : '<span class="moderator-photo photo-placeholder">◯</span>') +
+    '<div><strong>' + e(person.name) + '</strong><span>' +
+    e(person.role || 'Должность не указана') + '</span></div></div>';
+}
 function moderatorEditor(session) {
-  const person = session.moderator;
-  if (!person) {
-    return '<section class="editor-section" id="session-moderator"><div class="section-heading"><div><h3>Модератор</h3><p>Ведущий сессии</p></div>' +
-      '<div class="inline-actions">' + button('Из программы', 'library-moderator', 'subtle small') +
-      button('+ Добавить', 'add-moderator', 'subtle small') + '</div>' +
-      '</div><div class="empty-inline">Модератор не указан. Можно добавить позже.</div></section>';
+  const extra = session.additionalModerators || [];
+  const total = Number(!!session.moderator) + extra.length;
+  const addActions = total < 3
+    ? '<div class="inline-actions">' +
+      button('Из программы', 'library-moderator-new', 'subtle small') +
+      button('+ Добавить', 'add-moderator', 'subtle small') + '</div>'
+    : '<span class="moderator-limit">Максимум 3</span>';
+  const heading = '<section class="editor-section" id="session-moderator">' +
+    '<div class="section-heading"><div><h3>Модераторы <span class="count">' + total +
+    ' / 3</span></h3><p>Добавьте одного, двух или трёх ведущих сессии</p></div>' +
+    addActions + '</div>';
+  if (!session.moderator) {
+    return heading +
+      '<div class="empty-inline">Пока нет модераторов. Добавьте первого или выберите из базы участников.</div>' +
+      '</section>';
   }
-  return '<section class="editor-section" id="session-moderator"><div class="section-heading"><div><h3>Модератор</h3><p>Ведущий сессии</p></div>' +
-    '<div class="inline-actions">' + button('Заменить', 'library-moderator', 'subtle small') +
-    button(state.editModerator ? 'Готово' : 'Изменить', 'edit-moderator', 'subtle small') +
-    '</div></div>' +
-    (state.editModerator
-      ? '<div class="card-editor">' + personEditor(person, 'moderator') + '<div class="item-actions">' +
-        button('Убрать модератора', 'remove-moderator', 'text-danger small') + '</div></div>'
-      : '<div class="moderator-summary">' +
-        (person.photo ? '<img class="moderator-photo" src="' + e(person.photo) + '" alt="">' : '<span class="moderator-photo photo-placeholder">◯</span>') +
-        '<div><strong>' + e(person.name) + '</strong><span>' + e(person.role || 'Должность не указана') +
-        '</span></div></div>') + '</section>';
+  const primary = session.moderator;
+  const people = [primary, ...extra];
+  const entries = people.map((person, position) => {
+    const first = position === 0;
+    const index = position - 1;
+    const active = first ? state.editModerator : state.editAdditionalModerator === index;
+    const scope = first ? 'moderator' : 'additional-moderator:' + index;
+    const edit = first ? 'edit-moderator' : 'edit-extra-moderator:' + index;
+    const replace = first ? 'library-moderator' : 'library-replace-moderator:' + index;
+    const remove = first ? 'remove-moderator' : 'remove-extra-moderator:' + index;
+    return '<article class="moderator-entry" data-moderator-position="' + position + '">' +
+      '<div class="moderator-entry-head"><strong>Модератор ' + (position + 1) + '</strong>' +
+      '<div class="inline-actions">' +
+      orderButton('↑', 'move-moderator:' + position + ':-1',
+        'Переместить модератора выше', position === 0) +
+      orderButton('↓', 'move-moderator:' + position + ':1',
+        'Переместить модератора ниже', position === people.length - 1) +
+      button('Заменить', replace, 'subtle small') +
+      button(active ? 'Готово' : 'Изменить', edit, 'subtle small') +
+      button('Убрать', remove, 'text-danger small') +
+      '</div></div>' +
+      (active
+        ? '<div class="card-editor">' + personEditor(person, scope) + '</div>'
+        : moderatorSummary(person)) +
+      '</article>';
+  }).join('');
+  return heading +
+    '<div class="moderator-entries">' + entries + '</div>' +
+    '<p class="helper moderator-hint">На сайте модераторы располагаются вертикально, один под другим, в указанном порядке.</p>' +
+    '</section>';
 }
 function talkCard(talk, index, session) {
   const open = state.expandedTalk === talk.id;
@@ -588,7 +651,7 @@ function sessionEditor(session) {
     session.visible === false ? 'Скрыта' : 'В черновике') +
     '<nav class="editor-jumps" aria-label="Разделы сессии">' +
     '<button type="button" data-jump="session-main">Основное</button>' +
-    '<button type="button" data-jump="session-moderator">Модератор</button>' +
+    '<button type="button" data-jump="session-moderator">Модераторы</button>' +
     '<button type="button" data-jump="session-talks">Выступления (' + session.talks.length + ')</button>' +
     '</nav>' +
     '<div class="editor-section editor-section--main" id="session-main">' +
@@ -722,6 +785,7 @@ function choose(type, id, { resetTalk = true } = {}) {
   state.selection = { type, id };
   if (resetTalk) state.expandedTalk = null;
   state.editModerator = false;
+  state.editAdditionalModerator = null;
   state.mobileView = 'editor';
   render({ resetEditor: true });
 }
@@ -732,6 +796,7 @@ function stageSelect(id) {
   resetSelection();
   state.expandedTalk = null;
   state.editModerator = false;
+  state.editAdditionalModerator = null;
   state.mobileView = 'agenda';
   render({ resetEditor: true });
 }
@@ -757,7 +822,7 @@ function addEntry(kind, shared = false) {
   const item = kind === 'session' ? {
     id: makeId('session'), kind: 'session', number: sessionCount + 1,
     title: 'Новая сессия', time: '10:00–11:00', category: 'Дискуссия',
-    moderator: null, visible: true, talks: [], additionalNote: '',
+    moderator: null, additionalModerators: [], visible: true, talks: [], additionalNote: '',
   } : { id: makeId('event'), kind: 'event', title: 'Новое событие', time: '12:00–12:30', visible: true };
   entries.push(item);
   state.view = shared ? 'shared' : 'stage';
@@ -1081,7 +1146,8 @@ async function uploadPhoto(scope, input) {
   try {
     const result = await request('/upload', 'POST', file, file.type);
     const present = state.programme.stages.some((stage) => stage.entries.some((entry) =>
-      entry.moderator === person || entry.talks?.some((talk) => talk.speakers.includes(person))));
+      entry.moderator === person || entry.additionalModerators?.includes(person) ||
+      entry.talks?.some((talk) => talk.speakers.includes(person))));
     if (!present) throw Error('Участник был удалён. Файл сохранён в библиотеке, но не привязан.');
     person.photo = result.url;
     state.portraits.unshift({ group: 'Загруженные фотографии', name: file.name, url: result.url });
@@ -1181,26 +1247,92 @@ async function dispatchAction(action) {
   if (action === 'validate') return validateDraft();
   if (action === 'change-password') return changePassword();
   if (action === 'library-moderator') return mediaGallery('people', 'moderator');
+  if (action === 'library-moderator-new') return mediaGallery('people', 'moderator-new');
+  if (action.startsWith('library-replace-moderator:')) {
+    return mediaGallery('people',
+      'additional-moderator:' + action.slice('library-replace-moderator:'.length));
+  }
   if (action.startsWith('library-person:')) return mediaGallery('people', action.slice('library-person:'.length));
   if (action.startsWith('library-photo:')) return mediaGallery('photo', action.slice('library-photo:'.length));
   if (action === 'add-talk') return addTalk();
   if (action === 'add-moderator') {
     const item = currentSelection().item;
     if (!item || item.kind !== 'session') return;
-    item.moderator = { name: 'Новый модератор', role: '', photo: '' };
-    state.editModerator = true;
-    markDirty(); render();
+    const extra = item.additionalModerators || (item.additionalModerators = []);
+    const total = Number(!!item.moderator) + extra.length;
+    if (total >= 3) return notice('В сессии может быть не более трёх модераторов.', true);
+    const newPerson = { name: 'Новый модератор ' + (total + 1), role: '', photo: '' };
+    if (!item.moderator) {
+      item.moderator = newPerson;
+      state.editModerator = true;
+      state.editAdditionalModerator = null;
+    } else {
+      extra.push(newPerson);
+      state.editAdditionalModerator = extra.length - 1;
+      state.editModerator = false;
+    }
+    markDirty();
+    render();
+    app.querySelector('.moderator-entry[data-moderator-position="' + total +
+      '"] [data-field="name"]')?.focus();
     return;
   }
   if (action === 'edit-moderator') {
     state.editModerator = !state.editModerator;
+    state.editAdditionalModerator = null;
+    render();
+    return;
+  }
+  if (action.startsWith('edit-extra-moderator:')) {
+    const index = Number(action.slice('edit-extra-moderator:'.length));
+    const item = currentSelection().item;
+    if (!item?.additionalModerators?.[index]) return;
+    state.editAdditionalModerator = state.editAdditionalModerator === index ? null : index;
+    state.editModerator = false;
     render();
     return;
   }
   if (action === 'remove-moderator') {
-    if (!await confirmAction('Убрать модератора?', 'Он исчезнет из этой сессии только в черновике.', 'Убрать', true)) return;
+    if (!await confirmAction('Убрать модератора?',
+      'Он исчезнет из этой сессии только в черновике.', 'Убрать', true)) return;
     const item = currentSelection().item;
-    if (item?.kind === 'session') { item.moderator = null; state.editModerator = false; markDirty(); render(); }
+    if (item?.kind === 'session') {
+      const extra = item.additionalModerators || [];
+      item.moderator = extra.shift() || null;
+      state.editModerator = false;
+      state.editAdditionalModerator = null;
+      markDirty();
+      render();
+    }
+    return;
+  }
+  if (action.startsWith('remove-extra-moderator:')) {
+    const index = Number(action.slice('remove-extra-moderator:'.length));
+    const item = currentSelection().item;
+    if (!item?.additionalModerators?.[index]) return;
+    if (!await confirmAction('Убрать модератора?',
+      'Он исчезнет из этой сессии только в черновике.', 'Убрать', true)) return;
+    item.additionalModerators.splice(index, 1);
+    state.editAdditionalModerator = null;
+    markDirty();
+    render();
+    return;
+  }
+  if (action.startsWith('move-moderator:')) {
+    const [index, step] = action.slice('move-moderator:'.length).split(':').map(Number);
+    const item = currentSelection().item;
+    if (item?.kind !== 'session' || !item.moderator) return;
+    const people = [item.moderator, ...(item.additionalModerators || [])];
+    const other = index + step;
+    if (!Number.isInteger(index) || !Number.isInteger(step) ||
+        index < 0 || other < 0 || other >= people.length) return;
+    [people[index], people[other]] = [people[other], people[index]];
+    item.moderator = people[0];
+    item.additionalModerators = people.slice(1);
+    state.editModerator = false;
+    state.editAdditionalModerator = null;
+    markDirty();
+    render();
     return;
   }
   if (action.startsWith('stage:')) return stageSelect(action.slice(6));

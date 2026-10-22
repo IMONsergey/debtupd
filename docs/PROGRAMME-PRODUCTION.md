@@ -28,3 +28,10 @@ The initial production release was built from the active 2026-10-20 Welcome Pass
 Always carry forward the programme component, programme seed, admin assets and Caddy routing. install-production.sh checks that programme files exist and restarts the editor after switching releases, so the private preview matches the current frontend. Do not roll out the older sandbox frontend over production.
 
 The dedicated initial rollout takes a backup of Caddy and the previous frontend symlink and can restore them without changing production forms.
+
+
+## Несколько модераторов в одной сессии (22.10.2026)
+
+В каждой сессии поддерживается от одного до трёх модераторов (а также отсутствие модератора). В админке: откройте нужную сессию → «Модераторы» → «+ Добавить» или «Из программы». Для каждого доступны ФИО, должность, фото, удаление, замена из библиотеки и изменение порядка стрелками. На публичном сайте модераторы стоят вертикально друг под другом, с выровненными фотографиями.
+
+Существующее поле session.moderator остаётся первым модератором. Дополнительные модераторы находятся в необязательном массиве session.additionalModerators (не более двух). Массив не сохраняется в старых карточках, если пуст. Это обеспечивает полную совместимость опубликованной программы, существующего черновика и архива редакций. Сервер блокирует четвёртого модератора и повтор одного человека в пределах сессии. Автосохранение черновика и ручная публикация остаются раздельными операциями.

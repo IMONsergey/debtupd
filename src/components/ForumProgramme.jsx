@@ -140,7 +140,13 @@ function ProgrammeSession({ session, expanded, onToggle }) {
         </div>
         <div className="forum-programme__session-moderator">
           {session.moderator ? (
-            <ProgrammePerson person={session.moderator} moderator />
+            [session.moderator, ...(session.additionalModerators || [])].map((person, index) => (
+              <ProgrammePerson
+                key={index}
+                person={person}
+                moderator
+              />
+            ))
           ) : (
             <div className="forum-programme__moderator-unconfirmed">
               <span className="forum-programme__portrait" aria-hidden="true">
