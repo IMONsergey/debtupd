@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 for (const width of [390, 1440]) {
-  test('the timed booking popup never opens automatically at ' + width + 'px', async ({ page }) => {
+  test('retired booking popup stays disabled while WELCOME discount opens at ' + width + 'px', async ({ page }) => {
     await page.clock.install({ time: new Date('2026-10-19T12:00:00+03:00') });
     await page.setViewportSize({ width, height: 900 });
     // Do not set the former session-dismissed flag: the former popup would have appeared.
@@ -19,7 +19,11 @@ for (const width of [390, 1440]) {
     await expect(page.locator('.ticket-offer-modal')).toHaveCount(0);
     await page.clock.fastForward(35_000);
     await expect(page.locator('.ticket-offer-modal')).toHaveCount(0);
-    await expect(page.getByRole('dialog')).toHaveCount(0);
+    const welcome = page.getByRole('dialog', { name: 'Скидка' });
+    await expect(welcome).toBeVisible();
+    await welcome.getByRole('button', { name: 'Закрыть предложение' }).click();
+    await expect(welcome).toHaveCount(0);
+    await expect(page.locator('.welcome-discount-reopen')).toBeVisible();
     await expect(page.locator('#root')).not.toHaveAttribute('inert', '');
 
     // The regular registration CTA and tariff modal remain functional.
