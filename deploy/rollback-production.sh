@@ -14,6 +14,14 @@ test -s "$previous/index.html"
 ln -sfn "$previous" "$root/current.rollback"
 mv -Tf "$root/current.rollback" "$root/current"
 if systemctl is-active --quiet debt-2026-lite-programme.service; then
+    if [[ -d "$backup/programme-server.before" ]]; then
+        install -d -m 755 "$root/programme-runtime/server"
+        cp -a "$backup/programme-server.before/." "$root/programme-runtime/server/"
+        rm -f "$root/programme-runtime/server/speakers-schema.mjs"
+        if [[ -f "$backup/programme-server.before/speakers-schema.mjs" ]]; then
+            cp -a "$backup/programme-server.before/speakers-schema.mjs" "$root/programme-runtime/server/speakers-schema.mjs"
+        fi
+    fi
     systemctl restart debt-2026-lite-programme.service
 fi
 install -m 600 "$backup/forms.env" "$root/env/forms.env"

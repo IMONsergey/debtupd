@@ -1,0 +1,282 @@
+[
+  {
+    "id": "speaker-001",
+    "name": "Владимир Вербицкий",
+    "role": "Co-Founder DEBTPRICE, учредитель АНО «Рынок Взыскания»",
+    "image": "speaker-hd-01.png",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-002",
+    "name": "Константин Виноградов",
+    "role": "Сооснователь, управляющий партнер электронной торговой площадки DEBTPRICE",
+    "image": "speaker-hd-02.png",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-003",
+    "name": "Андрей Емелин",
+    "role": "Председатель Национального совета финансового рынка (НСФР)",
+    "image": "speaker-hd-03.png",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-004",
+    "name": "Евгений Новиков",
+    "role": "Руководитель Департамента финансового урегулирования, вице-президент ВТБ",
+    "image": "speaker-novikov.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-005",
+    "name": "Рената Золотарева",
+    "role": "Руководитель отдела по управлению процессами дебиторской задолженности на массовом рынке ПАО «Мегафон»",
+    "image": "speaker-renata-zolotareva.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-006",
+    "name": "Максим Богомолов",
+    "role": "Основатель ПКО \"АСВ\" и Legal Resources",
+    "image": "speaker-hd-06.png",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-007",
+    "name": "Илья Курцев",
+    "role": "Директор Центра кредитного контроля ПАО «Ростелеком»",
+    "image": "speaker-hd-07.png",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-008",
+    "name": "Антон Юдаев",
+    "role": "Главный редактор СМИ «Рынок Взыскания»",
+    "image": "speaker-hd-08.png",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-009",
+    "name": "Валерий Зоткин",
+    "role": "Генеральный директор АО «НИРУМ»",
+    "image": "speaker-hd-09.png",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-010",
+    "name": "Наталья Кошеляева",
+    "role": "Генеральный директор ООО «Декодика»",
+    "image": "speaker-hd-10.png",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-011",
+    "name": "Андрей Заневский",
+    "role": "Заместитель генерального директора в финтех-группе «Свой»",
+    "image": "speaker-hd-11.png",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-012",
+    "name": "Константин Ипатьев",
+    "role": "Руководитель Управления аналитики урегулирования и партнерских программ ДФУ ВТБ",
+    "image": "speaker-hd-12.png",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-013",
+    "name": "Елена Авакян",
+    "role": "Вице-президент Гильдии Российских Адвокатов, руководитель цифровой трансформации адвокатуры России",
+    "image": "speaker-hd-13.png",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-014",
+    "name": "Евгения Уткина",
+    "role": "Заместитель генерального директора ПКО «АБК» (группа Сбер)",
+    "image": "speaker-hd-14.png",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-015",
+    "name": "Денис Каюмов",
+    "role": "Руководитель дирекции банка УРАЛСИБ",
+    "image": "speaker-hd-15.png",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-016",
+    "name": "Марина Кузнецова",
+    "role": "Руководитель департамента по исполнительному производству ООО «ПКО Управляющая компания Траст»",
+    "image": "speaker-marina-kuznetsova.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-017",
+    "name": "Максим Лифенцев",
+    "role": "Руководитель отдела досудебного взыскания ПАО МКК «Займер»",
+    "image": "speaker-maxim-lifentsev.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-018",
+    "name": "Максим Миронов",
+    "role": "Генеральный директор ООО «Смарт Бизнес Лаб»",
+    "image": "speaker-maxim-mironov.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-019",
+    "name": "Илья Скворцов",
+    "role": "Руководитель отдела развития сервисов монетизации данных АО «НБКИ»",
+    "image": "speaker-ilya-skvortsov.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-020",
+    "name": "Кирилл Ноготков",
+    "role": "Председатель Совета СРО ААУ «Сириус», директор АО «ССПБ»",
+    "image": "speaker-kirill-nogotkov.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-021",
+    "name": "Игорь Алексеев",
+    "role": "Управляющий партнер экосистемы для арбитражных управляющих и банкротных продуктов ПАО «Совкомбанк»",
+    "image": "speaker-igor-alekseev.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-022",
+    "name": "Алексей Велижанин",
+    "role": "Генеральный директор ПКО «Интел Коллект»",
+    "image": "speaker-alexey-velizhanin.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-023",
+    "name": "Роман Спатарь",
+    "role": "Руководитель службы сопровождения и развития дистанционного урегулирования",
+    "image": "speaker-roman-spotar.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-024",
+    "name": "Анна Белоцерковская",
+    "role": "Президент Ассоциации ПАУ «Гарант»",
+    "image": "speaker-anna-belotserkovskaya.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-025",
+    "name": "Евгений Дородников",
+    "role": "Генеральный директор ООО «Автослед ЕМ групп»",
+    "image": "speaker-evgeniy-dorodnikov.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-026",
+    "name": "Виктор Кислицын",
+    "role": "Руководитель коммерческого департамента i-Digital",
+    "image": "speaker-viktor-kislitsyn.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-027",
+    "name": "Константин Юрьев",
+    "role": "Генеральный директор АО «Агредатор»",
+    "image": "speaker-konstantin-yuriev.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-028",
+    "name": "Василий Епифанов",
+    "role": "Руководитель Дирекции дистанционного урегулирования «Альфа-банка»",
+    "image": "speaker-vasiliy-epifanov.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-029",
+    "name": "Александр Митрохин",
+    "role": "Руководитель развития процессов урегулирования «Альфа-банка»",
+    "image": "speaker-aleksandr-mitrokhin.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-030",
+    "name": "Екатерина Данкина",
+    "role": "Директор по развитию портала «Торги России»",
+    "image": "speaker-ekaterina-dankina.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-031",
+    "name": "Глеб Лябушев",
+    "role": "Заместитель генерального директора ПКО «А.Сторм»",
+    "image": "speaker-gleb-lyabushev.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-032",
+    "name": "Евгений Коротков",
+    "role": "Финансовый директор ООО «ЭВЕРЕСТ ПЛЮС»",
+    "image": "speaker-evgeniy-korotkov.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-033",
+    "name": "Марина Селина",
+    "role": "Начальник управления анализа коммерческой задолженности и стандартизации казначейских функций, Казначейство, Горьковский автомобильный завод",
+    "image": "speaker-marina-selina.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-034",
+    "name": "Дмитрий Ломакин",
+    "role": "Директор по развитию бизнеса «Инфолоджистикс»",
+    "image": "speaker-dmitriy-lomakin-hq-20261020.webp",
+    "photo": "",
+    "visible": true
+  },
+  {
+    "id": "speaker-035",
+    "name": "Павел Соболев",
+    "role": "Коммерческий директор «iDSystems»",
+    "image": "speaker-pavel-sobolev-hq-20261020.webp",
+    "photo": "",
+    "visible": true
+  }
+]

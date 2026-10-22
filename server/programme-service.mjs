@@ -3,6 +3,7 @@ import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import { readFile, readdir, writeFile, rename, mkdir } from 'node:fs/promises';
 import { join, extname, basename } from 'node:path';
 import { validateProgramme, ProgrammeError } from './programme-schema.mjs';
+import { validateSpeakers, speakerPhotoUrl } from './speakers-schema.mjs';
 
 const maxJson = 1_000_000;
 const maxImage = 4_000_000;
@@ -172,6 +173,9 @@ export async function createProgrammeServer({ distDir, adminDir, dataDir, origin
   await mkdir(dataDir, { recursive: true, mode: 0o700 });
   await mkdir(join(dataDir, 'history'), { recursive: true, mode: 0o700 });
   await mkdir(join(dataDir, 'images'), { recursive: true, mode: 0o700 });
+  await mkdir(join(dataDir, 'speakers-history'), { recursive: true, mode: 0o700 });
+  const speakerPublishedPath = join(dataDir, 'speakers-published.json');
+  const speakerDraftPath = join(dataDir, 'speakers-draft.json');
   const publishedPath = join(dataDir, 'published.json');
   const draftPath = join(dataDir, 'draft.json');
   const authPath = join(dataDir, 'auth.json');
@@ -190,6 +194,33 @@ export async function createProgrammeServer({ distDir, adminDir, dataDir, origin
   } catch (e) {
     if (e.code !== 'ENOENT') throw e;
     await atomicWrite(draftPath, { ...published });
+  }
+
+  // Speaker files are independent from the programme files. Existing programme
+  // revisions, images and history stay untouched when this feature is initialized.
+  let initialSpeakers;
+  try {
+    initialSpeakers = await readJson(speakerPublishedPath);
+    validateSpeakers(initialSpeakers.speakers, { publishing: true });
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+    const seedSpeakers = validateSpeakers(
+      await readJson(join(distDir, 'data/speakers-seed.json')),
+      { publishing: true },
+    );
+    initialSpeakers = {
+      revision: 1,
+      updatedAt: new Date().toISOString(),
+      speakers: seedSpeakers,
+    };
+    await atomicWrite(speakerPublishedPath, initialSpeakers);
+  }
+  try {
+    const currentDraft = await readJson(speakerDraftPath);
+    validateSpeakers(currentDraft.speakers);
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+    await atomicWrite(speakerDraftPath, initialSpeakers);
   }
 
   let mutations = Promise.resolve();
@@ -233,6 +264,20 @@ export async function createProgrammeServer({ distDir, adminDir, dataDir, origin
     return result;
   }
 
+  async function speakerHistory() {
+    const files = (await readdir(join(dataDir, 'speakers-history')))
+      .filter((file) => /^revision-\d+\.json$/.test(file))
+      .sort((a,b) => Number(b.match(/\d+/)[0]) - Number(a.match(/\d+/)[0]))
+      .slice(0,30);
+    const records = [];
+    for (const file of files) {
+      const record = await readJson(join(dataDir, 'speakers-history', file));
+      records.push({ revision: record.revision, updatedAt: record.updatedAt,
+        count: record.speakers.filter((speaker) => speaker.visible).length });
+    }
+    return records;
+  }
+
   const server = http.createServer(async (request, response) => {
     const uri = new URL(request.url || '/', 'http://localhost');
     const pathname = uri.pathname;
@@ -246,6 +291,14 @@ export async function createProgrammeServer({ distDir, adminDir, dataDir, origin
         });
         return;
       }
+      if (method === 'GET' && pathname === '/api/speakers') {
+        const state = await readJson(speakerPublishedPath);
+        send(response, 200, {
+          revision: state.revision,
+          speakers: state.speakers.filter((speaker) => speaker.visible),
+        });
+        return;
+      }
       if (method === 'GET' && pathname === '/api/programme') {
         const state = await readJson(publishedPath);
         send(response, 200, { revision: state.revision, programme: state.programme });
@@ -254,6 +307,33 @@ export async function createProgrammeServer({ distDir, adminDir, dataDir, origin
       const picture = /^\/api\/programme\/image\/([a-f0-9]{28}\.(?:jpg|png|webp))$/.exec(pathname);
       if (method === 'GET' && picture) {
         await fileResponse(response, join(dataDir, 'images', picture[1]));
+        return;
+      }
+      if (method === 'GET' && (
+        pathname === '/programme-admin/speakers' ||
+        pathname === '/programme-admin/speakers/'
+      )) {
+        if (!sessionFrom(request)) {
+          response.writeHead(302, {
+            Location: '/programme-admin/',
+            'Cache-Control': 'no-store',
+            'X-Content-Type-Options': 'nosniff',
+          });
+          response.end();
+          return;
+        }
+        await fileResponse(response, join(adminDir, 'speakers.html'), null, { admin: true });
+        return;
+      }
+      if (method === 'GET' && pathname === '/programme-admin/speakers-editor.js') {
+        if (!authenticated(request, response)) return;
+        await fileResponse(response, join(adminDir, 'speakers-editor.js'), null, { admin: true });
+        return;
+      }
+      if (method === 'GET' && pathname === '/programme-admin/speakers/preview') {
+        if (!authenticated(request, response)) return;
+        await fileResponse(response, join(distDir, 'index.html'), 'text/html; charset=utf-8',
+          { admin: true, preview: true });
         return;
       }
       if (
@@ -326,22 +406,44 @@ export async function createProgrammeServer({ distDir, adminDir, dataDir, origin
         );
         return;
       }
-      if (!pathname.startsWith('/api/programme/')) {
+      if (!pathname.startsWith('/api/programme/') && !pathname.startsWith('/api/speakers/')) {
         send(response, 404, { error: 'Не найдено.' });
         return;
       }
       const session = authenticated(request, response);
       if (!session) return;
 
+      if (method === 'GET' && pathname === '/api/speakers/preview') {
+        const state = await readJson(speakerDraftPath);
+        send(response, 200, {
+          revision: state.revision,
+          speakers: state.speakers.filter((speaker) => speaker.visible),
+        });
+        return;
+      }
+      if (method === 'GET' && pathname === '/api/speakers/admin') {
+        const [draft, published, history, portraits] = await Promise.all([
+          readJson(speakerDraftPath), readJson(speakerPublishedPath),
+          speakerHistory(), imagesList(),
+        ]);
+        send(response, 200, {
+          draft,
+          published: { revision: published.revision, updatedAt: published.updatedAt,
+            speakers: published.speakers },
+          history,
+          // The speaker editor does not need unrelated illustration and banner images.
+          portraits: portraits.filter((image) =>
+            image.group !== 'Фотографии спикеров' || /^speaker[-_.]/i.test(image.name)),
+        });
+        return;
+      }
       if (method === 'GET' && pathname === '/api/programme/people') {
         // Use the existing speaker directory; keep people data in one source of truth.
-        const entries = await readJson(join(distDir, '..', 'src', 'speakers.json')).catch(() => []);
-        const people = entries.filter((person) =>
-          typeof person.name === 'string' && person.name.trim()).map((person) => ({
+        const entries = (await readJson(speakerPublishedPath)).speakers;
+        const people = entries.filter((person) => person.visible).map((person) => ({
           name: person.name,
-          role: typeof person.role === 'string' ? person.role : '',
-          photo: typeof person.image === 'string' && /^[\w-]+\.png$/.test(person.image)
-            ? '/assets/figma/' + person.image.replace(/\.png$/, '.webp') : '',
+          role: person.role,
+          photo: speakerPhotoUrl(person),
         }));
         send(response, 200, { people });
         return;
@@ -367,6 +469,80 @@ export async function createProgrammeServer({ distDir, adminDir, dataDir, origin
         return;
       }
       if (!requireMutation(request, response, session, validOrigins)) return;
+      if (method === 'POST' && pathname === '/api/speakers/validate') {
+        const body = await jsonBody(request);
+        send(response, 200, {
+          speakers: validateSpeakers(body.speakers, { publishing: !!body.publishing }),
+        });
+        return;
+      }
+      if (method === 'PUT' && pathname === '/api/speakers/draft') {
+        const body = await jsonBody(request);
+        const clean = validateSpeakers(body.speakers);
+        const saved = await serial(async () => {
+          const old = await readJson(speakerDraftPath);
+          if (body.expectedRevision !== old.revision)
+            throw new ProgrammeError('conflict',
+              'Черновик спикеров изменился в другой вкладке. Обновите редактор.');
+          const next = { revision: old.revision + 1,
+            updatedAt: new Date().toISOString(), speakers: clean };
+          await atomicWrite(speakerDraftPath, next);
+          return next;
+        });
+        send(response, 200, { draft: saved });
+        return;
+      }
+      if (method === 'POST' && pathname === '/api/speakers/publish') {
+        const body = await jsonBody(request);
+        const saved = await serial(async () => {
+          const [draft,current] = await Promise.all([
+            readJson(speakerDraftPath), readJson(speakerPublishedPath),
+          ]);
+          if (body.expectedRevision !== draft.revision ||
+              body.expectedPublishedRevision !== current.revision)
+            throw new ProgrammeError('conflict',
+              'Спикеры изменились в другой вкладке. Обновите редактор.');
+          const valid = validateSpeakers(draft.speakers, { publishing: true });
+          const next = { revision: current.revision + 1,
+            updatedAt: new Date().toISOString(), speakers: valid };
+          await atomicWrite(
+            join(dataDir, 'speakers-history', 'revision-' + current.revision + '.json'),
+            current,
+          );
+          await atomicWrite(speakerPublishedPath, next);
+          return next;
+        });
+        send(response, 200, {
+          published: { revision: saved.revision, updatedAt: saved.updatedAt },
+        });
+        return;
+      }
+      if (method === 'POST' && pathname === '/api/speakers/restore') {
+        const body = await jsonBody(request);
+        const revision = Number(body.revision);
+        if (!Number.isSafeInteger(revision) || revision < 1)
+          throw new ProgrammeError('invalid_revision', 'Некорректная версия спикеров.');
+        const saved = await serial(async () => {
+          const archived = await readJson(
+            join(dataDir, 'speakers-history', 'revision-' + revision + '.json')
+          ).catch((error) => {
+            if (error.code === 'ENOENT')
+              throw new ProgrammeError('invalid_revision', 'Такая версия спикеров не найдена.');
+            throw error;
+          });
+          const draft = await readJson(speakerDraftPath);
+          if (draft.revision !== body.expectedRevision)
+            throw new ProgrammeError('conflict',
+              'Черновик спикеров изменился в другой вкладке.');
+          const next = { revision: draft.revision + 1,
+            updatedAt: new Date().toISOString(),
+            speakers: validateSpeakers(archived.speakers) };
+          await atomicWrite(speakerDraftPath, next);
+          return next;
+        });
+        send(response, 200, { draft: saved });
+        return;
+      }
       if (method === 'POST' && pathname === '/api/programme/logout') {
         const raw = (request.headers.cookie || '').match(/(?:^|;\s*)dt_programme_sid=([a-f0-9]+)/);
         if (raw) cookies.delete(raw[1]);

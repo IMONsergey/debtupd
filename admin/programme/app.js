@@ -207,7 +207,10 @@ function topBar() {
   return '<header class="topbar">' +
     '<div class="top-brand"><span class="brand-mark">DEBT <strong>TECH</strong></span>' +
     '<span class="brand-divider"></span><div class="top-title"><h1>Программа форума</h1>' +
-    '<p>Редактор расписания <span class="environment">Песочница</span></p></div></div>' +
+    '<p>Редактор расписания <span class="environment">Продакшен</span></p></div></div>' +
+    '<nav class="admin-section-nav" aria-label="Разделы админки">' +
+    '<a href="/programme-admin/" class="active" aria-current="page">Программа</a>' +
+    '<a href="/programme-admin/speakers/">Спикеры</a></nav>' +
     '<div class="toolbar"><div class="top-status" aria-live="polite"><span class="save-indicator"></span><span id="save-state"></span></div>' +
     button('Предпросмотр', 'preview', 'subtle', 'id="preview-programme"') +
     button('Сохранить', 'save', 'subtle save', 'id="save-draft" aria-label="Сохранить черновик" title="Сохранить черновик (⌘/Ctrl+S)"') +

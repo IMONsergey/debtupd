@@ -324,13 +324,15 @@ export function SpeakerCollection({ speakers }) {
         {speakers.map((speaker, i) => (
           <article
             className="speaker"
-            key={speaker.name}
+            key={speaker.id || speaker.name}
             data-slide-start={pageStarts.includes(i) ? '' : undefined}
             aria-label={`${i + 1} из ${speakers.length}: ${speaker.name}`}
           >
             <div className="speaker-portrait">
               <img
-                src={assetUrl('assets/figma/' + speaker.image.replace('.png', '.webp'))}
+                src={speaker.photo || (speaker.image
+                  ? assetUrl('assets/figma/' + speaker.image.replace(/\.png$/i, '.webp'))
+                  : assetUrl('assets/figma/speaker-hd-01.webp'))}
                 width="1071"
                 height="876"
                 alt={speaker.name}

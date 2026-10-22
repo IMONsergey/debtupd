@@ -525,6 +525,29 @@ function Topics() {
   );
 }
 function Speakers() {
+  const isPreview = window.location.pathname === '/programme-admin/speakers/preview';
+  const [roster, setRoster] = useState(speakers);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(isPreview ? '/api/speakers/preview' : '/api/speakers', {
+      cache: 'no-store',
+      credentials: 'same-origin',
+      signal: controller.signal,
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Speaker CMS unavailable');
+        return response.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data.speakers))
+          setRoster(data.speakers.filter((person) => person.visible !== false));
+      })
+      .catch(() => {
+        // On startup and offline builds, keep the original published production roster.
+        // A private draft is never loaded into the public carousel.
+      });
+    return () => controller.abort();
+  }, [isPreview]);
   return (
     <section className="section speakers" id="speakers">
       <Picture name="speakers-rocket.png" className="speakers-rocket decor" />
@@ -535,7 +558,9 @@ function Speakers() {
         <br />
         DEBT TECH 2026
       </SectionTitle>
-      <SpeakerCollection speakers={speakers} />
+      {roster.length
+        ? <SpeakerCollection speakers={roster} />
+        : <p className="speakers-empty">Состав спикеров уточняется.</p>}
       <div className="speakers-note-wrap">
         <div className="speakers-note">
           <span>Финальный состав спикеров согласовывается</span>

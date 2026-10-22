@@ -13,6 +13,8 @@ test('programme CMS isolates drafts, validates auth, publishes and restores hist
   await mkdir(join(distDir, 'data'), { recursive: true });
   const seed = JSON.parse(await readFile(resolve('public/data/programme-seed.json'), 'utf8'));
   await writeFile(join(distDir, 'data/programme-seed.json'), JSON.stringify(seed));
+  const speakersSeed = JSON.parse(await readFile(resolve('public/data/speakers-seed.json'), 'utf8'));
+  await writeFile(join(distDir, 'data/speakers-seed.json'), JSON.stringify(speakersSeed));
   const password = randomBytes(24).toString('base64url');
   await mkdir(dataDir, { recursive: true });
   await writeFile(join(dataDir, 'auth.json'), JSON.stringify(hashPassword(password)));

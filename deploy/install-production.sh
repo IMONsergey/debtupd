@@ -13,6 +13,10 @@ test -s "$source/server/forms-telegram.mjs"
 test -s "$source/admin/programme/index.html"
 test -s "$source/dist/data/programme-seed.json"
 test -s "$source/server/programme-service.mjs"
+test -s "$source/server/speakers-schema.mjs"
+test -s "$source/admin/programme/speakers.html"
+test -s "$source/admin/programme/speakers-editor.js"
+test -s "$source/dist/data/speakers-seed.json"
 test -s "$source/src/speakers.json"
 test "$(readlink -f "$root/current")" = "$expected"
 node="$root/toolchain/node-v22/bin/node"
@@ -28,6 +32,9 @@ install -m 600 "$root/env/forms.env" "$backup/forms.env"
 dropin=/etc/systemd/system/debt-2026-lite-forms.service.d/20-debtupd-release.conf
 if [[ -f "$dropin" ]]; then cp -a "$dropin" "$backup/20-debtupd-release.conf"; fi
 install -m 700 "$source/deploy/rollback-production.sh" "$backup/rollback.sh"
+runtime_server="$root/programme-runtime/server"
+test -s "$runtime_server/programme-service.mjs"
+cp -a "$runtime_server" "$backup/programme-server.before"
 
 # Retain older content-addressed assets for visitors with a previously opened page.
 cp -an "$expected/assets/." "$source/dist/assets/"
@@ -74,8 +81,11 @@ done
 curl --fail --silent http://127.0.0.1:32026/health
 ln -sfn "$source/dist" "$root/current.next"
 mv -Tf "$root/current.next" "$root/current"
-# Keep the protected editor and its draft preview aligned with the new website release.
+# Backend is intentionally outside releases. Update it alongside the frontend.
 if systemctl is-active --quiet debt-2026-lite-programme.service; then
+    for module in programme-admin.mjs programme-service.mjs programme-schema.mjs speakers-schema.mjs; do
+        install -m 644 "$source/server/$module" "$runtime_server/$module"
+    done
     systemctl restart debt-2026-lite-programme.service
     for attempt in {1..20}; do
         if curl --fail --silent http://127.0.0.1:32030/health; then break; fi

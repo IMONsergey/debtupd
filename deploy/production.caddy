@@ -15,6 +15,11 @@ debt-2026-lite.176.98.177.253.sslip.io, debt-tech.ru, www.debt-tech.ru {
                 header_up X-Client-IP {remote_host}
             }
         }
+        handle /api/speakers* {
+            reverse_proxy 127.0.0.1:32030 {
+                header_up X-Client-IP {remote_host}
+            }
+        }
         handle /programme-admin {
             reverse_proxy 127.0.0.1:32030 {
                 header_up X-Client-IP {remote_host}
