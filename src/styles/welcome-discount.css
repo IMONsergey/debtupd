@@ -215,7 +215,11 @@
   font-size: clamp(65px, 7.1vw, 84px);
   font-weight: 400;
   line-height: .93;
-  letter-spacing: .245em;
+  /* Optical adjustment: Bebas glyphs lean left within their letter-spacing box.
+     Redistribute 17px into left padding and reduce tracking so the actual
+     WELCOME glyphs align with the center of the blue panel. */
+  letter-spacing: .215em;
+  padding-left: 17px;
   text-align: center;
   user-select: all;
   white-space: nowrap;
@@ -399,6 +403,7 @@
     font-size: clamp(40px, calc(16.5vw - 13px), 85px);
     line-height: .94;
     letter-spacing: .18em;
+    padding-left: 0;
   }
   .welcome-discount__copy {
     min-width: 36px; width: 36px; height: 42px;

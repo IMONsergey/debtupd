@@ -5,23 +5,7 @@ import { assetUrl } from '../lib/assets.js';
 import { useDialog } from '../lib/useDialog.js';
 
 export const DISCOUNT_PROMO_CODE = 'WELCOME';
-export const DISCOUNT_DELAY_MS = 60_000;
-const DISMISSED_KEY = 'debt2026-welcome50-dismissed';
-
-function readSession(key) {
-  try {
-    return sessionStorage.getItem(key);
-  } catch {
-    return null;
-  }
-}
-function writeSession(key, value) {
-  try {
-    sessionStorage.setItem(key, String(value));
-  } catch {
-    // Private browsing may deny storage: the offer still works in this document.
-  }
-}
+export const DISCOUNT_DELAY_MS = 10_000;
 async function copyPromoCode() {
   if (navigator.clipboard?.writeText) {
     try {
@@ -160,11 +144,10 @@ function DiscountDialog({ onClose, onTariffs }) {
 }
 
 export function WelcomeDiscountOffer({ blocked = false }) {
-  // A new document load always starts a fresh 60-second countdown. In particular,
-  // do not reuse a timestamp from sessionStorage: it made returning users see the
-  // offer immediately after refreshing or reopening the site in the same tab.
+  // A fresh visit always opens the offer after 10 seconds, even if an earlier
+  // visit dismissed it. Only keep dismissal within the current document lifetime.
   const [due, setDue] = useState(false);
-  const [dismissed, setDismissed] = useState(() => readSession(DISMISSED_KEY) === '1');
+  const [dismissed, setDismissed] = useState(false);
   const [reopened, setReopened] = useState(false);
   const [ready, setReady] = useState(() => !document.getElementById('site-preloader'));
 
@@ -184,7 +167,10 @@ export function WelcomeDiscountOffer({ blocked = false }) {
     armCountdown();
     // Restoring an old document from the back-forward cache counts as a new visit.
     const onPageShow = (event) => {
-      if (event.persisted) armCountdown();
+      if (!event.persisted) return;
+      setDismissed(false);
+      setReopened(false);
+      armCountdown();
     };
     const preloaderDone = () => setReady(true);
     window.addEventListener('pageshow', onPageShow);
@@ -198,7 +184,7 @@ export function WelcomeDiscountOffer({ blocked = false }) {
   }, []);
 
   const close = useCallback(() => {
-    writeSession(DISMISSED_KEY, '1');
+    // The reopen chip is only shown after this user closes the actual popup.
     setDismissed(true);
     setReopened(false);
   }, []);

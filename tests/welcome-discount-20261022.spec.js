@@ -16,18 +16,23 @@ async function ready(page, url = '/') {
   await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 30000 });
 }
 async function show(page) {
-  await page.clock.fastForward(60_100);
+  await page.clock.fastForward(10_100);
   await expect(page.getByRole('dialog', { name: 'Скидка' })).toBeVisible();
 }
 
-test('the new offer opens once after a fresh 60 seconds, never immediately, and is not the retired popup', async ({ page }) => {
+test('10-second popup auto-opens despite legacy stored dismissal and never immediately', async ({ page }) => {
   // Emulate the stale session timestamp that caused the previous immediate popup.
-  await page.addInitScript(() => sessionStorage.setItem('debt2026-welcome50-entry-at', '1'));
+  await page.addInitScript(() => {
+    sessionStorage.setItem('debt2026-welcome50-entry-at', '1');
+    sessionStorage.setItem('debt2026-welcome50-dismissed', '1');
+  });
   await ready(page);
   await expect(page.locator(promo)).toHaveCount(0);
-  await page.clock.fastForward(50_000);
+  await expect(page.locator(closedBadge)).toHaveCount(0);
+  await page.clock.fastForward(4_000);
   await expect(page.locator(promo)).toHaveCount(0);
-  await page.clock.fastForward(10_200);
+  await expect(page.locator(closedBadge)).toHaveCount(0);
+  await page.clock.fastForward(6_200);
   await expect(page.locator(promo)).toHaveCount(1);
   await expect(page.locator('.ticket-offer-modal')).toHaveCount(0);
   await expect(page.locator('.welcome-discount__percent')).toHaveText('50%');
@@ -47,22 +52,24 @@ test('the new offer opens once after a fresh 60 seconds, never immediately, and 
   await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 30000 });
   await expect(page.locator(promo)).toHaveCount(0);
   await expect(page.locator(closedBadge)).toHaveCount(0);
-  await page.clock.fastForward(60_200);
-  await expect(page.locator(promo)).toHaveCount(0);
+  await page.clock.fastForward(10_200);
+  await expect(page.locator(promo)).toBeVisible();
+  await page.locator(promo).getByRole('button', { name: 'Закрыть предложение' }).click();
   await expect(page.locator(closedBadge)).toBeVisible();
   await page.getByRole('button', { name: 'Открыть предложение со скидкой 50%' }).click();
   await expect(page.locator(promo)).toBeVisible();
 });
 
-test('reloading the page starts a new full minute even when the popup was previously visible', async ({ page }) => {
+test('reloading starts a new ten-second countdown even after previous display', async ({ page }) => {
   await ready(page);
   await show(page);
   await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 30000 });
   await expect(page.locator(promo)).toHaveCount(0);
-  await page.clock.fastForward(50_000);
+  await page.clock.fastForward(4_000);
   await expect(page.locator(promo)).toHaveCount(0);
-  await page.clock.fastForward(10_200);
+  await expect(page.locator(closedBadge)).toHaveCount(0);
+  await page.clock.fastForward(6_200);
   await expect(page.locator(promo)).toBeVisible();
 });
 
@@ -91,7 +98,7 @@ test('offer waits until the registration form is closed, without interrupting it
   await ready(page);
   await page.locator('.tariff--business').getByRole('button', { name: 'Принять участие' }).click();
   await expect(page.locator('[role="dialog"].form-dialog--business')).toBeVisible();
-  await page.clock.fastForward(60_100);
+  await page.clock.fastForward(10_100);
   await expect(page.locator(promo)).toHaveCount(0);
   await page.locator('[role="dialog"].form-dialog--business')
     .getByRole('button', { name: 'Закрыть форму' }).click();
@@ -225,7 +232,9 @@ test('reference composition at 658×700 is 580×550 with the centered full-size 
   expect(geometry.promoHeight).toBeLessThanOrEqual(96);
   expect(geometry.promoTextFits).toBe(true);
   expect(geometry.promoTextSize).toBeGreaterThanOrEqual(82);
-  expect(Math.abs(geometry.textCenterOffset)).toBeLessThanOrEqual(2);
+  // Bebas glyphs need an +8.5px optical correction in the full-size panel.
+  expect(geometry.textCenterOffset).toBeGreaterThanOrEqual(7);
+  expect(geometry.textCenterOffset).toBeLessThanOrEqual(10);
   expect(geometry.astronautFits).toBe(true);
   expect(geometry.buttonWidth).toBeGreaterThanOrEqual(220);
   expect(geometry.buttonWidth).toBeLessThanOrEqual(230);
