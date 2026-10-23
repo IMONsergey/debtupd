@@ -318,39 +318,10 @@
 }
 .welcome-discount__cta:hover { filter: brightness(1.16); transform: translateY(-1px); }
 .welcome-discount__cta svg { flex: 0 0 auto; }
-.welcome-discount button:focus-visible,
-.welcome-discount-reopen:focus-visible {
+.welcome-discount button:focus-visible {
   outline: 2px solid #70dcff;
   outline-offset: 3px;
 }
-.welcome-discount-reopen {
-  position: fixed;
-  z-index: 10021;
-  bottom: max(20px, env(safe-area-inset-bottom));
-  right: max(20px, env(safe-area-inset-right));
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 48px;
-  padding: 7px 17px 7px 10px;
-  border: 1px solid rgba(80, 189, 255, .6);
-  border-radius: 8px;
-  background: linear-gradient(110deg, #012952, #0b5dac);
-  box-shadow: 0 8px 27px rgba(0, 5, 22, .45);
-  color: #fff;
-  cursor: pointer;
-}
-.welcome-discount-reopen__value {
-  font: 500 21px/1 'IBM Plex Sans', sans-serif;
-  color: #66d8ff;
-}
-.welcome-discount-reopen__label {
-  font: 500 11px/1.35 'IBM Plex Sans', sans-serif;
-  letter-spacing: .03em;
-}
-.welcome-discount-reopen:hover { filter: brightness(1.16); }
-
-
 @media (max-width: 900px) {
   .welcome-discount {
     min-height: min(550px, calc(100dvh - 28px));
@@ -434,10 +405,6 @@
     font-size: 13px;
   }
   .welcome-discount__cta svg { width: 22px; }
-  .welcome-discount-reopen {
-    right: 13px;
-    bottom: max(13px, env(safe-area-inset-bottom));
-  }
 }
 @media (max-width: 370px) {
   .welcome-discount { padding: 19px 13px 17px; }

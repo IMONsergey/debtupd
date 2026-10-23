@@ -1,0 +1,207 @@
+/* Mobile programme stage selector. All stages remain in the CMS; the
+   counter and arrows make the available third stage explicit on small screens. */
+.forum-programme__stage-navigation,
+.forum-programme__stage-help {
+  display: none;
+}
+
+@media (max-width: 699px) {
+  .forum-programme__stage-selector {
+    margin: 0 0 23px;
+  }
+
+  .forum-programme__stage-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    min-height: 44px;
+    margin-bottom: 10px;
+  }
+
+  .forum-programme__stage-progress {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+    color: #8ebfe6;
+    font: 500 14px/1.25 'IBM Plex Sans', sans-serif;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .forum-programme__stage-progress > strong {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: .02em;
+  }
+
+  .forum-programme__stage-progress > span:first-child {
+    margin-right: 4px;
+  }
+
+  .forum-programme__stage-progress > span:not(:first-child) {
+    color: #549ad0;
+    font-size: 16px;
+  }
+
+  .forum-programme__stage-arrows {
+    display: flex;
+    gap: 8px;
+    flex: none;
+  }
+
+  .forum-programme__stage-arrows button {
+    display: grid;
+    place-items: center;
+    width: 43px;
+    height: 43px;
+    padding: 0;
+    color: #b5e2ff;
+    background: #0c335b;
+    border: 1px solid #4983b5;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background-color 150ms ease, border-color 150ms ease;
+  }
+
+  .forum-programme__stage-arrows button:hover,
+  .forum-programme__stage-arrows button:focus-visible {
+    color: #fff;
+    background: #10538f;
+    border-color: #53bafc;
+  }
+
+  .forum-programme__stages {
+    display: block;
+    overflow: visible;
+    padding: 0;
+    margin: 0;
+    scroll-snap-type: none;
+  }
+
+  .forum-programme__stage {
+    display: none;
+    width: 100%;
+    min-height: 76px;
+    padding: 13px 16px;
+    margin: 0;
+  }
+
+  .forum-programme__stage--selected {
+    display: flex;
+  }
+
+  .forum-programme__stage-copy strong {
+    font-size: clamp(13px, 3.7vw, 16px);
+    line-height: 1.35;
+  }
+
+  .forum-programme__stage-copy small {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .forum-programme__stage-help {
+    display: block;
+    margin: 8px 0 0;
+    color: #86accb;
+    font: 400 11px/1.4 'IBM Plex Sans', sans-serif;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forum-programme__stage-arrows button {
+    transition: none;
+  }
+}
+
+/* Venue photo: shift visual emphasis toward the hall rather than foreground
+   camera operators. No image asset or user-facing copy is modified. */
+@media (max-width: 767px) {
+  .venue-hero-card__photo img {
+    object-position: 50% 0;
+    transform: scale(1.34);
+    transform-origin: center top;
+    filter: brightness(.91) saturate(1.08);
+  }
+
+  .venue-hero-card__photo::after {
+    background:
+      linear-gradient(180deg,
+        rgba(1, 10, 27, .97) 0%,
+        rgba(1, 15, 34, .90) 24%,
+        rgba(1, 15, 35, .39) 54%,
+        rgba(1, 13, 34, .82) 100%);
+  }
+
+  .venue-hero-card__details {
+    text-shadow: 0 2px 14px rgba(0, 8, 23, .95);
+  }
+}
+
+/* Compact contact line, larger organizer identity, and a clear hierarchy.
+   The same original SVG is used; it is never scaled non-proportionally. */
+@media (max-width: 599px) {
+  .mobile-info .info-meta {
+    gap: 16px;
+    padding: 13px 0 22px;
+    border-top: 1px solid rgba(114, 175, 226, .16);
+    border-bottom-color: rgba(114, 175, 226, .28);
+  }
+
+  .mobile-info .info-contact {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .mobile-info .info-contact a {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    width: max-content;
+    max-width: 100%;
+    gap: 7px;
+    margin: 0;
+    font-size: clamp(16px, 4.2vw, 18px);
+    font-weight: 500;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .mobile-info .info-contact a svg {
+    flex: none;
+  }
+
+  .mobile-info .info-organizers {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    justify-content: start;
+    gap: 10px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .mobile-info .info-organizers img {
+    display: block;
+    width: min(100%, 356px);
+    max-width: 100%;
+    max-height: none;
+    height: auto;
+    margin: 0;
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  .mobile-info .info-organizers .meta-label {
+    line-height: 1.4;
+  }
+}

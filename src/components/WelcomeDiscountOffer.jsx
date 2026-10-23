@@ -193,7 +193,6 @@ export function WelcomeDiscountOffer({ blocked = false }) {
   // when the user previously dismissed the offer in another page session.
   const [due, setDue] = useState(false);
   const [dismissed, setDismissed] = useState(false);
-  const [reopened, setReopened] = useState(false);
   const [ready, setReady] = useState(() => !document.getElementById('site-preloader'));
 
   useEffect(() => {
@@ -214,7 +213,6 @@ export function WelcomeDiscountOffer({ blocked = false }) {
     const onPageShow = (event) => {
       if (!event.persisted) return;
       setDismissed(false);
-      setReopened(false);
       armCountdown();
     };
     const preloaderDone = () => setReady(true);
@@ -229,9 +227,9 @@ export function WelcomeDiscountOffer({ blocked = false }) {
   }, []);
 
   const close = useCallback(() => {
-    // The reopen chip is only shown after this user closes the actual popup.
+    // Closing the offer permanently dismisses it for this page view. Do not
+    // leave a floating marketing badge over the main content.
     setDismissed(true);
-    setReopened(false);
   }, []);
 
   const toTariffs = useCallback(() => {
@@ -250,22 +248,7 @@ export function WelcomeDiscountOffer({ blocked = false }) {
     });
   }, [close]);
 
-  const isOpen = ready && due && !blocked && (!dismissed || reopened);
-
-  return (
-    <>
-      {isOpen && <DiscountDialog onClose={close} onTariffs={toTariffs} />}
-      {ready && due && !blocked && dismissed && !reopened && (
-        <button
-          type="button"
-          className="welcome-discount-reopen"
-          onClick={() => setReopened(true)}
-          aria-label="Открыть предложение со скидкой 50%"
-        >
-          <span className="welcome-discount-reopen__value">−50%</span>
-          <span className="welcome-discount-reopen__label">Промокод WELCOME</span>
-        </button>
-      )}
-    </>
-  );
+  return ready && due && !blocked && !dismissed
+    ? <DiscountDialog onClose={close} onTariffs={toTariffs} />
+    : null;
 }

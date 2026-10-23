@@ -45,7 +45,7 @@ test('60-second popup auto-opens despite legacy stored dismissal and never immed
   await expect(page.locator('.welcome-discount__copy')).toHaveCount(1);
   await page.locator(promo).getByRole('button', { name: 'Закрыть предложение' }).click();
   await expect(page.locator(promo)).toHaveCount(0);
-  await expect(page.locator(closedBadge)).toBeVisible();
+  await expect(page.locator(closedBadge)).toHaveCount(0);
   await page.clock.fastForward(120_000);
   await expect(page.locator(promo)).toHaveCount(0);
   await page.reload({ waitUntil: 'domcontentloaded' });
@@ -55,9 +55,8 @@ test('60-second popup auto-opens despite legacy stored dismissal and never immed
   await page.clock.fastForward(60_200);
   await expect(page.locator(promo)).toBeVisible();
   await page.locator(promo).getByRole('button', { name: 'Закрыть предложение' }).click();
-  await expect(page.locator(closedBadge)).toBeVisible();
-  await page.getByRole('button', { name: 'Открыть предложение со скидкой 50%' }).click();
-  await expect(page.locator(promo)).toBeVisible();
+  await expect(page.locator(closedBadge)).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Открыть предложение со скидкой 50%' })).toHaveCount(0);
 });
 
 test('reloading starts a new sixty-second countdown even after previous display', async ({ page }) => {
@@ -81,6 +80,9 @@ test('copy icon writes WELCOME to the actual clipboard and reports success', asy
   await expect(page.getByRole('button', { name: 'Промокод скопирован' })).toBeVisible();
   await expect(page.locator('.welcome-discount__copy-status')).toContainText('WELCOME скопирован');
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('WELCOME');
+  await expect(page.locator(closedBadge)).toHaveCount(0);
+  await page.getByRole('button', { name: 'Закрыть предложение' }).click();
+  await expect(page.locator(closedBadge)).toHaveCount(0);
 });
 
 test('tariff button closes modal and scrolls to real tariff plans without changing current path', async ({ page }) => {
@@ -91,7 +93,7 @@ test('tariff button closes modal and scrolls to real tariff plans without changi
   await expect(page).toHaveURL(/\/2\/#tariff-plans$/);
   const top = await page.locator('#tariff-plans').evaluate((node) => node.getBoundingClientRect().top);
   expect(top).toBeLessThan(130);
-  await expect(page.locator(closedBadge)).toBeVisible();
+  await expect(page.locator(closedBadge)).toHaveCount(0);
 });
 
 test('offer waits until the registration form is closed, without interrupting it', async ({ page }) => {
@@ -189,7 +191,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     });
     await page.keyboard.press('Escape');
     await expect(page.locator(promo)).toHaveCount(0);
-    await expect(page.locator(closedBadge)).toBeVisible();
+    await expect(page.locator(closedBadge)).toHaveCount(0);
   });
 }
 

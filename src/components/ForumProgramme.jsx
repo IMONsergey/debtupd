@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Minus, Plus, UserRound } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Minus, Plus, UserRound } from 'lucide-react';
 import speakers from '../speakers.json';
 import { forumProgramme } from '../programme-data.js';
 import { assetUrl } from '../lib/assets.js';
@@ -200,11 +200,34 @@ function ProgrammeStageTabs({ selected, onSelect, tabs }) {
     else return;
     event.preventDefault();
     onSelect(tabs[next].id);
-    tabRefs.current[next]?.focus();
+    requestAnimationFrame(() => tabRefs.current[next]?.focus());
   }
 
+  const activeIndex = Math.max(0, tabs.findIndex((item) => item.id === selected));
+  const moveStage = (step) => {
+    if (!tabs.length) return;
+    onSelect(tabs[(activeIndex + step + tabs.length) % tabs.length].id);
+  };
+
   return (
-    <div className="forum-programme__stages" role="tablist" aria-label="Выбор сцены">
+    <div className="forum-programme__stage-selector">
+      <div className="forum-programme__stage-navigation" aria-label="Навигация между сценами">
+        <div className="forum-programme__stage-progress" aria-live="polite">
+          <span>Сцена</span>
+          <strong>{String(activeIndex + 1).padStart(2, '0')}</strong>
+          <span aria-hidden="true">/</span>
+          <strong>{String(tabs.length).padStart(2, '0')}</strong>
+        </div>
+        <div className="forum-programme__stage-arrows">
+          <button type="button" aria-label="Предыдущая сцена" onClick={() => moveStage(-1)}>
+            <ArrowLeft size={19} strokeWidth={1.8} aria-hidden="true" />
+          </button>
+          <button type="button" aria-label="Следующая сцена" onClick={() => moveStage(1)}>
+            <ArrowRight size={19} strokeWidth={1.8} aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+      <div className="forum-programme__stages" role="tablist" aria-label="Выбор сцены">
       {tabs.map((stage, index) => {
         const active = selected === stage.id;
         return (
@@ -235,6 +258,8 @@ function ProgrammeStageTabs({ selected, onSelect, tabs }) {
           </button>
         );
       })}
+      </div>
+      <p className="forum-programme__stage-help">Переключайте сцены стрелками</p>
     </div>
   );
 }

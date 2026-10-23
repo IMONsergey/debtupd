@@ -54,8 +54,13 @@ for (const [width, height] of [
         overlay: getComputedStyle(visual, '::after').backgroundImage,
       };
     });
-    expect(photoTreatment.brightness).toContain('brightness(0.88)');
-    expect(photoTreatment.overlay).toContain('0.35');
+    if (width <= 767) {
+      expect(photoTreatment.brightness).toContain('brightness(0.91)');
+      expect(photoTreatment.overlay).toContain('0.97');
+    } else {
+      expect(photoTreatment.brightness).toContain('brightness(0.88)');
+      expect(photoTreatment.overlay).toContain('0.35');
+    }
     await expect(card.locator('h2')).toContainText(venueName);
     await expect(card.locator('h2')).toContainText('пространство музыкальных культур');
     await expect(card.locator('p')).toHaveText(address);

@@ -17,13 +17,13 @@ for (const width of [390, 1440]) {
     expect(await page.evaluate(() => sessionStorage.getItem('debt2026-early-booking-dismissed'))).toBeNull();
 
     await expect(page.locator('.ticket-offer-modal')).toHaveCount(0);
-    await page.clock.fastForward(35_000);
+    await page.clock.fastForward(60_100);
     await expect(page.locator('.ticket-offer-modal')).toHaveCount(0);
     const welcome = page.getByRole('dialog', { name: 'Скидка' });
     await expect(welcome).toBeVisible();
     await welcome.getByRole('button', { name: 'Закрыть предложение' }).click();
     await expect(welcome).toHaveCount(0);
-    await expect(page.locator('.welcome-discount-reopen')).toBeVisible();
+    await expect(page.locator('.welcome-discount-reopen')).toHaveCount(0);
     await expect(page.locator('#root')).not.toHaveAttribute('inert', '');
 
     // The regular registration CTA and tariff modal remain functional.

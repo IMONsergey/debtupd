@@ -25,6 +25,7 @@ import './styles/fincifra-seminar.css';
 import './styles/online-tariff.css';
 import './styles/venue-directions.css';
 import './styles/welcome-pass.css';
+import './styles/mobile-final-polish.css';
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />

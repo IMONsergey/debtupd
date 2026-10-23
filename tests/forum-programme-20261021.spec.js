@@ -30,17 +30,17 @@ for (const width of [320, 390, 600, 768, 1024, 1440, 1920]) {
     })).toBeVisible();
     // The CMS has no public navigation entry: it is opened only by direct URL.
     await expect(page.locator('a[href*="programme-admin"]')).toHaveCount(0);
-    await expect(section.getByRole('tab')).toHaveCount(3);
+    await expect(section.locator('.forum-programme__stage')).toHaveCount(3);
+    // On phones only the active stage is shown; the other two are reached by arrows.
+    await expect(section.getByRole('tab')).toHaveCount(width <= 699 ? 1 : 3);
     await expect(section.getByRole('tab', { name: /Большая сцена/ })).toHaveAttribute(
       'aria-selected',
       'true',
     );
-    await expect(section.getByRole('tab', { name: /Малая сцена/ })).toContainText(
-      'Программа уточняется',
-    );
-    await expect(section.getByRole('tab', { name: /Продуктовая сцена/ })).toContainText(
-      'Программа уточняется',
-    );
+    await expect(section.locator('.forum-programme__stage').filter({ hasText: 'Малая сцена' }))
+      .toContainText('Программа уточняется');
+    await expect(section.locator('.forum-programme__stage').filter({ hasText: 'Продуктовая сцена' }))
+      .toContainText('Программа уточняется');
 
     await expect(section.locator('.forum-programme__event')).toHaveCount(5);
     for (const [index, [time, label]] of events.entries()) {
@@ -187,12 +187,20 @@ for (const width of [320, 390, 600, 768, 1024, 1440, 1920]) {
     await session4.locator('.forum-programme__session-toggle').click();
     await expect(section.locator('.forum-programme__session--open')).toHaveCount(0);
 
-    await section.getByRole('tab', { name: /Малая сцена/ }).click();
+    if (width <= 699) {
+      await section.getByRole('button', { name: 'Следующая сцена' }).click();
+    } else {
+      await section.getByRole('tab', { name: /Малая сцена/ }).click();
+    }
     await expect(section.getByRole('tabpanel')).toContainText('Программа уточняется');
     await expect(section.locator('.forum-programme__session')).toHaveCount(0);
     await expect(section.locator('.forum-programme__event')).toHaveCount(2);
 
-    await section.getByRole('tab', { name: /Продуктовая сцена/ }).click();
+    if (width <= 699) {
+      await section.getByRole('button', { name: 'Следующая сцена' }).click();
+    } else {
+      await section.getByRole('tab', { name: /Продуктовая сцена/ }).click();
+    }
     await expect(section.getByRole('tabpanel')).toContainText('Программа уточняется');
     await section.getByRole('button', { name: 'Посмотреть большую сцену' }).click();
     await expect(section.locator('.forum-programme__session')).toHaveCount(4);

@@ -54,7 +54,7 @@ export const content = {
     bottomTitle:
       'Стратегии, технологии и инновационные сервисы для работы с долговыми обязательствами',
     countdownLabel: 'Время до запуска',
-    countdownTarget: '2026-11-13T00:00:00+03:00',
+    countdownTarget: '2026-11-13T10:00:00+03:00',
     countdown: [
       { value: '00', label: 'дней' },
       { value: '00', label: 'часов' },
