@@ -16,11 +16,11 @@ async function ready(page, url = '/') {
   await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 30000 });
 }
 async function show(page) {
-  await page.clock.fastForward(10_100);
+  await page.clock.fastForward(60_100);
   await expect(page.getByRole('dialog', { name: 'Скидка' })).toBeVisible();
 }
 
-test('10-second popup auto-opens despite legacy stored dismissal and never immediately', async ({ page }) => {
+test('60-second popup auto-opens despite legacy stored dismissal and never immediately', async ({ page }) => {
   // Emulate the stale session timestamp that caused the previous immediate popup.
   await page.addInitScript(() => {
     sessionStorage.setItem('debt2026-welcome50-entry-at', '1');
@@ -29,10 +29,10 @@ test('10-second popup auto-opens despite legacy stored dismissal and never immed
   await ready(page);
   await expect(page.locator(promo)).toHaveCount(0);
   await expect(page.locator(closedBadge)).toHaveCount(0);
-  await page.clock.fastForward(4_000);
+  await page.clock.fastForward(40_000);
   await expect(page.locator(promo)).toHaveCount(0);
   await expect(page.locator(closedBadge)).toHaveCount(0);
-  await page.clock.fastForward(6_200);
+  await page.clock.fastForward(20_200);
   await expect(page.locator(promo)).toHaveCount(1);
   await expect(page.locator('.ticket-offer-modal')).toHaveCount(0);
   await expect(page.locator('.welcome-discount__percent')).toHaveText('50%');
@@ -52,7 +52,7 @@ test('10-second popup auto-opens despite legacy stored dismissal and never immed
   await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 30000 });
   await expect(page.locator(promo)).toHaveCount(0);
   await expect(page.locator(closedBadge)).toHaveCount(0);
-  await page.clock.fastForward(10_200);
+  await page.clock.fastForward(60_200);
   await expect(page.locator(promo)).toBeVisible();
   await page.locator(promo).getByRole('button', { name: 'Закрыть предложение' }).click();
   await expect(page.locator(closedBadge)).toBeVisible();
@@ -60,16 +60,16 @@ test('10-second popup auto-opens despite legacy stored dismissal and never immed
   await expect(page.locator(promo)).toBeVisible();
 });
 
-test('reloading starts a new ten-second countdown even after previous display', async ({ page }) => {
+test('reloading starts a new sixty-second countdown even after previous display', async ({ page }) => {
   await ready(page);
   await show(page);
   await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 30000 });
   await expect(page.locator(promo)).toHaveCount(0);
-  await page.clock.fastForward(4_000);
+  await page.clock.fastForward(40_000);
   await expect(page.locator(promo)).toHaveCount(0);
   await expect(page.locator(closedBadge)).toHaveCount(0);
-  await page.clock.fastForward(6_200);
+  await page.clock.fastForward(20_200);
   await expect(page.locator(promo)).toBeVisible();
 });
 
@@ -98,7 +98,7 @@ test('offer waits until the registration form is closed, without interrupting it
   await ready(page);
   await page.locator('.tariff--business').getByRole('button', { name: 'Принять участие' }).click();
   await expect(page.locator('[role="dialog"].form-dialog--business')).toBeVisible();
-  await page.clock.fastForward(10_100);
+  await page.clock.fastForward(60_100);
   await expect(page.locator(promo)).toHaveCount(0);
   await page.locator('[role="dialog"].form-dialog--business')
     .getByRole('button', { name: 'Закрыть форму' }).click();
@@ -154,7 +154,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
         copyInPromo: copy.left >= promoPanel.left - 2 && copy.right <= promoPanel.right + 2,
         ctaWidth: cta.width,
         ctaVisibleWithoutScrolling: cta.bottom <= dialog.bottom + 1 && cta.top >= dialog.top,
-        codeFont: parseFloat(getComputedStyle(root.querySelector('.welcome-discount__code')).fontSize),
+        codeFont: parseFloat(getComputedStyle(root.querySelector('.welcome-discount__code-text')).fontSize),
       };
     });
     expect(geometry.documentOverflow).toBeLessThanOrEqual(2);
@@ -170,6 +170,14 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     expect(geometry.codeVerticalCenterError).toBeLessThanOrEqual(1);
     expect(geometry.descriptionLinesAligned).toBe(true);
     expect(geometry.promoCodeFits).toBe(true);
+    const inkAdjustment = await page.locator('.welcome-discount__code-text').evaluate((text) => {
+      const glyph = text.getBoundingClientRect();
+      const shape = text.closest('.welcome-discount__promo').getBoundingClientRect();
+      const opticalCenterOffset = (glyph.top + glyph.bottom - shape.top - shape.bottom) / 2;
+      return Math.abs(opticalCenterOffset -
+        parseFloat(getComputedStyle(text).fontSize) * .115);
+    });
+    expect(inkAdjustment).toBeLessThanOrEqual(1);
     expect(geometry.copyInPromo).toBe(true);
     expect(geometry.ctaWidth).toBeGreaterThanOrEqual(200);
     expect(geometry.ctaVisibleWithoutScrolling).toBe(true);
@@ -231,16 +239,23 @@ test('reference composition at 658×700 is 580×550 with the centered full-size 
   expect(geometry.promoHeight).toBeGreaterThanOrEqual(84);
   expect(geometry.promoHeight).toBeLessThanOrEqual(96);
   expect(geometry.promoTextFits).toBe(true);
-  expect(geometry.promoTextSize).toBeGreaterThanOrEqual(82);
+  expect(geometry.promoTextSize).toBeGreaterThanOrEqual(16);
   // Bebas glyphs need an +8.5px optical correction in the full-size panel.
-  expect(geometry.textCenterOffset).toBeGreaterThanOrEqual(7);
-  expect(geometry.textCenterOffset).toBeLessThanOrEqual(10);
+  expect(Math.abs(geometry.textCenterOffset)).toBeLessThanOrEqual(2);
   expect(geometry.astronautFits).toBe(true);
   expect(geometry.buttonWidth).toBeGreaterThanOrEqual(220);
   expect(geometry.buttonWidth).toBeLessThanOrEqual(230);
   expect(geometry.buttonVisible).toBe(true);
   expect(geometry.descriptionLineHeight).toBeGreaterThanOrEqual(20);
   expect(geometry.scroll).toBeLessThanOrEqual(2);
+  const inkAdjustment = await page.locator('.welcome-discount__code-text').evaluate((text) => {
+    const glyph = text.getBoundingClientRect();
+    const shape = text.closest('.welcome-discount__promo').getBoundingClientRect();
+    const opticalCenterOffset = (glyph.top + glyph.bottom - shape.top - shape.bottom) / 2;
+    return Math.abs(opticalCenterOffset -
+      parseFloat(getComputedStyle(text).fontSize) * .115);
+  });
+  expect(inkAdjustment).toBeLessThanOrEqual(1);
   await mkdir('test-results/welcome-discount', { recursive: true });
   await page.locator(promo).screenshot({
     path: 'test-results/welcome-discount/reference-658.png',

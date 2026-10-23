@@ -5,7 +5,8 @@ import { ActionArrow } from './ActionArrow.jsx';
 import { speakerPageStarts } from '../lib/speaker-pages.js';
 
 // One roster: three-up desktop carousel, two-up tablet, one-up phone, or the full grid.
-const AUTO_SPEED = 48; // Match the exhibitors' marquee (pixels per second).
+const AUTO_SPEED = 48; // Preserve the desktop's continuous marquee.
+const MOBILE_PAGE_INTERVAL_MS = 3200; // Smooth, discrete phone/tablet transitions.
 const MANUAL_PAUSE_MS = 3000;
 
 export function SpeakerCollection({ speakers }) {
@@ -15,6 +16,7 @@ export function SpeakerCollection({ speakers }) {
     target = useRef(null),
     settle = useRef(0),
     metrics = useRef([]),
+    measuredGeometry = useRef(null),
     pages = useRef(speakerPageStarts(speakers.length, 1)),
     restoreScroll = useRef(null),
     auto = useRef({
@@ -78,7 +80,21 @@ export function SpeakerCollection({ speakers }) {
   };
   useEffect(() => {
     const node = track.current;
-    const observer = new ResizeObserver(() => {
+    const syncMeasurements = () => {
+      if (!node.firstElementChild) return;
+      // Mobile browsers trigger ResizeObserver during image/font loading and
+      // viewport toolbar changes. Repositioning after height-only changes was
+      // visibly interrupting native touch momentum and the ongoing animation.
+      const geometry = {
+        viewport: node.clientWidth,
+        card: node.firstElementChild.getBoundingClientRect().width,
+        gap: parseFloat(getComputedStyle(node).columnGap) || 0,
+      };
+      const previous = measuredGeometry.current;
+      if (previous && Object.keys(geometry).every(
+        (key) => Math.abs(geometry[key] - previous[key]) < .75,
+      )) return;
+      measuredGeometry.current = geometry;
       const speaker = pages.current[position.current] || 0;
       measure();
       clearTimeout(settle.current);
@@ -87,16 +103,16 @@ export function SpeakerCollection({ speakers }) {
         node.scrollTo({ left: 0, behavior: 'instant' });
         select(0);
       } else {
-        const next = Math.max(
-          0,
-          pages.current.findLastIndex((start) => start <= speaker),
-        );
+        const next = Math.max(0, pages.current.findLastIndex((start) => start <= speaker));
         select(next);
+        // Reposition only for actual width / card-count changes.
         node.scrollTo({ left: metrics.current[next] || 0, behavior: 'instant' });
       }
-    });
+    };
+    measuredGeometry.current = null;
+    const observer = new ResizeObserver(syncMeasurements);
     observer.observe(node);
-    measure();
+    syncMeasurements();
     return () => {
       observer.disconnect();
       cancelAnimationFrame(frame.current);
@@ -110,6 +126,7 @@ export function SpeakerCollection({ speakers }) {
     const node = track.current;
     const state = auto.current;
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const compact = window.matchMedia('(max-width: 899px)');
     const stop = () => {
       cancelAnimationFrame(state.frame);
       clearTimeout(state.timer);
@@ -165,6 +182,31 @@ export function SpeakerCollection({ speakers }) {
       }
       clearTimeout(state.timer);
       state.timer = 0;
+      if (compact.matches) {
+        // Writing scrollLeft on every frame fought the phone's compositor and
+        // touch inertia. Advance exactly one card with one native smooth scroll,
+        // then leave the track entirely alone for the rest of the interval.
+        state.timer = setTimeout(() => {
+          state.timer = 0;
+          if (!canRun()) return;
+          const lastPage = pages.current.length - 1;
+          if (lastPage <= 0) return;
+          let next = position.current + state.direction;
+          if (next > lastPage || next < 0) {
+            state.direction *= -1;
+            next = position.current + state.direction;
+          }
+          next = clamp(next);
+          target.current = next;
+          select(next);
+          node.scrollTo({
+            left: metrics.current[next] || 0,
+            behavior: 'smooth',
+          });
+          start();
+        }, MOBILE_PAGE_INTERVAL_MS);
+        return;
+      }
       if (state.frame) return;
       state.last = 0;
       state.frame = requestAnimationFrame(tick);
@@ -192,17 +234,19 @@ export function SpeakerCollection({ speakers }) {
     window.addEventListener('pointerup', releasePointer);
     window.addEventListener('pointercancel', releasePointer);
     const sync = () => {
-      if (document.hidden || motion.matches) stop();
-      else start();
+      stop();
+      if (!document.hidden && !motion.matches) start();
     };
     document.addEventListener('visibilitychange', sync);
     motion.addEventListener?.('change', sync);
+    compact.addEventListener?.('change', sync);
     return () => {
       observer.disconnect();
       window.removeEventListener('pointerup', releasePointer);
       window.removeEventListener('pointercancel', releasePointer);
       document.removeEventListener('visibilitychange', sync);
       motion.removeEventListener?.('change', sync);
+      compact.removeEventListener?.('change', sync);
       stop();
       state.start = null;
       state.stop = null;
