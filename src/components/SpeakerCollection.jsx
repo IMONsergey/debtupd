@@ -5,9 +5,10 @@ import { ActionArrow } from './ActionArrow.jsx';
 import { speakerPageStarts } from '../lib/speaker-pages.js';
 
 // One roster: three-up desktop carousel, two-up tablet, one-up phone, or the full grid.
-const AUTO_SPEED = 48; // Preserve the desktop's continuous marquee.
-const MOBILE_PAGE_INTERVAL_MS = 3200; // Smooth, discrete phone/tablet transitions.
-const MANUAL_PAUSE_MS = 3000;
+const AUTO_SPEED = 48; // Existing desktop continuous marquee (px / s).
+const MOBILE_AUTO_SPEED = 24; // Slow, readable mobile marquee (px / s).
+const MANUAL_PAUSE_MS = 3000; // Preserve desktop interaction timing.
+const MOBILE_MANUAL_PAUSE_MS = 4200; // Allow touch momentum to settle.
 
 export function SpeakerCollection({ speakers }) {
   const track = useRef(null),
@@ -25,6 +26,7 @@ export function SpeakerCollection({ speakers }) {
       last: 0,
       lastCounter: 0,
       direction: 1,
+      virtualLeft: null,
       visible: false,
       hovered: false,
       focused: false,
@@ -95,6 +97,7 @@ export function SpeakerCollection({ speakers }) {
         (key) => Math.abs(geometry[key] - previous[key]) < .75,
       )) return;
       measuredGeometry.current = geometry;
+      auto.current.virtualLeft = null;
       const speaker = pages.current[position.current] || 0;
       measure();
       clearTimeout(settle.current);
@@ -133,6 +136,7 @@ export function SpeakerCollection({ speakers }) {
       state.frame = 0;
       state.timer = 0;
       state.last = 0;
+      state.virtualLeft = null;
     };
     const canRun = () =>
       !expanded &&
@@ -147,19 +151,32 @@ export function SpeakerCollection({ speakers }) {
     const tick = (now) => {
       state.frame = 0;
       if (!canRun()) return;
-      // Account for dropped frames on the animation-heavy production page.
-      // A small cap made 48px/s look like 10-15px/s when frames were throttled.
-      const elapsed = state.last ? Math.min(500, now - state.last) : 0;
+      // Preserve continuous motion without teleporting after a throttled frame.
+      // On iOS large scrollLeft writes clash with momentum; cap each mobile frame
+      // to around two pixels even when a tab or compositor has been throttled.
+      const mobile = compact.matches;
+      const elapsed = state.last ? Math.min(mobile ? 80 : 500, now - state.last) : 0;
       state.last = now;
       const max = node.scrollWidth - node.clientWidth;
-      const next = node.scrollLeft + (elapsed / 1000) * AUTO_SPEED * state.direction;
+      const speed = mobile ? MOBILE_AUTO_SPEED : AUTO_SPEED;
+      // Only mobile engines need a high-precision virtual offset. Desktop
+      // retains its original unmodified scroll algorithm and manual controls.
+      const realLeft = node.scrollLeft;
+      if (mobile && (state.virtualLeft === null || Math.abs(realLeft - state.virtualLeft) > 3)) {
+        state.virtualLeft = realLeft;
+      }
+      const from = mobile ? state.virtualLeft : realLeft;
+      const next = from + (elapsed / 1000) * speed * state.direction;
       if (next >= max) {
+        if (mobile) state.virtualLeft = max;
         node.scrollLeft = max;
         state.direction = -1;
       } else if (next <= 0) {
+        if (mobile) state.virtualLeft = 0;
         node.scrollLeft = 0;
         state.direction = 1;
       } else {
+        if (mobile) state.virtualLeft = next;
         node.scrollLeft = next;
       }
       if (now - state.lastCounter >= 160) {
@@ -182,31 +199,9 @@ export function SpeakerCollection({ speakers }) {
       }
       clearTimeout(state.timer);
       state.timer = 0;
-      if (compact.matches) {
-        // Writing scrollLeft on every frame fought the phone's compositor and
-        // touch inertia. Advance exactly one card with one native smooth scroll,
-        // then leave the track entirely alone for the rest of the interval.
-        state.timer = setTimeout(() => {
-          state.timer = 0;
-          if (!canRun()) return;
-          const lastPage = pages.current.length - 1;
-          if (lastPage <= 0) return;
-          let next = position.current + state.direction;
-          if (next > lastPage || next < 0) {
-            state.direction *= -1;
-            next = position.current + state.direction;
-          }
-          next = clamp(next);
-          target.current = next;
-          select(next);
-          node.scrollTo({
-            left: metrics.current[next] || 0,
-            behavior: 'smooth',
-          });
-          start();
-        }, MOBILE_PAGE_INTERVAL_MS);
-        return;
-      }
+      // The same uninterrupted marquee operates on every viewport. Mobile
+      // only changes the velocity; it no longer waits 3.2 seconds, jumps by a
+      // card, or locks the carousel while the user is swiping it.
       if (state.frame) return;
       state.last = 0;
       state.frame = requestAnimationFrame(tick);
@@ -220,14 +215,17 @@ export function SpeakerCollection({ speakers }) {
         if (state.visible) start();
         else stop();
       },
-      { threshold: 0.12 },
+      compact.matches
+        ? { threshold: 0.02, rootMargin: '80px 0px 80px 0px' }
+        : { threshold: 0.12 },
     );
     observer.observe(node);
     // The pointer may be released outside the carousel after a drag.
     const releasePointer = () => {
       if (!state.pressing) return;
       state.pressing = false;
-      state.resumeAt = performance.now() + MANUAL_PAUSE_MS;
+      state.resumeAt = performance.now() +
+        (compact.matches ? MOBILE_MANUAL_PAUSE_MS : MANUAL_PAUSE_MS);
       stop();
       start();
     };
@@ -253,7 +251,8 @@ export function SpeakerCollection({ speakers }) {
     };
   }, [expanded, speakers.length]);
 
-  const postponeAutoplay = (duration = MANUAL_PAUSE_MS) => {
+  const postponeAutoplay = (duration = matchMedia('(max-width: 899px)').matches
+    ? MOBILE_MANUAL_PAUSE_MS : MANUAL_PAUSE_MS) => {
     const state = auto.current;
     state.resumeAt = performance.now() + duration;
     state.stop?.();
@@ -315,13 +314,15 @@ export function SpeakerCollection({ speakers }) {
         ref={track}
         onScroll={update}
         onPointerEnter={(event) => {
-          if (event.pointerType === 'mouse') {
+          if (event.pointerType === 'mouse' &&
+              matchMedia('(hover: hover) and (pointer: fine)').matches) {
             auto.current.hovered = true;
             auto.current.stop?.();
           }
         }}
         onPointerLeave={(event) => {
-          if (event.pointerType === 'mouse') {
+          if (event.pointerType === 'mouse' &&
+              matchMedia('(hover: hover) and (pointer: fine)').matches) {
             auto.current.hovered = false;
             auto.current.start?.();
           }
@@ -339,9 +340,13 @@ export function SpeakerCollection({ speakers }) {
           postponeAutoplay();
         }}
         onWheel={interrupt}
-        onFocusCapture={() => {
-          auto.current.focused = true;
-          auto.current.stop?.();
+        onFocusCapture={(event) => {
+          // On iOS tapping a focusable scroll container can leave it focused
+          // indefinitely. Pause only for keyboard focus-visible, not touch.
+          if (!auto.current.pressing && event.target.matches(':focus-visible')) {
+            auto.current.focused = true;
+            auto.current.stop?.();
+          }
         }}
         onBlurCapture={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget)) {
