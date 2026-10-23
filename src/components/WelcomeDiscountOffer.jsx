@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowUpRight, Check, Copy, X } from 'lucide-react';
 import { assetUrl } from '../lib/assets.js';
@@ -35,12 +35,57 @@ async function copyPromoCode() {
 
 function DiscountDialog({ onClose, onTariffs }) {
   const dialogRef = useRef(null);
+  const codeTextRef = useRef(null);
   const resetRef = useRef(null);
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState('');
   useDialog(dialogRef, onClose);
 
   useEffect(() => () => clearTimeout(resetRef.current), []);
+
+  useLayoutEffect(() => {
+    // CSS centers the line box, not the painted Bebas Neue cap height.
+    // Measure the actual font ascent/descent in this browser so the glyph
+    // occupies equal visible space above and below even at different zooms,
+    // device font metrics and responsive type sizes.
+    let active = true;
+    const centerVisibleGlyphs = () => {
+      const text = codeTextRef.current;
+      if (!text) return;
+      const style = getComputedStyle(text);
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      if (!context) return;
+      context.font = style.font;
+      if ('letterSpacing' in context) context.letterSpacing = style.letterSpacing;
+      const metrics = context.measureText(DISCOUNT_PROMO_CODE);
+      const values = [
+        metrics.actualBoundingBoxAscent, metrics.actualBoundingBoxDescent,
+        metrics.fontBoundingBoxAscent, metrics.fontBoundingBoxDescent,
+      ];
+      if (!values.every(Number.isFinite)) return;
+      const fontSize = parseFloat(style.fontSize);
+      // At the 40px mobile size Chrome rounds Bebas caps differently than at
+      // 51px+; adjust that subpixel rounding before centering the visible ink.
+      const rasterCorrection = fontSize <= 45 ? -0.5 : 0.5;
+      const offset = (
+        metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent -
+        metrics.fontBoundingBoxAscent + metrics.fontBoundingBoxDescent
+      ) / 2 + rasterCorrection;
+      text.style.setProperty('--welcome-code-ink-offset', offset.toFixed(2) + 'px');
+    };
+    centerVisibleGlyphs();
+    document.fonts?.ready.then(() => {
+      if (active) centerVisibleGlyphs();
+    });
+    document.fonts?.addEventListener?.('loadingdone', centerVisibleGlyphs);
+    window.addEventListener('resize', centerVisibleGlyphs, { passive: true });
+    return () => {
+      active = false;
+      window.removeEventListener('resize', centerVisibleGlyphs);
+      document.fonts?.removeEventListener?.('loadingdone', centerVisibleGlyphs);
+    };
+  }, []);
 
   const copy = async () => {
     try {
@@ -111,7 +156,7 @@ function DiscountDialog({ onClose, onTariffs }) {
           <div className="welcome-discount__promo">
             <span className="welcome-discount__promo-spacer" aria-hidden="true" />
             <span className="welcome-discount__code" aria-label="Промокод WELCOME">
-              <span className="welcome-discount__code-text">{DISCOUNT_PROMO_CODE}</span>
+              <span ref={codeTextRef} className="welcome-discount__code-text">{DISCOUNT_PROMO_CODE}</span>
             </span>
             <button
               type="button"

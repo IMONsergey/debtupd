@@ -230,9 +230,10 @@
   letter-spacing: .215em;
   text-align: center;
   text-shadow: 0 0 27px rgba(71, 171, 255, .14);
-  /* Center the *visible* Bebas cap height, not its asymmetric line box:
-     the glyphs sit above the line-box center by about 0.11em. */
-  transform: translateY(.115em);
+  /* Fallback offset before font metrics are measured; the component replaces
+     this value with a browser-calibrated pixel shift before first paint. */
+  --welcome-code-ink-offset: .106em;
+  transform: translateY(var(--welcome-code-ink-offset));
 }
 
 .welcome-discount__copy {
@@ -409,7 +410,8 @@
   }
   .welcome-discount__promo-spacer { width: 36px; }
   .welcome-discount__code-text {
-    /* Interpolate naturally between a 320px phone and the 580px card. */
+    /* Calibrated independently for small text sizes on narrow screens. */
+    --welcome-code-ink-offset: .117em;
     font-size: clamp(40px, calc(16.5vw - 13px), 85px);
     letter-spacing: .18em;
   }

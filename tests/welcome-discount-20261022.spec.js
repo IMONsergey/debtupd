@@ -175,7 +175,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
       const shape = text.closest('.welcome-discount__promo').getBoundingClientRect();
       const opticalCenterOffset = (glyph.top + glyph.bottom - shape.top - shape.bottom) / 2;
       return Math.abs(opticalCenterOffset -
-        parseFloat(getComputedStyle(text).fontSize) * .115);
+        parseFloat(getComputedStyle(text).getPropertyValue('--welcome-code-ink-offset')));
     });
     expect(inkAdjustment).toBeLessThanOrEqual(1);
     expect(geometry.copyInPromo).toBe(true);
@@ -253,7 +253,7 @@ test('reference composition at 658×700 is 580×550 with the centered full-size 
     const shape = text.closest('.welcome-discount__promo').getBoundingClientRect();
     const opticalCenterOffset = (glyph.top + glyph.bottom - shape.top - shape.bottom) / 2;
     return Math.abs(opticalCenterOffset -
-      parseFloat(getComputedStyle(text).fontSize) * .115);
+      parseFloat(getComputedStyle(text).getPropertyValue('--welcome-code-ink-offset')));
   });
   expect(inkAdjustment).toBeLessThanOrEqual(1);
   await mkdir('test-results/welcome-discount', { recursive: true });
