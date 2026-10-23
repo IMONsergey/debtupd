@@ -7,7 +7,7 @@ import { speakerPageStarts } from '../lib/speaker-pages.js';
 // One roster: three-up desktop carousel, two-up tablet, one-up phone, or the full grid.
 const AUTO_SPEED = 48; // Existing desktop continuous marquee (px / s).
 const MOBILE_AUTO_SPEED = 24; // Slow, readable mobile marquee (px / s).
-const MANUAL_PAUSE_MS = 3000; // Preserve desktop interaction timing.
+const MANUAL_PAUSE_MS = 5500; // Keep desktop auto motion away from manual smooth navigation.
 const MOBILE_MANUAL_PAUSE_MS = 4200; // Allow touch momentum to settle.
 
 export function SpeakerCollection({ speakers }) {
