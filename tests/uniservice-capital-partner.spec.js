@@ -25,7 +25,7 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     const section = page.locator('#partners');
     const cards = section.locator('.conference-partners-list > article');
     await expect(cards).toHaveCount(12);
-    const card = cards.nth(10);
+    const card = cards.nth(11);
     await expect(card.getByRole('heading', { name })).toBeVisible();
     await expect(card.locator('.conference-partner-tier')).toHaveText('Партнер');
     await expect(card.locator('.conference-partner-copy p')).toHaveText(description);
@@ -66,10 +66,10 @@ test('last partner is reachable through mobile carousel', async ({ page }) => {
   const rail = page.locator('.conference-partners-list');
   const count = page.locator('.conference-partners-controls span').first();
   await rail.scrollIntoViewIfNeeded();
-  await rail.locator('article').nth(10).scrollIntoViewIfNeeded();
-  await expect(count).toContainText('11 / 12');
-  await expect(rail.locator('.conference-partner-name').nth(10)).toHaveText(name);
-  await expect(rail.locator('article').nth(10)).toBeInViewport({ ratio: 0.5 });
+  await rail.locator('article').nth(11).scrollIntoViewIfNeeded();
+  await expect(count).toContainText('12 / 12');
+  await expect(rail.locator('.conference-partner-name').nth(11)).toHaveText(name);
+  await expect(rail.locator('article').nth(11)).toBeInViewport({ ratio: 0.5 });
   await page.getByRole('button', { name: 'Предыдущий партнер' }).click();
-  await expect(count).toContainText('10 / 12');
+  await expect(count).toContainText('11 / 12');
 });
