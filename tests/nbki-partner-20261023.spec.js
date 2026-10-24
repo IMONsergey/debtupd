@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 const name = 'НБКИ';
-const tier = 'Аналитический партнер';
+const tier = 'Специальный партнер';
 const description =
   'Национальное бюро кредитных историй (НБКИ) предоставляет для рынка взыскания кредитные отчеты должников, скоринг склонности к банкротству (Bankrupt score), данные из базы ИП ФССП в онлайн и пакетном режиме, а также более 50 уникальных сервисов и данных для эффективной работы с должниками.';
 
@@ -23,13 +23,13 @@ for (const width of [320, 390, 760, 768, 1024, 1440]) {
 
     const cards = page.locator('.conference-partners-list > article');
     await expect(cards).toHaveCount(12);
-    const card = cards.last();
+    const card = cards.nth(4);
     await expect(card.locator('.conference-partner-name')).toHaveText(name);
     await expect(card.locator('.conference-partner-tier')).toHaveText(tier);
     await expect(card.locator('.conference-partner-copy p')).toHaveText(description);
     await expect(card.locator('a')).toHaveCount(0);
     await expect(card.locator('.conference-partner-planet'))
-      .toHaveAttribute('src', /\/assets\/partners\/planets\/planet-standard\.webp$/);
+      .toHaveAttribute('src', /\/assets\/partners\/planets\/planet-special\.webp$/);
     const image = card.locator('.conference-partner-logo img');
     await expect(image).toHaveAttribute('src', /\/assets\/partners\/nbki\.svg$/);
     await card.scrollIntoViewIfNeeded();
@@ -61,17 +61,20 @@ for (const width of [320, 390, 760, 768, 1024, 1440]) {
   });
 }
 
-test('NBKI is the twelfth slide in the mobile partner carousel', async ({ page }) => {
+test('NBKI is the fifth slide before Intel Collect in the mobile partner carousel', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/#partners', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#site-preloader')).toHaveCount(0, { timeout: 30000 });
   const carousel = page.locator('.conference-partners-list');
   const indicator = page.locator('.conference-partners-controls span').first();
   await carousel.scrollIntoViewIfNeeded();
-  await carousel.evaluate((node) => node.scrollTo({ left: node.scrollWidth, behavior: 'instant' }));
-  await expect(indicator).toContainText('12 / 12');
-  await expect(carousel.locator('article').last()).toBeInViewport({ ratio: 0.5 });
-  await page.getByRole('button', { name: 'Предыдущий партнер' }).click();
-  await expect(indicator).toContainText('11 / 12');
-  await expect(carousel.locator('.conference-partner-name').nth(10)).toHaveText('Юнисервис Капитал');
+  await carousel.evaluate((node) => node.scrollTo({ left: 0, behavior: 'instant' }));
+  const next = page.getByRole('button', { name: 'Следующий партнер' });
+  for (let i = 0; i < 4; i++) await next.click();
+  await expect(indicator).toContainText('05 / 12');
+  await expect(carousel.locator('.conference-partner-name').nth(4)).toHaveText('НБКИ');
+  await expect(carousel.locator('article').nth(4)).toBeInViewport({ ratio: 0.5 });
+  await next.click();
+  await expect(indicator).toContainText('06 / 12');
+  await expect(carousel.locator('.conference-partner-name').nth(5)).toHaveText('ПКО «Интел коллект»');
 });
