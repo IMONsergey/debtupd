@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 for (const width of [320, 390, 760, 768, 1024, 1440]) {
-  test('NBKI analytics partner and supplied SVG display correctly at ' + width + 'px', async ({ page }) => {
+  test('NBKI special partner and supplied SVG display correctly at ' + width + 'px', async ({ page }) => {
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.setViewportSize({ width, height: 900 });
