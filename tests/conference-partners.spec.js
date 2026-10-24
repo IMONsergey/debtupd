@@ -9,12 +9,13 @@ for (const width of [1440, 1180, 1024, 768, 760, 390, 320]) {
 
     const cards = page.locator('.sponsor-panel--partner');
     await expect(cards).toHaveCount(12);
-    // Client-approved order: Smart Business Lab immediately precedes Intel Collect.
+    // NBKI is the fifth partner, between Smart Business Lab and Intel Collect.
     await expect(cards.locator('.conference-partner-name')).toHaveText([
       'АО «НИРУМ»',
       'АО «Агредатор»',
       'Best2pay',
       'ООО «Смарт Бизнес Лаб»',
+      'НБКИ',
       'ПКО «Интел коллект»',
       'ООО «ЭВЕРЕСТ ПЛЮС»',
       'iD Systems',
@@ -22,7 +23,6 @@ for (const width of [1440, 1180, 1024, 768, 760, 390, 320]) {
       'ПКО «А.Сторм»',
       'ПКО «Бустер.Ру»',
       'Юнисервис Капитал',
-      'НБКИ',
     ]);
     await expect(page.locator('#partners > .sponsor-panel')).toHaveCount(2);
     await expect(cards.locator('.conference-partner-planet')).toHaveCount(12);
@@ -32,7 +32,7 @@ for (const width of [1440, 1180, 1024, 768, 760, 390, 320]) {
       'planet-diamond.webp',
       'planet-silver.webp',
       'planet-special.webp',
-      'planet-standard.webp',
+      'planet-special.webp',
       'planet-standard.webp',
       'planet-standard.webp',
       'planet-standard.webp',
